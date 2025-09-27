@@ -86,7 +86,7 @@ class AuthModule {
     if (_isLoggedIn) {
       logger.logInfo('Session validation successful for: $_currentUser');
     } else {
-      logger.warning(message: 'No active session found');
+      logger.logWarning(message: 'No active session found');
     }
   }
 }
@@ -114,7 +114,7 @@ class PaymentModule {
 
     // Simulate slow payment warnings
     if (Random().nextBool()) {
-      logger.warning(
+      logger.logWarning(
           message:
               'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
     }
@@ -200,7 +200,7 @@ class ChatModule {
     logger.logInfo('Connecting to chat server');
     // Simulate connection issues occasionally
     if (Random().nextInt(10) < 2) {
-      logger.warning(message: 'Chat connection unstable - retrying...');
+      logger.logWarning(message: 'Chat connection unstable - retrying...');
     } else {
       logger.logInfo('Connected to chat server successfully');
     }

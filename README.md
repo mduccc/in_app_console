@@ -45,9 +45,9 @@
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.0.0/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/1.0.0/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.0.0/screenshots/console.png?raw=true)" alt="Log List"/>
+<img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/console.png?raw=true)" alt="Log List"/>
 
 ## Usage
 
@@ -77,7 +77,7 @@ InAppConsole.instance.addLogger(logger);
 logger.logInfo('User logged in successfully');
 
 // Warning logs
-logger.warning(message: 'Low storage space');
+logger.logWarning(message: 'Low storage space');
 
 // Error logs
 logger.logError(

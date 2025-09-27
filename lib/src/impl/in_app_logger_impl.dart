@@ -37,7 +37,7 @@ class InAppLoggerImpl implements InAppLogger {
   }
 
   @override
-  void warning(
+  void logWarning(
       {required String message, Error? error, StackTrace? stackTrace}) {
     _streamController.add(InAppLoggerData(
         message: message,

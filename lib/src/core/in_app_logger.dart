@@ -14,7 +14,7 @@ abstract class InAppLogger {
   ///
   /// This stream is used to listen to the in app logger data.
   ///
-  /// Every methods [logInfo], [logError], [warning] will emit a new [InAppLoggerData] object to the stream.
+  /// Every methods [logInfo], [logError], [logWarning] will emit a new [InAppLoggerData] object to the stream.
   ///
   Stream<InAppLoggerData> get stream;
 
@@ -58,7 +58,7 @@ abstract class InAppLogger {
   ///
   /// Also emit a new [InAppLoggerData] object to the [stream].
   ///
-  void warning({
+  void logWarning({
     required String message,
     Error? error,
     StackTrace? stackTrace,
