@@ -9,16 +9,17 @@ Whenever a tester reports a bug, they can also view the in-app logs, making the 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │            Flutter App with Micro-frontend architecture                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  [Auth Module]   [Payment Module]   [Profile Module]   [Chat Module]       │
+│  [Auth Module]   [Payment Module]   [Profile Module]   [Chat Module]        │
 │      Logger          Logger           Logger           Logger               │
-│        │               │                │               │                  │
-│        └───────────────┼────────────────┼───────────────┘                  │
-│                        │                │                                  │
-│                        ▼                ▼                                  │
+│        │               │                │               │                   │
+│        └───────────────┼────────────────┼───────────────┘                   │
+│                        │                │                                   │
+│                        ▼                ▼                                   │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                 InAppConsole (Central)                                      │
+│                 [Platform Application]                                      │
+│                  InAppConsole (Central)                                     │
 │                                                                             │
-│  Registered Loggers: [Auth, Payment, Profile, Chat]                        │
+│  Registered Loggers: [Auth, Payment, Profile, Chat]                         │
 │                                                                             │
 │  Unified History:                                                           │
 │  • [Auth] User login                                                        │
@@ -29,10 +30,10 @@ Whenever a tester reports a bug, they can also view the in-app logs, making the 
 │                        ▼                                                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                   Console UI Screen                                         │
-│                                                                             │                                                                             │
+│                                                                             │      │                                                                             │
 │  Log Display:                                                               │
 │  14:23 [Auth] User login successful                                         │
-│  14:24 [Pay]  Payment gateway timeout                                      │
+│  14:24 [Pay]  Payment gateway timeout                                       │
 │  14:25 [Prof] Profile image uploaded                                        │
 │  14:26 [Chat] Message sent                                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
