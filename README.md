@@ -34,7 +34,7 @@
 │                        ▼                                                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                   Console UI Screen                                         │
-│                                                                             │      │                                                                             │
+│                                                                             │
 │  Log Display:                                                               │
 │  14:23 [Auth] User login successful                                         │
 │  14:24 [Pay]  Payment gateway timeout                                       │
