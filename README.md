@@ -49,7 +49,7 @@
 
 <img src="screenshots/console.png" alt="Log List"/>
 
-## Uses
+## Usage
 
 ### 1. Add dependency
 ```yaml
