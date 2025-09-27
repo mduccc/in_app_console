@@ -54,7 +54,7 @@
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^1.0.0
+  in_app_console: ^1.0.1
 ```
 
 ### 2. Import the package
