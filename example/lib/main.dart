@@ -57,10 +57,10 @@ class AuthModule {
 
   Future<bool> login(String username, String password) async {
     logger.logInfo('Login attempt for user: $username');
-    
+
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
-    
+
     if (username.isNotEmpty && password.length >= 6) {
       _isLoggedIn = true;
       _currentUser = username;
@@ -96,11 +96,12 @@ class PaymentModule {
   final InAppLogger logger = InAppLogger()..setLabel('Payment');
 
   Future<bool> processPayment(double amount, String method) async {
-    logger.logInfo('Processing payment: \$${amount.toStringAsFixed(2)} via $method');
-    
+    logger.logInfo(
+        'Processing payment: \$${amount.toStringAsFixed(2)} via $method');
+
     // Simulate payment processing
     await Future.delayed(const Duration(milliseconds: 1200));
-    
+
     // Simulate random payment failures
     if (Random().nextBool()) {
       logger.logError(
@@ -110,12 +111,14 @@ class PaymentModule {
       );
       return false;
     }
-    
+
     // Simulate slow payment warnings
     if (Random().nextBool()) {
-      logger.warning(message: 'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
+      logger.warning(
+          message:
+              'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
     }
-    
+
     logger.logInfo('Payment successful: \$${amount.toStringAsFixed(2)}');
     return true;
   }
@@ -139,22 +142,22 @@ class ProfileModule {
 
   Future<void> updateProfile(Map<String, dynamic> data) async {
     logger.logInfo('Updating profile data: ${data.keys.join(', ')}');
-    
+
     await Future.delayed(const Duration(milliseconds: 600));
-    
+
     _profileData.addAll(data);
     logger.logInfo('Profile updated successfully');
   }
 
   Future<void> uploadProfileImage() async {
     logger.logInfo('Starting profile image upload');
-    
+
     // Simulate upload progress
     for (int i = 1; i <= 5; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
       logger.logInfo('Upload progress: ${i * 20}%');
     }
-    
+
     logger.logInfo('Profile image uploaded successfully');
   }
 
@@ -177,9 +180,9 @@ class ChatModule {
 
   Future<void> sendMessage(String message, String recipient) async {
     logger.logInfo('Sending message to $recipient');
-    
+
     await Future.delayed(const Duration(milliseconds: 400));
-    
+
     if (message.trim().isEmpty) {
       logger.logError(
         message: 'Cannot send empty message',
@@ -188,7 +191,7 @@ class ChatModule {
       );
       return;
     }
-    
+
     _messages.add(message);
     logger.logInfo('Message sent successfully to $recipient');
   }
@@ -237,36 +240,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _simulateUserJourney() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted) {
+      if (mounted) {
         setState(() => _isLoading = true);
       }
     });
-    
+
     try {
       // 1. Login
       await MicroFrontendApp.authModule.login('john_doe', 'password123');
-      
+
       // 2. Fetch profile
       MicroFrontendApp.profileModule.fetchProfile('john_doe');
-      
+
       // 3. Update profile
-      await MicroFrontendApp.profileModule.updateProfile({
-        'name': 'John Doe',
-        'email': 'john@example.com'
-      });
-      
+      await MicroFrontendApp.profileModule
+          .updateProfile({'name': 'John Doe', 'email': 'john@example.com'});
+
       // 4. Process payment
       await MicroFrontendApp.paymentModule.processPayment(29.99, 'Credit Card');
-      
+
       // 5. Send chat message
       await MicroFrontendApp.chatModule.sendMessage('Hello there!', 'support');
-      
+
       // 6. Upload profile image
       await MicroFrontendApp.profileModule.uploadProfileImage();
-      
     } finally {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(mounted) {
+        if (mounted) {
           setState(() => _isLoading = false);
         }
       });
@@ -276,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Micro-Frontend Console Demo'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
@@ -296,13 +296,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-                    const Icon(Icons.architecture, size: 48, color: Colors.blue),
+                child: Column(
+                  children: [
+                    const Icon(Icons.architecture,
+                        size: 48, color: Colors.blue),
                     const SizedBox(height: 8),
                     const Text(
                       'Micro-Frontend Architecture Demo',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -314,32 +316,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Quick Demo Button
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _simulateUserJourney,
-              icon: _isLoading 
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.play_arrow),
-              label: Text(_isLoading ? 'Running Demo...' : 'Run Complete User Journey'),
+              icon: _isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.play_arrow),
+              label: Text(
+                  _isLoading ? 'Running Demo...' : 'Run Complete User Journey'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Module Actions
             const Text(
               'Individual Module Actions:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
+
             // Auth Module
             _buildModuleCard(
               'Authentication Module',
@@ -347,7 +353,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Colors.blue,
               [
                 ElevatedButton(
-                  onPressed: () => MicroFrontendApp.authModule.login('testuser', 'pass123'),
+                  onPressed: () =>
+                      MicroFrontendApp.authModule.login('testuser', 'pass123'),
                   child: const Text('Simulate Login'),
                 ),
                 ElevatedButton(
@@ -356,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            
+
             // Payment Module
             _buildModuleCard(
               'Payment Module',
@@ -364,39 +371,46 @@ class _HomeScreenState extends State<HomeScreen> {
               Colors.green,
               [
                 ElevatedButton(
-                  onPressed: () => MicroFrontendApp.paymentModule.processPayment(
-                    Random().nextDouble() * 100 + 10, 
-                    ['Credit Card', 'PayPal', 'Apple Pay'][Random().nextInt(3)]
-                  ),
+                  onPressed: () => MicroFrontendApp.paymentModule
+                      .processPayment(
+                          Random().nextDouble() * 100 + 10,
+                          [
+                            'Credit Card',
+                            'PayPal',
+                            'Apple Pay'
+                          ][Random().nextInt(3)]),
                   child: const Text('Process Payment'),
                 ),
-              ElevatedButton(
-                  onPressed: () => MicroFrontendApp.paymentModule.validatePaymentMethod('Credit Card'),
+                ElevatedButton(
+                  onPressed: () => MicroFrontendApp.paymentModule
+                      .validatePaymentMethod('Credit Card'),
                   child: const Text('Validate Payment'),
                 ),
               ],
             ),
-            
+
             // Profile Module
             _buildModuleCard(
               'Profile Module',
               Icons.person,
               Colors.orange,
               [
-              ElevatedButton(
-                  onPressed: () => MicroFrontendApp.profileModule.updateProfile({
+                ElevatedButton(
+                  onPressed: () =>
+                      MicroFrontendApp.profileModule.updateProfile({
                     'name': 'User ${Random().nextInt(100)}',
                     'age': Random().nextInt(50) + 18,
                   }),
                   child: const Text('Update Profile'),
                 ),
-              ElevatedButton(
-                  onPressed: () => MicroFrontendApp.profileModule.uploadProfileImage(),
+                ElevatedButton(
+                  onPressed: () =>
+                      MicroFrontendApp.profileModule.uploadProfileImage(),
                   child: const Text('Upload Image'),
                 ),
               ],
             ),
-            
+
             // Chat Module
             _buildModuleCard(
               'Chat Module',
@@ -405,20 +419,18 @@ class _HomeScreenState extends State<HomeScreen> {
               [
                 ElevatedButton(
                   onPressed: () => MicroFrontendApp.chatModule.sendMessage(
-                    'Hello from user ${Random().nextInt(100)}!',
-                    'support'
-                  ),
+                      'Hello from user ${Random().nextInt(100)}!', 'support'),
                   child: const Text('Send Message'),
                 ),
-              ElevatedButton(
+                ElevatedButton(
                   onPressed: () => MicroFrontendApp.chatModule.connectToChat(),
                   child: const Text('Reconnect Chat'),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Console Button
             Card(
               color: Colors.red.shade50,
@@ -430,7 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 8),
                     const Text(
                       'View Unified Console',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -439,13 +452,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
-                onPressed: () => InAppConsole.instance.openConsole(context),
+                      onPressed: () =>
+                          InAppConsole.instance.openConsole(context),
                       icon: const Icon(Icons.visibility),
                       label: const Text('Open In-App Console'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],
@@ -458,7 +473,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildModuleCard(String title, IconData icon, Color color, List<Widget> actions) {
+  Widget _buildModuleCard(
+      String title, IconData icon, Color color, List<Widget> actions) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -472,7 +488,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -481,9 +498,9 @@ class _HomeScreenState extends State<HomeScreen> {
               spacing: 8,
               runSpacing: 8,
               children: actions,
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
       ),
     );
   }
