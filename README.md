@@ -4,6 +4,40 @@ Developers can build and view logs, but testers normally can't.
 
 Whenever a tester reports a bug, they can also view the in-app logs, making the debugging process much faster.
 
+## Designed for Micro-frontend architecture
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│            Flutter App with Micro-frontend architecture                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  [Auth Module]   [Payment Module]   [Profile Module]   [Chat Module]       │
+│      Logger          Logger           Logger           Logger               │
+│        │               │                │               │                  │
+│        └───────────────┼────────────────┼───────────────┘                  │
+│                        │                │                                  │
+│                        ▼                ▼                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                 InAppConsole (Central)                                      │
+│                                                                             │
+│  Registered Loggers: [Auth, Payment, Profile, Chat]                        │
+│                                                                             │
+│  Unified History:                                                           │
+│  • [Auth] User login                                                        │
+│  • [Pay]  Payment failed                                                    │
+│  • [Prof] Profile updated                                                   │
+│  • [Chat] Message sent                                                      │
+│                        │                                                    │
+│                        ▼                                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                   Console UI Screen                                         │
+│                                                                             │                                                                             │
+│  Log Display:                                                               │
+│  14:23 [Auth] User login successful                                         │
+│  14:24 [Pay]  Payment gateway timeout                                      │
+│  14:25 [Prof] Profile image uploaded                                        │
+│  14:26 [Chat] Message sent                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Screenshots
 
 <img src="screenshots/list.png" alt="Log List" width="45%"/> <img src="screenshots/detail.png" alt="Log Detail" width="45%"/>
