@@ -1,10 +1,10 @@
 name: in_app_console
-description: "A new Flutter package project."
+description: "Bridge the gap between developers and testers with real-time, in-app log viewing. Enables QA teams to access developer-level logs directly in the Flutter app UI, making debugging faster and bug reports more detailed."
 version: 0.0.1
-homepage:
+repository: https://github.com/mduccc/in_app_console
 
 environment:
-  sdk: ^3.5.4
+  sdk: ">=2.19.0"
   flutter: ">=1.17.0"
 
 dependencies:

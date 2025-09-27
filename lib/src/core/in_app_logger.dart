@@ -5,7 +5,7 @@ import 'package:in_app_console/src/impl/in_app_logger_impl.dart';
 ///
 /// This class is used to log messages to the console.
 ///
-abstract interface class InAppLogger {
+abstract class InAppLogger {
   /// Default factory constructor for the [InAppLogger].
   ///
   factory InAppLogger() => InAppLoggerImpl();

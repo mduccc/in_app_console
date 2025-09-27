@@ -2,7 +2,7 @@ import 'package:in_app_console/src/core/in_app_logger_type.dart';
 
 /// Data class for holding in app logger data.
 ///
-final class InAppLoggerData {
+class InAppLoggerData {
   /// The message to log in the in app logger.
   final String message;
 
