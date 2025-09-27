@@ -1,8 +1,12 @@
-## From the Idea to code
+## From pain point  to Idea
 
-Developers can build and view logs, but testers normally can't.
+**Pain point**
+- Developers can build and view logs, but testers normally can't.
+- In micro-frontend architecture, it's difficult to track logs when each module logs differently.
 
-Whenever a tester reports a bug, they can also view the in-app logs, making the debugging process much faster.
+**Idea**
+- The package bridges that gap by providing unified in-app log viewing.
+- Enables both developers and testers to easily check logs across all modules in one centralized console, making debugging faster and bug reports more detailed.
 
 ## Designed for Micro-frontend architecture
 ```
@@ -63,7 +67,7 @@ import 'package:in_app_console/in_app_console.dart';
 ### 3. Create logger and add to console
 ```dart
 final logger = InAppLogger();
-logger.setLabel('MyApp'); // Optional: set a label
+logger.setLabel('Chat module'); // Optional: set a label
 InAppConsole.instance.addLogger(logger);
 ```
 
