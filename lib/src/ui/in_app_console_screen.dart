@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_console/in_app_console.dart';
@@ -120,6 +122,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
   final List<InAppLoggerData> _loggerData = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  late StreamSubscription<InAppLoggerData> _streamSubscription;
 
   // Filter state
   final Set<InAppLoggerType> _visibleTypes = {
@@ -135,22 +138,17 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
   @override
   void initState() {
     super.initState();
+
     _loggerData.addAll(_console.history);
 
     // Auto-scroll to bottom when screen first opens (after build completes)
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _streamSubscription = _console.stream.listen((data) {
+        setState(() {
+          _loggerData.add(data);
+        });
+      });
       _jumpToBottom();
-    });
-
-    _console.stream.listen((data) {
-      setState(() {
-        _loggerData.add(data);
-      });
-
-      // Auto-scroll to bottom when new log is added
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _jumpToBottom();
-      });
     });
   }
 
@@ -166,6 +164,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _streamSubscription.cancel();
     super.dispose();
   }
 
@@ -316,31 +315,29 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
                 ...InAppLoggerType.values.map((type) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
-                        showCheckmark: false,
-                        label: Text(
-                          InAppConsoleUtils.getTypeLabel(type),
-                          style: TextStyle(
-                            color: _visibleTypes.contains(type)
-                                ? InAppConsoleUtils.getTypeColor(type)
-                                : null,
-                            fontWeight: _visibleTypes.contains(type)
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                          showCheckmark: false,
+                          label: Text(
+                            InAppConsoleUtils.getTypeLabel(type),
+                            style: TextStyle(
+                              color: _visibleTypes.contains(type)
+                                  ? InAppConsoleUtils.getTypeColor(type)
+                                  : null,
+                              fontWeight: _visibleTypes.contains(type)
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
                           ),
-                        ),
-                        selected: _visibleTypes.contains(type),
-                        onSelected: (_) => _toggleFilter(type),
-                        selectedColor: InAppConsoleUtils.getTypeColor(type).withOpacity(0.3),
-                        avatar: 
-                           Icon(
+                          selected: _visibleTypes.contains(type),
+                          onSelected: (_) => _toggleFilter(type),
+                          selectedColor: InAppConsoleUtils.getTypeColor(type)
+                              .withOpacity(0.3),
+                          avatar: Icon(
                             InAppConsoleUtils.getTypeIcon(type),
                             size: 16,
                             color: _visibleTypes.contains(type)
                                 ? InAppConsoleUtils.getTypeColor(type)
                                 : Colors.grey,
-                          )
-                        
-                      ),
+                          )),
                     )),
               ],
             ),
@@ -396,7 +393,6 @@ class _LogItem extends StatelessWidget {
     required this.onTap,
     required this.onCopy,
   });
-
 
   Widget _buildHighlightedText(String text,
       {required TextStyle style, int? maxLines}) {
@@ -546,7 +542,8 @@ class _LogItem extends StatelessWidget {
                       '${InAppConsoleUtils.getErrorPrefix(log.type)}: ${log.error}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: InAppConsoleUtils.getTypeColor(log.type).withOpacity(0.8),
+                        color: InAppConsoleUtils.getTypeColor(log.type)
+                            .withOpacity(0.8),
                         fontStyle: FontStyle.italic,
                       ),
                       maxLines: 2,
@@ -639,7 +636,8 @@ class InAppConsoleDetailScreen extends StatelessWidget {
             _buildDetailSection('Message', log.message),
             if (log.error != null) ...[
               const SizedBox(height: 16),
-              _buildDetailSection(InAppConsoleUtils.getErrorPrefix(log.type), log.error.toString()),
+              _buildDetailSection(InAppConsoleUtils.getErrorPrefix(log.type),
+                  log.error.toString()),
             ],
             if (log.stackTrace != null) ...[
               const SizedBox(height: 16),
