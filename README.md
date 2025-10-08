@@ -10,37 +10,39 @@
 
 ## Designed for Micro-frontend architecture
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│            Flutter App with Micro-frontend architecture                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  [Auth Module]   [Payment Module]   [Profile Module]   [Chat Module]        │
-│      Logger          Logger           Logger           Logger               │
-│        │               │                │               │                   │
-│        └───────────────┼────────────────┼───────────────┘                   │
-│                        │                │                                   │
-│                        ▼                ▼                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                 [Platform Application]                                      │
-│                  InAppConsole (Central)                                     │
-│                                                                             │
-│  Registered Loggers: [Auth, Payment, Profile, Chat]                         │
-│                                                                             │
-│  Unified History:                                                           │
-│  • [Auth] User login                                                        │
-│  • [Pay]  Payment failed                                                    │
-│  • [Prof] Profile updated                                                   │
-│  • [Chat] Message sent                                                      │
-│                        │                                                    │
-│                        ▼                                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                   Console UI Screen                                         │
-│                                                                             │
-│  Log Display:                                                               │
-│  14:23 [Auth] User login successful                                         │
-│  14:24 [Pay]  Payment gateway timeout                                       │
-│  14:25 [Prof] Profile image uploaded                                        │
-│  14:26 [Chat] Message sent                                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│              Flutter App with Micro-frontend architecture                           │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ [Auth Module]     [Payment Module]     [Profile Module]     [Chat Module]           │
+│     Logger            Logger             Logger             Logger                  │
+│ setLabel('Auth')  setLabel('Payment')  setLabel('Profile')  setLabel('Chat')        │
+│      │                 │                  │                 │                      │
+│      └─────────────────┼──────────────────┼─────────────────┘                      │
+│                        │                  │                                        │
+│                        ▼                  ▼                                        │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                       [Platform Application]                                       │
+│                        InAppConsole (Central)                                      │
+│                                                                                     │
+│    Registered Loggers with Tags: [Auth, Payment, Profile, Chat]                    │
+│                                                                                     │
+│    Unified History with Tags:                                                      │
+│    • [Auth] User login                                                             │
+│    • [Payment] Payment failed                                                      │
+│    • [Profile] Profile updated                                                     │
+│    • [Chat] Message sent                                                           │
+│                              │                                                     │
+│                              ▼                                                     │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                         Console UI Screen                                          │
+│                                                                                     │
+│    Tagged Log Display:                                                             │
+│    14:23 [Auth] User login successful                                              │
+│    14:24 [Payment] Payment gateway timeout                                         │
+│    14:25 [Profile] Profile image uploaded                                          │
+│    14:26 [Chat] Message sent                                                       │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Screenshots
