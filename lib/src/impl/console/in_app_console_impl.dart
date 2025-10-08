@@ -9,6 +9,7 @@ import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 ///
 class InAppConsoleImpl implements InAppConsole {
   final Map<int, InAppLogger> _registeredLoggersWithHashCode = {};
+  final Map<int, StreamSubscription<InAppLoggerData>> _subscriptions = {};
 
   /// The stream controller for the in app console.
   ///
@@ -42,18 +43,19 @@ class InAppConsoleImpl implements InAppConsole {
     }
 
     _registeredLoggersWithHashCode[logger.hashCode] = logger;
-    logger.stream.listen((data) {
+    final subscription = logger.stream.listen((data) {
       _streamController.add(data);
       _history.add(data);
 
       // Log to the console of the IDE
       _logToConsole(data);
     });
+    _subscriptions[logger.hashCode] = subscription;
   }
 
   /// If the in app logger is not registered, it will not be removed.
   ///
-  /// Otherwise, it will be removed and the data will be drained from the stream.
+  /// Otherwise, it will be removed and the subscription will be cancelled.
   ///
   @override
   void removeLogger(InAppLogger logger) {
@@ -61,7 +63,8 @@ class InAppConsoleImpl implements InAppConsole {
       return;
     }
     _registeredLoggersWithHashCode.remove(logger.hashCode);
-    logger.stream.drain();
+    final subscription = _subscriptions.remove(logger.hashCode);
+    subscription?.cancel();
   }
 
   @override
