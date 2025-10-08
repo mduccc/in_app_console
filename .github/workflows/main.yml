@@ -1,4 +1,4 @@
-name: "Analytic"
+name: "Analyze and Test"
 
 on:
   pull_request:
