@@ -1,4 +1,4 @@
-import 'package:in_app_console/src/core/in_app_logger_type.dart';
+import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 
 /// Data class for holding in app logger data.
 ///

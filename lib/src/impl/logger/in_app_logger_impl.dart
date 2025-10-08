@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:in_app_console/in_app_console.dart';
-import 'package:in_app_console/src/core/in_app_logger_type.dart';
+import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 
 /// Implementation of the [InAppLogger] interface.
 ///

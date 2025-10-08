@@ -1,5 +1,5 @@
-import 'package:in_app_console/src/core/in_app_logger_data.dart';
-import 'package:in_app_console/src/impl/in_app_logger_impl.dart';
+import 'package:in_app_console/src/core/logger/in_app_logger_data.dart';
+import 'package:in_app_console/src/impl/logger/in_app_logger_impl.dart';
 
 /// Interface for a in app logger.
 ///
