@@ -47,16 +47,16 @@
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.0.1/screenshots/console.png?raw=true)" alt="Log List"/>
+<img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/console.png?raw=true)" alt="Log List"/>
 
 ## Usage
 
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^1.0.1
+  in_app_console: ^1.1.0
 ```
 
 ### 2. Import the package
