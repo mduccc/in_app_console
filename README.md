@@ -100,3 +100,12 @@ logger.logError(
 // Using InAppConsole helper method
 InAppConsole.instance.openConsole(context);
 ```
+
+## Roadmap
+This package would be more powerful if it supported features like exporting logs to files, inspecting network traffic, and viewing databases...
+
+However, implementing those features directly in the package would introduce complex dependencies and break its nature as a pure Flutter package.
+
+Therefore, supporting extensions that can plug in additional functionalities makes it easier to extend and maintain the package.
+
+- [ ] Support plugging extensions into the in-app console.
