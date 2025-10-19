@@ -8,8 +8,18 @@ import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 /// Implementation of the [InAppConsole] interface.
 ///
 class InAppConsoleImpl implements InAppConsole {
+  /// The map of registered loggers with their hash code.
+  /// 
+  /// This map is used to store the registered loggers with their hash code.
+  /// 
   final Map<int, InAppLogger> _registeredLoggersWithHashCode = {};
-  final Map<int, StreamSubscription<InAppLoggerData>> _subscriptions = {};
+
+  /// The map of subscriptions of loggers with their hash code.
+  /// 
+  /// This map is used to store the subscriptions of loggers with their hash code.
+  /// 
+  final Map<int, StreamSubscription<InAppLoggerData>>
+      _subscriptionsLoggersWithHashCode = {};
 
   /// The stream controller for the in app console.
   ///
@@ -35,7 +45,9 @@ class InAppConsoleImpl implements InAppConsole {
   /// Otherwise, it will be registered and the data will be emitted to the stream and the history will be updated.
   ///
   /// Also log to the console of the IDE
-  ///
+  /// 
+  /// If the [kEnableConsole] flag is false, it will not be emit and store the data to the history.
+  /// 
   @override
   void addLogger(InAppLogger logger) {
     if (_registeredLoggersWithHashCode.containsKey(logger.hashCode)) {
@@ -44,13 +56,17 @@ class InAppConsoleImpl implements InAppConsole {
 
     _registeredLoggersWithHashCode[logger.hashCode] = logger;
     final subscription = logger.stream.listen((data) {
+      if (!InAppConsole.kEnableConsole) {
+        return;
+      }
+
       _streamController.add(data);
       _history.add(data);
 
       // Log to the console of the IDE
       _logToConsole(data);
     });
-    _subscriptions[logger.hashCode] = subscription;
+    _subscriptionsLoggersWithHashCode[logger.hashCode] = subscription;
   }
 
   /// If the in app logger is not registered, it will not be removed.
@@ -63,12 +79,20 @@ class InAppConsoleImpl implements InAppConsole {
       return;
     }
     _registeredLoggersWithHashCode.remove(logger.hashCode);
-    final subscription = _subscriptions.remove(logger.hashCode);
+    final subscription =
+        _subscriptionsLoggersWithHashCode.remove(logger.hashCode);
     subscription?.cancel();
   }
 
+  /// Open the in app console screen.
+  ///
+  /// Ensures the console is enabled by checking the [kEnableConsole] flag before opening the console.
+  ///
   @override
   Future<void> openConsole(BuildContext context) {
+    if (!InAppConsole.kEnableConsole) {
+      return Future.value();
+    }
     return Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const InAppConsoleScreen(),
@@ -76,6 +100,10 @@ class InAppConsoleImpl implements InAppConsole {
     );
   }
 
+  /// Close the in app console screen.
+  ///
+  /// Closes the in app console screen by popping the navigator.
+  ///
   @override
   void closeConsole(BuildContext context) {
     Navigator.of(context).pop();

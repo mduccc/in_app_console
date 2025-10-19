@@ -44,7 +44,7 @@ abstract class InAppLogger {
   ///
   void logError({
     required String message,
-    Error? error,
+    Object? error,
     StackTrace? stackTrace,
   });
 

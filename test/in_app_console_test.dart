@@ -83,6 +83,7 @@ void main() {
     late InAppLogger logger;
 
     setUp(() {
+      InAppConsole.kEnableConsole = true;
       logger = InAppLogger();
     });
 
@@ -254,6 +255,7 @@ void main() {
 
     setUp(() {
       console = InAppConsole.instance;
+      InAppConsole.kEnableConsole = true;
       console.clearHistory();
     });
 
@@ -549,6 +551,303 @@ void main() {
         // Verify no new messages from removed logger
         final service1Messages = console.history.where((log) => log.label == 'SERVICE1').toList();
         expect(service1Messages.length, equals(1)); // Only the initial message
+      });
+    });
+  });
+
+  group('InAppConsole.kEnableConsole = false', () {
+    late InAppConsole console;
+
+    setUp(() {
+      console = InAppConsole.instance;
+      console.clearHistory();
+    });
+
+    tearDown(() {
+      // Reset to true for other tests
+      InAppConsole.kEnableConsole = true;
+    });
+
+    group('GIVEN kEnableConsole is set to false', () {
+      test('WHEN logger emits messages THEN should NOT add to history', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        final logger = InAppLogger();
+        console.addLogger(logger);
+
+        // Act
+        logger.logInfo('This should not be recorded');
+        logger.logError(message: 'This error should not be recorded');
+        logger.logWarning(message: 'This warning should not be recorded');
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Assert
+        expect(console.history, isEmpty);
+      });
+
+      test('WHEN logger emits messages THEN should NOT emit to console stream', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        final logger = InAppLogger();
+        console.addLogger(logger);
+        
+        final receivedMessages = <InAppLoggerData>[];
+        final subscription = console.stream.listen((data) {
+          receivedMessages.add(data);
+        });
+
+        // Act
+        logger.logInfo('Message 1');
+        logger.logInfo('Message 2');
+        logger.logError(message: 'Error message');
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Assert
+        expect(receivedMessages, isEmpty);
+        
+        // Clean up
+        await subscription.cancel();
+      });
+
+      test('WHEN multiple loggers emit messages THEN none should be recorded', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        
+        final logger1 = InAppLogger()..setLabel('SERVICE1');
+        final logger2 = InAppLogger()..setLabel('SERVICE2');
+        final logger3 = InAppLogger()..setLabel('SERVICE3');
+        
+        console.addLogger(logger1);
+        console.addLogger(logger2);
+        console.addLogger(logger3);
+        
+        final receivedMessages = <InAppLoggerData>[];
+        final subscription = console.stream.listen((data) {
+          receivedMessages.add(data);
+        });
+
+        // Act
+        logger1.logInfo('Service 1 message');
+        logger2.logWarning(message: 'Service 2 warning');
+        logger3.logError(message: 'Service 3 error');
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Assert
+        expect(console.history, isEmpty);
+        expect(receivedMessages, isEmpty);
+        
+        // Clean up
+        await subscription.cancel();
+      });
+
+      testWidgets('WHEN openConsole is called THEN should return immediately without navigation', (tester) async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        
+        await tester.pumpWidget(
+          MaterialApp(
+            home: const Scaffold(body: Text('Test')),
+          ),
+        );
+        
+        final context = tester.element(find.byType(Scaffold));
+
+        // Act
+        final result = console.openConsole(context);
+
+        // Assert - Should complete immediately
+        await expectLater(result, completes);
+        
+        // Verify no navigation occurred
+        await tester.pumpAndSettle();
+        expect(find.byType(InAppConsoleScreen), findsNothing);
+      });
+
+      test('WHEN kEnableConsole is toggled from false to true THEN should start recording', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        final logger = InAppLogger()..setLabel('TEST');
+        console.addLogger(logger);
+        
+        // Act - Log while disabled
+        logger.logInfo('Message while disabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history, isEmpty);
+        
+        // Enable console
+        InAppConsole.kEnableConsole = true;
+        
+        // Need to re-add logger after enabling to activate the subscription behavior
+        console.removeLogger(logger);
+        console.addLogger(logger);
+        
+        // Log while enabled
+        logger.logInfo('Message while enabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert
+        expect(console.history.length, equals(1));
+        expect(console.history.first.message, equals('Message while enabled'));
+      });
+
+      test('WHEN kEnableConsole is toggled from true to false THEN should stop recording', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = true;
+        final logger = InAppLogger()..setLabel('TEST');
+        console.addLogger(logger);
+        
+        // Act - Log while enabled
+        logger.logInfo('Message while enabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history.length, equals(1));
+        
+        // Disable console
+        InAppConsole.kEnableConsole = false;
+        
+        // Log while disabled
+        logger.logInfo('Message while disabled');
+        logger.logError(message: 'Error while disabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert - Should still only have 1 message
+        expect(console.history.length, equals(1));
+        expect(console.history.first.message, equals('Message while enabled'));
+      });
+
+      test('WHEN clearHistory is called with kEnableConsole false THEN should still clear history', () async {
+        // Arrange - First add some history while enabled
+        InAppConsole.kEnableConsole = true;
+        final logger = InAppLogger();
+        console.addLogger(logger);
+        
+        logger.logInfo('Message 1');
+        logger.logInfo('Message 2');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history.length, equals(2));
+        
+        // Now disable console
+        InAppConsole.kEnableConsole = false;
+
+        // Act
+        console.clearHistory();
+
+        // Assert
+        expect(console.history, isEmpty);
+      });
+
+      test('WHEN multiple loggers added with kEnableConsole false THEN loggers should still be registered', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        
+        final logger1 = InAppLogger()..setLabel('LOGGER1');
+        final logger2 = InAppLogger()..setLabel('LOGGER2');
+
+        // Act
+        console.addLogger(logger1);
+        console.addLogger(logger2);
+        
+        // Emit messages (should not be recorded)
+        logger1.logInfo('Test 1');
+        logger2.logInfo('Test 2');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history, isEmpty);
+        
+        // Now enable and emit again
+        InAppConsole.kEnableConsole = true;
+        logger1.logInfo('Test 3');
+        logger2.logInfo('Test 4');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert - Should receive the new messages
+        expect(console.history.length, equals(2));
+        expect(console.history[0].message, equals('Test 3'));
+        expect(console.history[1].message, equals('Test 4'));
+      });
+
+      test('WHEN removeLogger is called with kEnableConsole false THEN should still remove logger', () async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+        final logger = InAppLogger()..setLabel('TEST');
+        
+        console.addLogger(logger);
+        logger.logInfo('Message 1');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history, isEmpty);
+
+        // Act - Remove logger
+        console.removeLogger(logger);
+        
+        // Enable console and try to re-add
+        InAppConsole.kEnableConsole = true;
+        console.addLogger(logger);
+        logger.logInfo('After re-add');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert - Should work normally after re-add
+        expect(console.history.length, equals(1));
+        expect(console.history.first.message, equals('After re-add'));
+      });
+    });
+
+    group('GIVEN production environment simulation', () {
+      test('WHEN app is in production mode with kEnableConsole false THEN no performance impact from logging', () async {
+        // Arrange - Simulate production setting
+        InAppConsole.kEnableConsole = false;
+        
+        final services = List.generate(20, (index) {
+          final logger = InAppLogger()..setLabel('SERVICE_$index');
+          console.addLogger(logger);
+          return logger;
+        });
+
+        // Act - Simulate heavy logging in production
+        final stopwatch = Stopwatch()..start();
+        
+        for (final service in services) {
+          for (int i = 0; i < 100; i++) {
+            service.logInfo('High frequency message $i');
+            service.logError(message: 'Error $i', error: Exception('Test'));
+            service.logWarning(message: 'Warning $i');
+          }
+        }
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+        stopwatch.stop();
+
+        // Assert - No history accumulated
+        expect(console.history, isEmpty);
+        
+        // Performance should be good (logging disabled = minimal overhead)
+        expect(stopwatch.elapsedMilliseconds, lessThan(1000));
+      });
+
+      test('WHEN switching from development to production THEN history persists but new logs are blocked', () async {
+        // Arrange - Development mode
+        InAppConsole.kEnableConsole = true;
+        final logger = InAppLogger()..setLabel('APP');
+        console.addLogger(logger);
+        
+        // Log in development
+        logger.logInfo('Development log 1');
+        logger.logInfo('Development log 2');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history.length, equals(2));
+
+        // Act - Switch to production
+        InAppConsole.kEnableConsole = false;
+        
+        // Try to log in production
+        logger.logInfo('Production log (should not appear)');
+        logger.logError(message: 'Production error (should not appear)');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert - Old history persists, new logs blocked
+        expect(console.history.length, equals(2));
+        expect(console.history[0].message, equals('Development log 1'));
+        expect(console.history[1].message, equals('Development log 2'));
       });
     });
   });

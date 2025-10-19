@@ -26,7 +26,7 @@ class InAppLoggerImpl implements InAppLogger {
 
   @override
   void logError(
-      {required String message, Error? error, StackTrace? stackTrace}) {
+      {required String message, Object? error, StackTrace? stackTrace}) {
     _streamController.add(InAppLoggerData(
         message: message,
         timestamp: DateTime.now(),

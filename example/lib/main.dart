@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 
 void main() {
+  /// Enable the in app console for debugging purposes.
+  InAppConsole.kEnableConsole = true;
   // Initialize micro-frontend modules
   MicroFrontendApp.initialize();
   runApp(const MyApp());

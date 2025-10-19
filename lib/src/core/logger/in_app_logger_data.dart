@@ -16,7 +16,7 @@ class InAppLoggerData {
   final String? label;
 
   /// The error to log in the in app logger.
-  final Error? error;
+  final Object? error;
 
   /// The stack trace of the in app logger.
   final StackTrace? stackTrace;

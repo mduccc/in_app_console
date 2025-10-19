@@ -17,6 +17,7 @@ void main() {
 
       setUp(() {
         console = InAppConsole.instance;
+        InAppConsole.kEnableConsole = true;
         console.clearHistory();
         
         // Initialize microservices with their own loggers
@@ -131,6 +132,7 @@ void main() {
       test('WHEN many services log simultaneously THEN all messages should be captured', () async {
         // Arrange
         final console = InAppConsole.instance;
+        InAppConsole.kEnableConsole = true;
         console.clearHistory();
         
         final services = List.generate(10, (index) {
@@ -168,6 +170,196 @@ void main() {
           final serviceLogs = console.history.where((log) => log.label == 'SERVICE_$i').toList();
           expect(serviceLogs.length, equals(5));
         }
+      });
+    });
+  });
+
+  group('Production Mode with kEnableConsole = false', () {
+    group('GIVEN a production environment', () {
+      late InAppConsole console;
+      late InAppLogger authService;
+      late InAppLogger paymentService;
+      late InAppLogger userService;
+
+      setUp(() {
+        console = InAppConsole.instance;
+        InAppConsole.kEnableConsole = false; // Production mode
+        console.clearHistory();
+        
+        // Initialize services
+        authService = InAppLogger()..setLabel('AUTH');
+        paymentService = InAppLogger()..setLabel('PAYMENT');
+        userService = InAppLogger()..setLabel('USER');
+        
+        // Register services
+        console.addLogger(authService);
+        console.addLogger(paymentService);
+        console.addLogger(userService);
+      });
+
+      tearDown(() {
+        // Reset for other tests
+        InAppConsole.kEnableConsole = true;
+      });
+
+      group('WHEN services log messages in production', () {
+        test('THEN no logs should be captured to save resources', () async {
+          // Arrange
+          final receivedMessages = <InAppLoggerData>[];
+          final subscription = console.stream.listen((data) {
+            receivedMessages.add(data);
+          });
+
+          // Act - Simulate production logging
+          authService.logInfo('User authentication started');
+          paymentService.logInfo('Processing payment');
+          userService.logInfo('Loading user profile');
+          authService.logError(message: 'Authentication failed', error: Exception('Invalid credentials'));
+          
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          // Assert
+          expect(console.history, isEmpty);
+          expect(receivedMessages, isEmpty);
+          
+          // Clean up
+          await subscription.cancel();
+        });
+
+        test('THEN logger subscriptions still work but messages are filtered', () async {
+          // Arrange & Act
+          authService.logInfo('Production message 1');
+          paymentService.logWarning(message: 'Production warning');
+          userService.logError(message: 'Production error', error: Exception('Test'));
+          
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          // Assert - Loggers are registered but messages are filtered
+          expect(console.history, isEmpty);
+        });
+      });
+
+      group('WHEN switching between development and production modes', () {
+        test('THEN should properly handle mode transitions', () async {
+          // Arrange - Start in production mode (already set in setUp)
+          authService.logInfo('Production message (ignored)');
+          await Future.delayed(const Duration(milliseconds: 50));
+          expect(console.history, isEmpty);
+
+          // Act - Switch to development mode
+          InAppConsole.kEnableConsole = true;
+          
+          // Need to refresh logger registration
+          console.removeLogger(authService);
+          console.addLogger(authService);
+          
+          authService.logInfo('Development message (captured)');
+          await Future.delayed(const Duration(milliseconds: 50));
+
+          // Assert
+          expect(console.history.length, equals(1));
+          expect(console.history.first.message, equals('Development message (captured)'));
+        });
+      });
+
+      group('WHEN app needs to enable console temporarily for debugging', () {
+        test('THEN should be able to enable and see live logs', () async {
+          // Arrange - Production mode, no logs captured
+          authService.logInfo('Before debug mode');
+          paymentService.logInfo('Before debug mode 2');
+          await Future.delayed(const Duration(milliseconds: 50));
+          expect(console.history, isEmpty);
+
+          // Act - Enable debug mode temporarily
+          InAppConsole.kEnableConsole = true;
+          
+          // Refresh registrations to activate
+          console.removeLogger(authService);
+          console.removeLogger(paymentService);
+          console.addLogger(authService);
+          console.addLogger(paymentService);
+          
+          authService.logInfo('Debug mode enabled');
+          paymentService.logError(message: 'Debugging payment issue', error: Exception('Gateway timeout'));
+          
+          await Future.delayed(const Duration(milliseconds: 50));
+
+          // Assert
+          expect(console.history.length, equals(2));
+          expect(console.history[0].message, equals('Debug mode enabled'));
+          expect(console.history[1].message, equals('Debugging payment issue'));
+          
+          // Clean up - Back to production
+          InAppConsole.kEnableConsole = false;
+        });
+      });
+    });
+
+    group('GIVEN a feature flag system for console control', () {
+      test('WHEN feature flag toggles console THEN should respect the flag', () async {
+        // Arrange - Simulate feature flag system
+        final console = InAppConsole.instance;
+        console.clearHistory();
+        
+        bool isDebugModeEnabled = false; // Feature flag
+        InAppConsole.kEnableConsole = isDebugModeEnabled;
+        
+        final logger = InAppLogger()..setLabel('FEATURE_SERVICE');
+        console.addLogger(logger);
+
+        // Act - Try logging with feature disabled
+        logger.logInfo('Message with feature disabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.history, isEmpty);
+
+        // Enable feature flag
+        isDebugModeEnabled = true;
+        InAppConsole.kEnableConsole = isDebugModeEnabled;
+        
+        // Refresh logger
+        console.removeLogger(logger);
+        console.addLogger(logger);
+        
+        logger.logInfo('Message with feature enabled');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Assert
+        expect(console.history.length, equals(1));
+        expect(console.history.first.message, equals('Message with feature enabled'));
+        
+        // Reset
+        InAppConsole.kEnableConsole = true;
+      });
+    });
+
+    group('GIVEN high-frequency logging in production', () {
+      test('WHEN kEnableConsole is false THEN should have minimal performance impact', () async {
+        // Arrange
+        final console = InAppConsole.instance;
+        InAppConsole.kEnableConsole = false;
+        console.clearHistory();
+        
+        final highFrequencyService = InAppLogger()..setLabel('HIGH_FREQ');
+        console.addLogger(highFrequencyService);
+
+        // Act - Simulate high-frequency logging
+        final stopwatch = Stopwatch()..start();
+        
+        for (int i = 0; i < 10000; i++) {
+          highFrequencyService.logInfo('High frequency log $i');
+        }
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+        stopwatch.stop();
+
+        // Assert - No memory consumed by history
+        expect(console.history, isEmpty);
+        
+        // Should complete quickly since logs are filtered
+        expect(stopwatch.elapsedMilliseconds, lessThan(2000));
+        
+        // Reset
+        InAppConsole.kEnableConsole = true;
       });
     });
   });

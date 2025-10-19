@@ -8,6 +8,15 @@ import 'package:in_app_console/src/impl/console/in_app_console_impl.dart';
 /// This class is used to combine multiple [InAppLogger] into a single stream.
 ///
 abstract class InAppConsole {
+  
+  /// Whether to enable the in app console.
+  /// 
+  /// If your app is in production, you can set this to false to disable the in app console.
+  ///
+  /// Default is false.
+  /// 
+  static bool kEnableConsole = false;
+
   /// Default instance of the [InAppConsole].
   static final InAppConsole _instance = InAppConsoleImpl();
 
@@ -42,7 +51,9 @@ abstract class InAppConsole {
   void removeLogger(InAppLogger logger);
 
   /// Open in app console screen.
-  ///
+  /// 
+  /// Ensures the console is enabled by checking the [kEnableConsole] flag before opening the console.
+  /// 
   Future<void> openConsole(BuildContext context);
 
   /// Close in app console screen.
