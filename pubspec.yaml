@@ -1,6 +1,6 @@
 name: in_app_console
 description: "Bridge the gap between developers and testers with real-time, in-app log viewing. Enables QA teams to access developer-level logs directly in the Flutter app UI, making debugging faster and bug reports more detailed. Works seamlessly with micro-frontend architecture."
-version: 1.0.1
+version: 1.1.0
 repository: https://github.com/mduccc/in_app_console
 
 environment:
