@@ -68,8 +68,14 @@ import 'package:in_app_console/in_app_console.dart';
 
 ### 3. Create logger and add to console
 ```dart
+/// Create logger
 final logger = InAppLogger();
 logger.setLabel('Chat module'); // Optional: set a label
+
+// Enable console (typically only in debug/development mode)
+InAppConsole.kEnableConsole = true;
+
+/// Add logger to console
 InAppConsole.instance.addLogger(logger);
 ```
 
