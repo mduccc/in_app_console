@@ -851,4 +851,354 @@ void main() {
       });
     });
   });
+
+  group('InAppConsole Extensions', () {
+    late InAppConsole console;
+
+    setUp(() {
+      console = InAppConsole.instance;
+      InAppConsole.kEnableConsole = true;
+      console.clearHistory();
+
+      // Clear any registered extensions
+      final extensions = console.getExtensions();
+      for (final ext in extensions) {
+        console.unregisterExtension(ext);
+      }
+    });
+
+    tearDown(() {
+      // Clean up extensions
+      final extensions = console.getExtensions();
+      for (final ext in extensions) {
+        console.unregisterExtension(ext);
+      }
+    });
+
+    group('GIVEN an extension', () {
+      test('WHEN registering an extension THEN it should be registered successfully', () {
+        // Arrange
+        final extension = TestExtension();
+
+        // Act
+        console.registerExtension(extension);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(1));
+        expect(extensions.first.id, equals('test_extension'));
+        expect(extensions.first.name, equals('Test Extension'));
+        expect(extensions.first.version, equals('1.0.0'));
+      });
+
+      test('WHEN registering an extension THEN onInit should be called', () {
+        // Arrange
+        final extension = TestExtension();
+
+        // Act
+        console.registerExtension(extension);
+
+        // Assert
+        expect(extension.initCalled, isTrue);
+        expect(extension.disposeCalled, isFalse);
+      });
+
+      test('WHEN registering duplicate extension THEN registration should be skipped', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = TestExtension(); // Same ID
+
+        // Act
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(1));
+        expect(extension1.initCalled, isTrue);
+        expect(extension2.initCalled, isFalse); // Should not be initialized
+      });
+
+      test('WHEN registering multiple unique extensions THEN all should be registered', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = AnotherTestExtension();
+        final extension3 = ThirdTestExtension();
+
+        // Act
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+        console.registerExtension(extension3);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(3));
+        expect(extension1.initCalled, isTrue);
+        expect(extension2.initCalled, isTrue);
+        expect(extension3.initCalled, isTrue);
+      });
+
+      test('WHEN unregistering an extension THEN it should be removed', () {
+        // Arrange
+        final extension = TestExtension();
+        console.registerExtension(extension);
+        expect(console.getExtensions().length, equals(1));
+
+        // Act
+        console.unregisterExtension(extension);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(0));
+        expect(extension.disposeCalled, isTrue);
+      });
+
+      test('WHEN unregistering non-existent extension THEN should not throw', () {
+        // Arrange
+        final extension = TestExtension();
+
+        // Act & Assert - Should not throw
+        expect(() => console.unregisterExtension(extension), returnsNormally);
+      });
+
+      test('WHEN unregistering one of multiple extensions THEN only that extension should be removed', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = AnotherTestExtension();
+        final extension3 = ThirdTestExtension();
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+        console.registerExtension(extension3);
+
+        // Act
+        console.unregisterExtension(extension2);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(2));
+        expect(extensions.any((e) => e.id == 'test_extension'), isTrue);
+        expect(extensions.any((e) => e.id == 'another_test_extension'), isFalse);
+        expect(extensions.any((e) => e.id == 'third_test_extension'), isTrue);
+        expect(extension2.disposeCalled, isTrue);
+      });
+
+      test('WHEN building widget THEN buildWidget should be callable', () {
+        // Arrange
+        final extension = TestExtension();
+        console.registerExtension(extension);
+
+        // Act
+        final widget = extension.buildWidget(MockBuildContext());
+
+        // Assert
+        expect(widget, isA<Container>());
+        expect(extension.buildWidgetCalled, isTrue);
+      });
+
+      test('WHEN re-registering unregistered extension THEN should register successfully', () {
+        // Arrange
+        final extension = TestExtension();
+        console.registerExtension(extension);
+        console.unregisterExtension(extension);
+        extension.reset(); // Reset state
+
+        // Act
+        console.registerExtension(extension);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions.length, equals(1));
+        expect(extension.initCalled, isTrue);
+      });
+
+      test('WHEN getting extensions THEN should return list in registration order', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = AnotherTestExtension();
+        final extension3 = ThirdTestExtension();
+
+        // Act
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+        console.registerExtension(extension3);
+
+        // Assert
+        final extensions = console.getExtensions();
+        expect(extensions[0].id, equals('test_extension'));
+        expect(extensions[1].id, equals('another_test_extension'));
+        expect(extensions[2].id, equals('third_test_extension'));
+      });
+
+      test('WHEN extension has description THEN should be accessible', () {
+        // Arrange
+        final extension = TestExtensionWithDescription();
+        console.registerExtension(extension);
+
+        // Assert
+        expect(extension.description, equals('A test extension with description'));
+      });
+    });
+
+    group('GIVEN multiple extensions', () {
+      test('WHEN all extensions are registered THEN lifecycle methods should be called in order', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = AnotherTestExtension();
+        final extension3 = ThirdTestExtension();
+
+        // Act
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+        console.registerExtension(extension3);
+
+        // Assert
+        expect(extension1.initCalled, isTrue);
+        expect(extension2.initCalled, isTrue);
+        expect(extension3.initCalled, isTrue);
+        expect(extension1.disposeCalled, isFalse);
+        expect(extension2.disposeCalled, isFalse);
+        expect(extension3.disposeCalled, isFalse);
+      });
+
+      test('WHEN all extensions are unregistered THEN onDispose should be called for all', () {
+        // Arrange
+        final extension1 = TestExtension();
+        final extension2 = AnotherTestExtension();
+        final extension3 = ThirdTestExtension();
+        console.registerExtension(extension1);
+        console.registerExtension(extension2);
+        console.registerExtension(extension3);
+
+        // Act
+        console.unregisterExtension(extension1);
+        console.unregisterExtension(extension2);
+        console.unregisterExtension(extension3);
+
+        // Assert
+        expect(extension1.disposeCalled, isTrue);
+        expect(extension2.disposeCalled, isTrue);
+        expect(extension3.disposeCalled, isTrue);
+      });
+    });
+  });
+}
+
+// Test extension classes
+class TestExtension extends InAppConsoleExtension {
+  bool initCalled = false;
+  bool disposeCalled = false;
+  bool buildWidgetCalled = false;
+
+  @override
+  String get id => 'test_extension';
+
+  @override
+  String get name => 'Test Extension';
+
+  @override
+  String get version => '1.0.0';
+
+  @override
+  void onInit() {
+    initCalled = true;
+  }
+
+  @override
+  void onDispose() {
+    disposeCalled = true;
+  }
+
+  @override
+  Widget buildWidget(BuildContext context) {
+    buildWidgetCalled = true;
+    return Container();
+  }
+
+  void reset() {
+    initCalled = false;
+    disposeCalled = false;
+    buildWidgetCalled = false;
+  }
+}
+
+class AnotherTestExtension extends InAppConsoleExtension {
+  bool initCalled = false;
+  bool disposeCalled = false;
+
+  @override
+  String get id => 'another_test_extension';
+
+  @override
+  String get name => 'Another Test Extension';
+
+  @override
+  String get version => '2.0.0';
+
+  @override
+  void onInit() {
+    initCalled = true;
+  }
+
+  @override
+  void onDispose() {
+    disposeCalled = true;
+  }
+
+  @override
+  Widget buildWidget(BuildContext context) {
+    return Container();
+  }
+}
+
+class ThirdTestExtension extends InAppConsoleExtension {
+  bool initCalled = false;
+  bool disposeCalled = false;
+
+  @override
+  String get id => 'third_test_extension';
+
+  @override
+  String get name => 'Third Test Extension';
+
+  @override
+  String get version => '3.0.0';
+
+  @override
+  void onInit() {
+    initCalled = true;
+  }
+
+  @override
+  void onDispose() {
+    disposeCalled = true;
+  }
+
+  @override
+  Widget buildWidget(BuildContext context) {
+    return Container();
+  }
+}
+
+class TestExtensionWithDescription extends InAppConsoleExtension {
+  @override
+  String get id => 'test_extension_with_description';
+
+  @override
+  String get name => 'Test Extension With Description';
+
+  @override
+  String get version => '1.0.0';
+
+  @override
+  String get description => 'A test extension with description';
+
+  @override
+  Widget buildWidget(BuildContext context) {
+    return Container();
+  }
+}
+
+class MockBuildContext extends BuildContext {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

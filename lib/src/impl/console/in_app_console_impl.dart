@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
-import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 
 /// Implementation of the [InAppConsole] interface.
@@ -33,6 +32,12 @@ class InAppConsoleImpl implements InAppConsole {
   /// This history is used to store the in app logger data.
   ///
   final List<InAppLoggerData> _history = [];
+
+  /// The map of registered extensions with their ID.
+  ///
+  /// This map is used to store the registered extensions with their ID.
+  ///
+  final Map<String, InAppConsoleExtension> _registeredExtensionsWithID = {};
 
   @override
   Stream<InAppLoggerData> get stream => _streamController.stream;
@@ -112,6 +117,41 @@ class InAppConsoleImpl implements InAppConsole {
   @override
   void clearHistory() {
     _history.clear();
+  }
+
+  /// Register an extension with the console.
+  ///
+  /// If an extension with the same ID is already registered, registration is skipped.
+  ///
+  @override
+  void registerExtension(InAppConsoleExtension extension) {
+    if (_registeredExtensionsWithID.containsKey(extension.id)) {
+      return;
+    }
+
+    _registeredExtensionsWithID[extension.id] = extension;
+
+    // Initialize the extension
+    extension.onInit();
+  }
+
+  /// Unregister an extension from the console.
+  ///
+  /// Calls the extension's onDispose method to allow cleanup.
+  ///
+  @override
+  void unregisterExtension(InAppConsoleExtension extension) {
+    final removed = _registeredExtensionsWithID.remove(extension.id);
+
+    if (removed != null) {
+      removed.onDispose();
+    }
+  }
+
+  /// Get all registered extensions.
+  @override
+  List<InAppConsoleExtension> getExtensions() {
+    return _registeredExtensionsWithID.values.toList();
   }
 
   /// Get the appropriate error prefix based on the InAppLoggerType

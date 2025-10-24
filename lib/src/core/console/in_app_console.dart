@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:in_app_console/src/core/extension/in_app_console_extension.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_data.dart';
 import 'package:in_app_console/src/impl/console/in_app_console_impl.dart';
@@ -65,4 +66,36 @@ abstract class InAppConsole {
   /// This method is used to clear the history of the in app console.
   ///
   void clearHistory();
+
+  /// Register an extension with the console.
+  ///
+  /// [extension] is the extension to register.
+  ///
+  /// Extensions allow you to add custom functionality to the console
+  /// without modifying the core package.
+  ///
+  /// Example:
+  /// ```dart
+  /// final logExportExtension = LogExportExtension();
+  /// InAppConsole.instance.registerExtension(logExportExtension);
+  /// ```
+  ///
+  /// If an extension with the same ID is already registered, registration is skipped.
+  ///
+  void registerExtension(InAppConsoleExtension extension);
+
+  /// Unregister an extension from the console.
+  ///
+  /// [extension] is the extension to unregister.
+  ///
+  /// This will call the extension's [InAppConsoleExtension.onDispose] method
+  /// to allow it to clean up resources.
+  ///
+  void unregisterExtension(InAppConsoleExtension extension);
+
+  /// Get all registered extensions.
+  ///
+  /// Returns a list of all currently registered extensions.
+  ///
+  List<InAppConsoleExtension> getExtensions();
 }
