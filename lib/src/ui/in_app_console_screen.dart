@@ -242,6 +242,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('In App Console'),
+        titleSpacing: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
