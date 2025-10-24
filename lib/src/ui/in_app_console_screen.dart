@@ -249,7 +249,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
             tooltip: 'Search logs',
           ),
           IconButton(
-            icon: const Icon(Icons.clear_all),
+            icon: const Icon(Icons.delete_outline_outlined),
             onPressed: _clearLogs,
             tooltip: 'Clear logs',
           ),
@@ -312,33 +312,42 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
               children: [
                 const Text('Filters: ',
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                ...InAppLoggerType.values.map((type) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                          showCheckmark: false,
-                          label: Text(
-                            InAppConsoleUtils.getTypeLabel(type),
-                            style: TextStyle(
-                              color: _visibleTypes.contains(type)
-                                  ? InAppConsoleUtils.getTypeColor(type)
-                                  : null,
-                              fontWeight: _visibleTypes.contains(type)
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          selected: _visibleTypes.contains(type),
-                          onSelected: (_) => _toggleFilter(type),
-                          selectedColor: InAppConsoleUtils.getTypeColor(type)
-                              .withOpacity(0.3),
-                          avatar: Icon(
-                            InAppConsoleUtils.getTypeIcon(type),
-                            size: 16,
-                            color: _visibleTypes.contains(type)
-                                ? InAppConsoleUtils.getTypeColor(type)
-                                : Colors.grey,
+                Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ...InAppLoggerType.values.map((type) => Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                                showCheckmark: false,
+                                label: Text(
+                                  InAppConsoleUtils.getTypeLabel(type),
+                                  style: TextStyle(
+                                    color: _visibleTypes.contains(type)
+                                        ? InAppConsoleUtils.getTypeColor(type)
+                                        : null,
+                                    fontWeight: _visibleTypes.contains(type)
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                selected: _visibleTypes.contains(type),
+                                onSelected: (_) => _toggleFilter(type),
+                                selectedColor:
+                                    InAppConsoleUtils.getTypeColor(type)
+                                        .withOpacity(0.3),
+                                avatar: Icon(
+                                  InAppConsoleUtils.getTypeIcon(type),
+                                  size: 16,
+                                  color: _visibleTypes.contains(type)
+                                      ? InAppConsoleUtils.getTypeColor(type)
+                                      : Colors.grey,
+                                )),
                           )),
-                    )),
+                    ],
+                  ),
+                ))
               ],
             ),
           ),
@@ -426,7 +435,7 @@ class _LogItem extends StatelessWidget {
         text: text.substring(index, index + query.length),
         style: style.copyWith(
           backgroundColor: Colors.yellow[300],
-          fontWeight: FontWeight.bold,
+          //fontWeight: FontWeight.bold,
         ),
       ));
 
@@ -442,10 +451,11 @@ class _LogItem extends StatelessWidget {
       ));
     }
 
-    return RichText(
-      text: TextSpan(children: spans),
+    return Text.rich(
+      TextSpan(children: spans, style: style),
       maxLines: maxLines,
       overflow: maxLines != null ? TextOverflow.ellipsis : TextOverflow.visible,
+      
     );
   }
 
