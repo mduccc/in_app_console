@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
+import 'package:in_app_console/src/ui/in_app_console_extensions_screen.dart';
 
 /// Utility class for common InAppConsole operations and styling.
 class InAppConsoleUtils {
@@ -235,6 +236,14 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
     );
   }
 
+  void _navigateToExtensions() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const InAppConsoleExtensionsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredData = _filteredData;
@@ -244,6 +253,11 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
         title: const Text('In App Console'),
         titleSpacing: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.extension),
+            onPressed: _navigateToExtensions,
+            tooltip: 'Extensions',
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: _toggleSearch,
