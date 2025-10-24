@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 import 'dart:async';
@@ -853,10 +854,10 @@ void main() {
   });
 
   group('InAppConsole Extensions', () {
-    late InAppConsole console;
+    late InAppConsoleInternal console;
 
     setUp(() {
-      console = InAppConsole.instance;
+      console = InAppConsole.instance as InAppConsoleInternal;
       InAppConsole.kEnableConsole = true;
       console.clearHistory();
 

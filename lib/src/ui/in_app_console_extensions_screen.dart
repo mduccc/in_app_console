@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 
 /// Screen that displays a list of all registered extensions.
 class InAppConsoleExtensionsScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class InAppConsoleExtensionsScreen extends StatefulWidget {
 
 class _InAppConsoleExtensionsScreenState
     extends State<InAppConsoleExtensionsScreen> {
-  final InAppConsole _console = InAppConsole.instance;
+  final InAppConsoleInternal _console = InAppConsole.instance as InAppConsoleInternal;
 
   @override
   Widget build(BuildContext context) {

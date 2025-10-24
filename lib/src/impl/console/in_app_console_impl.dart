@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 
-/// Implementation of the [InAppConsole] interface.
+/// Implementation of the [InAppConsoleInternal] interface.
 ///
-class InAppConsoleImpl implements InAppConsole {
+class InAppConsoleImpl implements InAppConsoleInternal {
   /// The map of registered loggers with their hash code.
   /// 
   /// This map is used to store the registered loggers with their hash code.

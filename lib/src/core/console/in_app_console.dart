@@ -92,10 +92,4 @@ abstract class InAppConsole {
   /// to allow it to clean up resources.
   ///
   void unregisterExtension(InAppConsoleExtension extension);
-
-  /// Get all registered extensions.
-  ///
-  /// Returns a list of all currently registered extensions.
-  ///
-  List<InAppConsoleExtension> getExtensions();
 }
