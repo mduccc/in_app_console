@@ -1,7 +1,6 @@
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Idea](#idea)
+- [Overview](#overview)
 - [Designed for Micro-frontend architecture](#designed-for-micro-frontend-architecture)
 - [Screenshots](#screenshots)
 - [Usage](#usage)
@@ -19,7 +18,8 @@
 
 ---
 
-## Idea
+## Overview
+
 In-app console for real-time log viewing. Bridges developers and testers with unified logging across micro-frontend modules. Extensible with custom plugins.
 
 ## Designed for Micro-frontend architecture
