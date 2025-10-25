@@ -13,7 +13,8 @@ class InAppConsoleExtensionsScreen extends StatefulWidget {
 
 class _InAppConsoleExtensionsScreenState
     extends State<InAppConsoleExtensionsScreen> {
-  final InAppConsoleInternal _console = InAppConsole.instance as InAppConsoleInternal;
+  final InAppConsoleInternal _console =
+      InAppConsole.instance as InAppConsoleInternal;
 
   @override
   Widget build(BuildContext context) {

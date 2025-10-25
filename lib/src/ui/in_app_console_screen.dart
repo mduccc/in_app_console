@@ -120,7 +120,8 @@ class InAppConsoleScreen extends StatefulWidget {
 }
 
 class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
-  final InAppConsoleInternal _console = InAppConsole.instance as InAppConsoleInternal;
+  final InAppConsoleInternal _console =
+      InAppConsole.instance as InAppConsoleInternal;
   final List<InAppLoggerData> _loggerData = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -330,7 +331,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 Expanded(
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                  scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
                       ...InAppLoggerType.values.map((type) => Padding(
@@ -471,7 +472,6 @@ class _LogItem extends StatelessWidget {
       TextSpan(children: spans, style: style),
       maxLines: maxLines,
       overflow: maxLines != null ? TextOverflow.ellipsis : TextOverflow.visible,
-      
     );
   }
 

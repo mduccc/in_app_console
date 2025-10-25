@@ -20,12 +20,12 @@ void main() {
         console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = true;
         console.clearLogs();
-        
+
         // Initialize microservices with their own loggers
         authService = InAppLogger()..setLabel('AUTH');
         paymentService = InAppLogger()..setLabel('PAYMENT');
         userService = InAppLogger()..setLabel('USER');
-        
+
         // Register all services with the console
         console.addLogger(authService);
         console.addLogger(paymentService);
@@ -33,11 +33,12 @@ void main() {
       });
 
       group('WHEN user performs a complete purchase flow', () {
-        test('THEN all microservices should log their activities correctly', () async {
+        test('THEN all microservices should log their activities correctly',
+            () async {
           // Arrange
           final loggedMessages = <InAppLoggerData>[];
           final completer = Completer<void>();
-          
+
           console.stream.listen((data) {
             loggedMessages.add(data);
             if (loggedMessages.length == 8) {
@@ -51,7 +52,8 @@ void main() {
           userService.logInfo('User profile loaded');
           userService.logInfo('User preferences retrieved');
           paymentService.logInfo('Payment method validation started');
-          paymentService.logWarning(message: 'Payment gateway latency detected');
+          paymentService.logWarning(
+              message: 'Payment gateway latency detected');
           paymentService.logInfo('Payment processed successfully');
           userService.logInfo('Purchase history updated');
 
@@ -60,21 +62,34 @@ void main() {
           // Assert - Verify all services logged correctly
           expect(loggedMessages.length, equals(8));
           expect(console.history.length, equals(8));
-          
+
           // Verify service distribution
-          final authLogs = loggedMessages.where((log) => log.label == 'AUTH').toList();
-          final userLogs = loggedMessages.where((log) => log.label == 'USER').toList();
-          final paymentLogs = loggedMessages.where((log) => log.label == 'PAYMENT').toList();
-          
+          final authLogs =
+              loggedMessages.where((log) => log.label == 'AUTH').toList();
+          final userLogs =
+              loggedMessages.where((log) => log.label == 'USER').toList();
+          final paymentLogs =
+              loggedMessages.where((log) => log.label == 'PAYMENT').toList();
+
           expect(authLogs.length, equals(2));
           expect(userLogs.length, equals(3));
           expect(paymentLogs.length, equals(3));
-          
+
           // Verify message types
-          expect(authLogs.every((log) => log.type == InAppLoggerType.info), isTrue);
-          expect(userLogs.every((log) => log.type == InAppLoggerType.info), isTrue);
-          expect(paymentLogs.where((log) => log.type == InAppLoggerType.warning).length, equals(1));
-          expect(paymentLogs.where((log) => log.type == InAppLoggerType.info).length, equals(2));
+          expect(authLogs.every((log) => log.type == InAppLoggerType.info),
+              isTrue);
+          expect(userLogs.every((log) => log.type == InAppLoggerType.info),
+              isTrue);
+          expect(
+              paymentLogs
+                  .where((log) => log.type == InAppLoggerType.warning)
+                  .length,
+              equals(1));
+          expect(
+              paymentLogs
+                  .where((log) => log.type == InAppLoggerType.info)
+                  .length,
+              equals(2));
         });
       });
 
@@ -112,11 +127,11 @@ void main() {
           // Act - Disable service
           console.removeLogger(authService);
           authService.logInfo('This should not appear');
-          
+
           // Re-enable service
           console.addLogger(authService);
           authService.logInfo('Service re-enabled');
-          
+
           await Future.delayed(const Duration(milliseconds: 50));
 
           // Assert
@@ -130,22 +145,26 @@ void main() {
 
   group('Performance and Scalability', () {
     group('GIVEN multiple concurrent services', () {
-      test('WHEN many services log simultaneously THEN all messages should be captured', () async {
+      test(
+          'WHEN many services log simultaneously THEN all messages should be captured',
+          () async {
         // Arrange
-        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
+        final InAppConsoleInternal console =
+            InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = true;
         console.clearLogs();
-        
+
         final services = List.generate(10, (index) {
           final logger = InAppLogger()..setLabel('SERVICE_$index');
           console.addLogger(logger);
           return logger;
         });
-        
-        final expectedMessageCount = services.length * 5; // 5 messages per service
+
+        final expectedMessageCount =
+            services.length * 5; // 5 messages per service
         final completer = Completer<void>();
         int receivedCount = 0;
-        
+
         console.stream.listen((data) {
           receivedCount++;
           if (receivedCount == expectedMessageCount) {
@@ -165,10 +184,12 @@ void main() {
 
         // Assert
         expect(console.history.length, equals(expectedMessageCount));
-        
+
         // Verify each service logged the correct number of messages
         for (int i = 0; i < services.length; i++) {
-          final serviceLogs = console.history.where((log) => log.label == 'SERVICE_$i').toList();
+          final serviceLogs = console.history
+              .where((log) => log.label == 'SERVICE_$i')
+              .toList();
           expect(serviceLogs.length, equals(5));
         }
       });
@@ -186,12 +207,12 @@ void main() {
         console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = false; // Production mode
         console.clearLogs();
-        
+
         // Initialize services
         authService = InAppLogger()..setLabel('AUTH');
         paymentService = InAppLogger()..setLabel('PAYMENT');
         userService = InAppLogger()..setLabel('USER');
-        
+
         // Register services
         console.addLogger(authService);
         console.addLogger(paymentService);
@@ -215,24 +236,28 @@ void main() {
           authService.logInfo('User authentication started');
           paymentService.logInfo('Processing payment');
           userService.logInfo('Loading user profile');
-          authService.logError(message: 'Authentication failed', error: Exception('Invalid credentials'));
-          
+          authService.logError(
+              message: 'Authentication failed',
+              error: Exception('Invalid credentials'));
+
           await Future.delayed(const Duration(milliseconds: 100));
 
           // Assert
           expect(console.history, isEmpty);
           expect(receivedMessages, isEmpty);
-          
+
           // Clean up
           await subscription.cancel();
         });
 
-        test('THEN logger subscriptions still work but messages are filtered', () async {
+        test('THEN logger subscriptions still work but messages are filtered',
+            () async {
           // Arrange & Act
           authService.logInfo('Production message 1');
           paymentService.logWarning(message: 'Production warning');
-          userService.logError(message: 'Production error', error: Exception('Test'));
-          
+          userService.logError(
+              message: 'Production error', error: Exception('Test'));
+
           await Future.delayed(const Duration(milliseconds: 100));
 
           // Assert - Loggers are registered but messages are filtered
@@ -249,17 +274,18 @@ void main() {
 
           // Act - Switch to development mode
           InAppConsole.kEnableConsole = true;
-          
+
           // Need to refresh logger registration
           console.removeLogger(authService);
           console.addLogger(authService);
-          
+
           authService.logInfo('Development message (captured)');
           await Future.delayed(const Duration(milliseconds: 50));
 
           // Assert
           expect(console.history.length, equals(1));
-          expect(console.history.first.message, equals('Development message (captured)'));
+          expect(console.history.first.message,
+              equals('Development message (captured)'));
         });
       });
 
@@ -273,23 +299,25 @@ void main() {
 
           // Act - Enable debug mode temporarily
           InAppConsole.kEnableConsole = true;
-          
+
           // Refresh registrations to activate
           console.removeLogger(authService);
           console.removeLogger(paymentService);
           console.addLogger(authService);
           console.addLogger(paymentService);
-          
+
           authService.logInfo('Debug mode enabled');
-          paymentService.logError(message: 'Debugging payment issue', error: Exception('Gateway timeout'));
-          
+          paymentService.logError(
+              message: 'Debugging payment issue',
+              error: Exception('Gateway timeout'));
+
           await Future.delayed(const Duration(milliseconds: 50));
 
           // Assert
           expect(console.history.length, equals(2));
           expect(console.history[0].message, equals('Debug mode enabled'));
           expect(console.history[1].message, equals('Debugging payment issue'));
-          
+
           // Clean up - Back to production
           InAppConsole.kEnableConsole = false;
         });
@@ -297,14 +325,16 @@ void main() {
     });
 
     group('GIVEN a feature flag system for console control', () {
-      test('WHEN feature flag toggles console THEN should respect the flag', () async {
+      test('WHEN feature flag toggles console THEN should respect the flag',
+          () async {
         // Arrange - Simulate feature flag system
-        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
+        final InAppConsoleInternal console =
+            InAppConsole.instance as InAppConsoleInternal;
         console.clearLogs();
-        
+
         bool isDebugModeEnabled = false; // Feature flag
         InAppConsole.kEnableConsole = isDebugModeEnabled;
-        
+
         final logger = InAppLogger()..setLabel('FEATURE_SERVICE');
         console.addLogger(logger);
 
@@ -316,49 +346,53 @@ void main() {
         // Enable feature flag
         isDebugModeEnabled = true;
         InAppConsole.kEnableConsole = isDebugModeEnabled;
-        
+
         // Refresh logger
         console.removeLogger(logger);
         console.addLogger(logger);
-        
+
         logger.logInfo('Message with feature enabled');
         await Future.delayed(const Duration(milliseconds: 50));
 
         // Assert
         expect(console.history.length, equals(1));
-        expect(console.history.first.message, equals('Message with feature enabled'));
-        
+        expect(console.history.first.message,
+            equals('Message with feature enabled'));
+
         // Reset
         InAppConsole.kEnableConsole = true;
       });
     });
 
     group('GIVEN high-frequency logging in production', () {
-      test('WHEN kEnableConsole is false THEN should have minimal performance impact', () async {
+      test(
+          'WHEN kEnableConsole is false THEN should have minimal performance impact',
+          () async {
         // Arrange
-        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
+        final InAppConsoleInternal console =
+            InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = false;
         console.clearLogs();
-        
+
         final highFrequencyService = InAppLogger()..setLabel('HIGH_FREQ');
         console.addLogger(highFrequencyService);
 
         // Act - Simulate high-frequency logging
         final stopwatch = Stopwatch()..start();
-        
+
         for (int i = 0; i < 10000; i++) {
           highFrequencyService.logInfo('High frequency log $i');
         }
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
         stopwatch.stop();
 
         // Assert - No memory consumed by history
         expect(console.history, isEmpty);
-        
+
         // Should complete quickly since logs are filtered
         expect(stopwatch.elapsedMilliseconds, lessThan(2000));
-        
+
         // Reset
         InAppConsole.kEnableConsole = true;
       });
