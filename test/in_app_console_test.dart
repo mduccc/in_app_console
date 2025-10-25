@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
+import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 import 'dart:async';
@@ -9,7 +10,9 @@ import 'dart:async';
 void main() {
   group('InAppLoggerData', () {
     group('GIVEN a InAppLoggerData instance', () {
-      test('WHEN created with required parameters THEN should have correct values', () {
+      test(
+          'WHEN created with required parameters THEN should have correct values',
+          () {
         // Arrange
         final timestamp = DateTime.now();
         const message = 'Test message';
@@ -31,7 +34,8 @@ void main() {
         expect(loggerData.stackTrace, isNull);
       });
 
-      test('WHEN created with all parameters THEN should have all values set', () {
+      test('WHEN created with all parameters THEN should have all values set',
+          () {
         // Arrange
         final timestamp = DateTime.now();
         const message = 'Test error message';
@@ -108,7 +112,8 @@ void main() {
     });
 
     group('WHEN logging info messages', () {
-      test('THEN should emit InAppLoggerData with correct type and message', () async {
+      test('THEN should emit InAppLoggerData with correct type and message',
+          () async {
         // Arrange
         const message = 'Info test message';
         final streamFuture = logger.stream.first;
@@ -126,7 +131,8 @@ void main() {
         expect(loggerData.stackTrace, isNull);
       });
 
-      test('THEN should emit InAppLoggerData with label when label is set', () async {
+      test('THEN should emit InAppLoggerData with label when label is set',
+          () async {
         // Arrange
         const message = 'Info with label';
         const label = 'TEST_LABEL';
@@ -161,7 +167,9 @@ void main() {
         expect(loggerData.stackTrace, isNull);
       });
 
-      test('THEN should emit InAppLoggerData with error and stackTrace when provided', () async {
+      test(
+          'THEN should emit InAppLoggerData with error and stackTrace when provided',
+          () async {
         // Arrange
         const message = 'Error with details';
         final error = ArgumentError('Test error');
@@ -201,7 +209,9 @@ void main() {
         expect(loggerData.stackTrace, isNull);
       });
 
-      test('THEN should emit InAppLoggerData with error and stackTrace when provided', () async {
+      test(
+          'THEN should emit InAppLoggerData with error and stackTrace when provided',
+          () async {
         // Arrange
         const message = 'Warning with details';
         final error = StateError('Test warning');
@@ -230,7 +240,7 @@ void main() {
         const messages = ['First message', 'Second message', 'Third message'];
         final receivedMessages = <String>[];
         final completer = Completer<void>();
-        
+
         // Act
         logger.stream.listen((data) {
           receivedMessages.add(data.message);
@@ -252,12 +262,12 @@ void main() {
   });
 
   group('InAppConsole', () {
-    late InAppConsole console;
+    late InAppConsoleInternal console;
 
     setUp(() {
-      console = InAppConsole.instance;
+      console = InAppConsole.instance as InAppConsoleInternal;
       InAppConsole.kEnableConsole = true;
-      console.clearHistory();
+      console.clearLogs();
     });
 
     group('GIVEN InAppConsole singleton', () {
@@ -302,7 +312,7 @@ void main() {
         final logger = InAppLogger();
         const message = 'Test message';
         final receivedMessages = <String>[];
-        
+
         final subscription = console.stream.listen((data) {
           receivedMessages.add(data.message);
         });
@@ -318,31 +328,32 @@ void main() {
         // Assert
         expect(receivedMessages.length, equals(1));
         expect(console.history.length, equals(1));
-        
+
         // Clean up
         await subscription.cancel();
       });
 
-      test('THEN should remove logger and stop receiving its messages', () async {
+      test('THEN should remove logger and stop receiving its messages',
+          () async {
         // Arrange
         final logger = InAppLogger();
         const message1 = 'Before removal';
         const message2 = 'After removal';
-        
+
         console.addLogger(logger);
         logger.logInfo(message1);
-        
+
         // Wait for first message
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history.length, equals(1));
 
         // Act - Remove logger
         console.removeLogger(logger);
-        
+
         // Try to add the same logger again - this should work now
         console.addLogger(logger);
         logger.logInfo(message2);
-        
+
         // Wait for second message
         await Future.delayed(const Duration(milliseconds: 50));
 
@@ -360,13 +371,13 @@ void main() {
         console.addLogger(logger);
         logger.logInfo('Message 1');
         logger.logInfo('Message 2');
-        
+
         // Wait for messages to be processed
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history.length, equals(2));
 
         // Act
-        console.clearHistory();
+        console.clearLogs();
 
         // Assert
         expect(console.history, isEmpty);
@@ -378,14 +389,14 @@ void main() {
         final logger2 = InAppLogger();
         logger1.setLabel('LOGGER1');
         logger2.setLabel('LOGGER2');
-        
+
         console.addLogger(logger1);
         console.addLogger(logger2);
 
         // Act
         logger1.logInfo('Message from logger 1');
         logger2.logError(message: 'Error from logger 2');
-        
+
         // Wait for messages to be processed
         await Future.delayed(const Duration(milliseconds: 50));
 
@@ -403,37 +414,55 @@ void main() {
     group('GIVEN InAppConsoleUtils', () {
       test('WHEN getTypeColor is called THEN should return correct colors', () {
         // Assert
-        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.info), equals(Colors.green));
-        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.warning), equals(Colors.orange));
-        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.error), equals(Colors.red));
+        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.info),
+            equals(Colors.green));
+        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.warning),
+            equals(Colors.orange));
+        expect(InAppConsoleUtils.getTypeColor(InAppLoggerType.error),
+            equals(Colors.red));
       });
 
       test('WHEN getTypeIcon is called THEN should return correct icons', () {
         // Assert
-        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.info), equals(Icons.info));
-        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.warning), equals(Icons.warning));
-        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.error), equals(Icons.error));
+        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.info),
+            equals(Icons.info));
+        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.warning),
+            equals(Icons.warning));
+        expect(InAppConsoleUtils.getTypeIcon(InAppLoggerType.error),
+            equals(Icons.error));
       });
 
-      test('WHEN getTypeOutlineIcon is called THEN should return correct outline icons', () {
+      test(
+          'WHEN getTypeOutlineIcon is called THEN should return correct outline icons',
+          () {
         // Assert
-        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.info), equals(Icons.info_outline));
-        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.warning), equals(Icons.warning_outlined));
-        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.error), equals(Icons.error_outline));
+        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.info),
+            equals(Icons.info_outline));
+        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.warning),
+            equals(Icons.warning_outlined));
+        expect(InAppConsoleUtils.getTypeOutlineIcon(InAppLoggerType.error),
+            equals(Icons.error_outline));
       });
 
       test('WHEN getTypeLabel is called THEN should return correct labels', () {
         // Assert
-        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.info), equals('INFO'));
-        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.warning), equals('WARN'));
-        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.error), equals('ERROR'));
+        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.info),
+            equals('INFO'));
+        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.warning),
+            equals('WARN'));
+        expect(InAppConsoleUtils.getTypeLabel(InAppLoggerType.error),
+            equals('ERROR'));
       });
 
-      test('WHEN getErrorPrefix is called THEN should return correct prefixes', () {
+      test('WHEN getErrorPrefix is called THEN should return correct prefixes',
+          () {
         // Assert
-        expect(InAppConsoleUtils.getErrorPrefix(InAppLoggerType.info), equals(''));
-        expect(InAppConsoleUtils.getErrorPrefix(InAppLoggerType.warning), equals('Warning'));
-        expect(InAppConsoleUtils.getErrorPrefix(InAppLoggerType.error), equals('Error'));
+        expect(
+            InAppConsoleUtils.getErrorPrefix(InAppLoggerType.info), equals(''));
+        expect(InAppConsoleUtils.getErrorPrefix(InAppLoggerType.warning),
+            equals('Warning'));
+        expect(InAppConsoleUtils.getErrorPrefix(InAppLoggerType.error),
+            equals('Error'));
       });
 
       test('WHEN formatTimestamp is called THEN should format correctly', () {
@@ -447,7 +476,9 @@ void main() {
         expect(formatted, equals('14:30:45.123'));
       });
 
-      test('WHEN formatTimestamp is called with single digits THEN should pad correctly', () {
+      test(
+          'WHEN formatTimestamp is called with single digits THEN should pad correctly',
+          () {
         // Arrange
         final timestamp = DateTime(2023, 1, 1, 9, 5, 3, 7);
 
@@ -462,22 +493,25 @@ void main() {
 
   group('Integration Tests', () {
     group('GIVEN a complete logging scenario', () {
-      test('WHEN multiple services log messages THEN console should aggregate all logs', () async {
+      test(
+          'WHEN multiple services log messages THEN console should aggregate all logs',
+          () async {
         // Arrange
-        final console = InAppConsole.instance;
-        console.clearHistory();
-        
+        final InAppConsoleInternal console =
+            InAppConsole.instance as InAppConsoleInternal;
+        console.clearLogs();
+
         final authLogger = InAppLogger()..setLabel('AUTH');
         final paymentLogger = InAppLogger()..setLabel('PAYMENT');
         final userLogger = InAppLogger()..setLabel('USER');
-        
+
         console.addLogger(authLogger);
         console.addLogger(paymentLogger);
         console.addLogger(userLogger);
-        
+
         final receivedLogs = <InAppLoggerData>[];
         final completer = Completer<void>();
-        
+
         console.stream.listen((data) {
           receivedLogs.add(data);
           if (receivedLogs.length == 6) {
@@ -487,7 +521,7 @@ void main() {
 
         // Act - Simulate microservice interaction flow
         authLogger.logInfo('Login attempt started');
-        userLogger.logInfo('Fetching user profile');  
+        userLogger.logInfo('Fetching user profile');
         authLogger.logInfo('Login successful');
         paymentLogger.logInfo('Payment request received');
         paymentLogger.logWarning(message: 'Gateway response slow');
@@ -498,70 +532,89 @@ void main() {
         // Assert
         expect(receivedLogs.length, equals(6));
         expect(console.history.length, equals(6));
-        
+
         // Verify we have messages from all services (order might vary)
-        final authMessages = receivedLogs.where((log) => log.label == 'AUTH').toList();
-        final userMessages = receivedLogs.where((log) => log.label == 'USER').toList();
-        final paymentMessages = receivedLogs.where((log) => log.label == 'PAYMENT').toList();
-        
+        final authMessages =
+            receivedLogs.where((log) => log.label == 'AUTH').toList();
+        final userMessages =
+            receivedLogs.where((log) => log.label == 'USER').toList();
+        final paymentMessages =
+            receivedLogs.where((log) => log.label == 'PAYMENT').toList();
+
         expect(authMessages.length, equals(2));
         expect(userMessages.length, equals(1));
         expect(paymentMessages.length, equals(3));
-        
+
         // Verify specific message content
-        expect(authMessages.any((log) => log.message == 'Login attempt started'), isTrue);
-        expect(authMessages.any((log) => log.message == 'Login successful'), isTrue);
+        expect(
+            authMessages.any((log) => log.message == 'Login attempt started'),
+            isTrue);
+        expect(authMessages.any((log) => log.message == 'Login successful'),
+            isTrue);
         expect(userMessages.first.message, equals('Fetching user profile'));
-        expect(paymentMessages.any((log) => log.message == 'Payment request received'), isTrue);
-        expect(paymentMessages.any((log) => log.message == 'Gateway response slow' && log.type == InAppLoggerType.warning), isTrue);
-        expect(paymentMessages.any((log) => log.message == 'Payment completed successfully'), isTrue);
+        expect(
+            paymentMessages
+                .any((log) => log.message == 'Payment request received'),
+            isTrue);
+        expect(
+            paymentMessages.any((log) =>
+                log.message == 'Gateway response slow' &&
+                log.type == InAppLoggerType.warning),
+            isTrue);
+        expect(
+            paymentMessages
+                .any((log) => log.message == 'Payment completed successfully'),
+            isTrue);
       });
 
-      test('WHEN logger is removed THEN should stop receiving its messages', () async {
+      test('WHEN logger is removed THEN should stop receiving its messages',
+          () async {
         // Arrange
-        final console = InAppConsole.instance;
-        console.clearHistory();
-        
+        final InAppConsoleInternal console =
+            InAppConsole.instance as InAppConsoleInternal;
+        console.clearLogs();
+
         final logger1 = InAppLogger()..setLabel('SERVICE1');
         final logger2 = InAppLogger()..setLabel('SERVICE2');
-        
+
         console.addLogger(logger1);
         console.addLogger(logger2);
-        
+
         // Log some initial messages
         logger1.logInfo('Message 1 from service 1');
         logger2.logInfo('Message 1 from service 2');
-        
+
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history.length, equals(2));
 
         // Act - Remove one logger
         console.removeLogger(logger1);
-        
+
         // Log more messages - only logger2 should be received
         logger1.logInfo('This should not appear in new logs');
         logger2.logInfo('This should appear');
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert - Should only have 3 total messages (2 initial + 1 from logger2)
         expect(console.history.length, equals(3));
         expect(console.history.last.label, equals('SERVICE2'));
         expect(console.history.last.message, equals('This should appear'));
-        
+
         // Verify no new messages from removed logger
-        final service1Messages = console.history.where((log) => log.label == 'SERVICE1').toList();
+        final service1Messages =
+            console.history.where((log) => log.label == 'SERVICE1').toList();
         expect(service1Messages.length, equals(1)); // Only the initial message
       });
     });
   });
 
   group('InAppConsole.kEnableConsole = false', () {
-    late InAppConsole console;
+    late InAppConsoleInternal console;
 
     setUp(() {
-      console = InAppConsole.instance;
-      console.clearHistory();
+      console = InAppConsole.instance as InAppConsoleInternal;
+      console.clearLogs();
     });
 
     tearDown(() {
@@ -570,7 +623,8 @@ void main() {
     });
 
     group('GIVEN kEnableConsole is set to false', () {
-      test('WHEN logger emits messages THEN should NOT add to history', () async {
+      test('WHEN logger emits messages THEN should NOT add to history',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
         final logger = InAppLogger();
@@ -580,19 +634,20 @@ void main() {
         logger.logInfo('This should not be recorded');
         logger.logError(message: 'This error should not be recorded');
         logger.logWarning(message: 'This warning should not be recorded');
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert
         expect(console.history, isEmpty);
       });
 
-      test('WHEN logger emits messages THEN should NOT emit to console stream', () async {
+      test('WHEN logger emits messages THEN should NOT emit to console stream',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
         final logger = InAppLogger();
         console.addLogger(logger);
-        
+
         final receivedMessages = <InAppLoggerData>[];
         final subscription = console.stream.listen((data) {
           receivedMessages.add(data);
@@ -602,28 +657,29 @@ void main() {
         logger.logInfo('Message 1');
         logger.logInfo('Message 2');
         logger.logError(message: 'Error message');
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert
         expect(receivedMessages, isEmpty);
-        
+
         // Clean up
         await subscription.cancel();
       });
 
-      test('WHEN multiple loggers emit messages THEN none should be recorded', () async {
+      test('WHEN multiple loggers emit messages THEN none should be recorded',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
-        
+
         final logger1 = InAppLogger()..setLabel('SERVICE1');
         final logger2 = InAppLogger()..setLabel('SERVICE2');
         final logger3 = InAppLogger()..setLabel('SERVICE3');
-        
+
         console.addLogger(logger1);
         console.addLogger(logger2);
         console.addLogger(logger3);
-        
+
         final receivedMessages = <InAppLoggerData>[];
         final subscription = console.stream.listen((data) {
           receivedMessages.add(data);
@@ -633,27 +689,29 @@ void main() {
         logger1.logInfo('Service 1 message');
         logger2.logWarning(message: 'Service 2 warning');
         logger3.logError(message: 'Service 3 error');
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert
         expect(console.history, isEmpty);
         expect(receivedMessages, isEmpty);
-        
+
         // Clean up
         await subscription.cancel();
       });
 
-      testWidgets('WHEN openConsole is called THEN should return immediately without navigation', (tester) async {
+      testWidgets(
+          'WHEN openConsole is called THEN should return immediately without navigation',
+          (tester) async {
         // Arrange
         InAppConsole.kEnableConsole = false;
-        
+
         await tester.pumpWidget(
           MaterialApp(
             home: const Scaffold(body: Text('Test')),
           ),
         );
-        
+
         final context = tester.element(find.byType(Scaffold));
 
         // Act
@@ -661,30 +719,32 @@ void main() {
 
         // Assert - Should complete immediately
         await expectLater(result, completes);
-        
+
         // Verify no navigation occurred
         await tester.pumpAndSettle();
         expect(find.byType(InAppConsoleScreen), findsNothing);
       });
 
-      test('WHEN kEnableConsole is toggled from false to true THEN should start recording', () async {
+      test(
+          'WHEN kEnableConsole is toggled from false to true THEN should start recording',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
         final logger = InAppLogger()..setLabel('TEST');
         console.addLogger(logger);
-        
+
         // Act - Log while disabled
         logger.logInfo('Message while disabled');
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history, isEmpty);
-        
+
         // Enable console
         InAppConsole.kEnableConsole = true;
-        
+
         // Need to re-add logger after enabling to activate the subscription behavior
         console.removeLogger(logger);
         console.addLogger(logger);
-        
+
         // Log while enabled
         logger.logInfo('Message while enabled');
         await Future.delayed(const Duration(milliseconds: 50));
@@ -694,20 +754,22 @@ void main() {
         expect(console.history.first.message, equals('Message while enabled'));
       });
 
-      test('WHEN kEnableConsole is toggled from true to false THEN should stop recording', () async {
+      test(
+          'WHEN kEnableConsole is toggled from true to false THEN should stop recording',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = true;
         final logger = InAppLogger()..setLabel('TEST');
         console.addLogger(logger);
-        
+
         // Act - Log while enabled
         logger.logInfo('Message while enabled');
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history.length, equals(1));
-        
+
         // Disable console
         InAppConsole.kEnableConsole = false;
-        
+
         // Log while disabled
         logger.logInfo('Message while disabled');
         logger.logError(message: 'Error while disabled');
@@ -718,44 +780,48 @@ void main() {
         expect(console.history.first.message, equals('Message while enabled'));
       });
 
-      test('WHEN clearHistory is called with kEnableConsole false THEN should still clear history', () async {
+      test(
+          'WHEN clearHistory is called with kEnableConsole false THEN should still clear history',
+          () async {
         // Arrange - First add some history while enabled
         InAppConsole.kEnableConsole = true;
         final logger = InAppLogger();
         console.addLogger(logger);
-        
+
         logger.logInfo('Message 1');
         logger.logInfo('Message 2');
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history.length, equals(2));
-        
+
         // Now disable console
         InAppConsole.kEnableConsole = false;
 
         // Act
-        console.clearHistory();
+        console.clearLogs();
 
         // Assert
         expect(console.history, isEmpty);
       });
 
-      test('WHEN multiple loggers added with kEnableConsole false THEN loggers should still be registered', () async {
+      test(
+          'WHEN multiple loggers added with kEnableConsole false THEN loggers should still be registered',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
-        
+
         final logger1 = InAppLogger()..setLabel('LOGGER1');
         final logger2 = InAppLogger()..setLabel('LOGGER2');
 
         // Act
         console.addLogger(logger1);
         console.addLogger(logger2);
-        
+
         // Emit messages (should not be recorded)
         logger1.logInfo('Test 1');
         logger2.logInfo('Test 2');
         await Future.delayed(const Duration(milliseconds: 50));
         expect(console.history, isEmpty);
-        
+
         // Now enable and emit again
         InAppConsole.kEnableConsole = true;
         logger1.logInfo('Test 3');
@@ -768,11 +834,13 @@ void main() {
         expect(console.history[1].message, equals('Test 4'));
       });
 
-      test('WHEN removeLogger is called with kEnableConsole false THEN should still remove logger', () async {
+      test(
+          'WHEN removeLogger is called with kEnableConsole false THEN should still remove logger',
+          () async {
         // Arrange
         InAppConsole.kEnableConsole = false;
         final logger = InAppLogger()..setLabel('TEST');
-        
+
         console.addLogger(logger);
         logger.logInfo('Message 1');
         await Future.delayed(const Duration(milliseconds: 50));
@@ -780,7 +848,7 @@ void main() {
 
         // Act - Remove logger
         console.removeLogger(logger);
-        
+
         // Enable console and try to re-add
         InAppConsole.kEnableConsole = true;
         console.addLogger(logger);
@@ -794,10 +862,12 @@ void main() {
     });
 
     group('GIVEN production environment simulation', () {
-      test('WHEN app is in production mode with kEnableConsole false THEN no performance impact from logging', () async {
+      test(
+          'WHEN app is in production mode with kEnableConsole false THEN no performance impact from logging',
+          () async {
         // Arrange - Simulate production setting
         InAppConsole.kEnableConsole = false;
-        
+
         final services = List.generate(20, (index) {
           final logger = InAppLogger()..setLabel('SERVICE_$index');
           console.addLogger(logger);
@@ -806,7 +876,7 @@ void main() {
 
         // Act - Simulate heavy logging in production
         final stopwatch = Stopwatch()..start();
-        
+
         for (final service in services) {
           for (int i = 0; i < 100; i++) {
             service.logInfo('High frequency message $i');
@@ -814,23 +884,25 @@ void main() {
             service.logWarning(message: 'Warning $i');
           }
         }
-        
+
         await Future.delayed(const Duration(milliseconds: 100));
         stopwatch.stop();
 
         // Assert - No history accumulated
         expect(console.history, isEmpty);
-        
+
         // Performance should be good (logging disabled = minimal overhead)
         expect(stopwatch.elapsedMilliseconds, lessThan(1000));
       });
 
-      test('WHEN switching from development to production THEN history persists but new logs are blocked', () async {
+      test(
+          'WHEN switching from development to production THEN history persists but new logs are blocked',
+          () async {
         // Arrange - Development mode
         InAppConsole.kEnableConsole = true;
         final logger = InAppLogger()..setLabel('APP');
         console.addLogger(logger);
-        
+
         // Log in development
         logger.logInfo('Development log 1');
         logger.logInfo('Development log 2');
@@ -839,7 +911,7 @@ void main() {
 
         // Act - Switch to production
         InAppConsole.kEnableConsole = false;
-        
+
         // Try to log in production
         logger.logInfo('Production log (should not appear)');
         logger.logError(message: 'Production error (should not appear)');
@@ -859,7 +931,7 @@ void main() {
     setUp(() {
       console = InAppConsole.instance as InAppConsoleInternal;
       InAppConsole.kEnableConsole = true;
-      console.clearHistory();
+      console.clearLogs();
 
       // Clear any registered extensions
       final extensions = console.getExtensions();
@@ -877,7 +949,9 @@ void main() {
     });
 
     group('GIVEN an extension', () {
-      test('WHEN registering an extension THEN it should be registered successfully', () {
+      test(
+          'WHEN registering an extension THEN it should be registered successfully',
+          () {
         // Arrange
         final extension = TestExtension();
 
@@ -904,7 +978,9 @@ void main() {
         expect(extension.disposeCalled, isFalse);
       });
 
-      test('WHEN registering duplicate extension THEN registration should be skipped', () {
+      test(
+          'WHEN registering duplicate extension THEN registration should be skipped',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = TestExtension(); // Same ID
@@ -920,7 +996,9 @@ void main() {
         expect(extension2.initCalled, isFalse); // Should not be initialized
       });
 
-      test('WHEN registering multiple unique extensions THEN all should be registered', () {
+      test(
+          'WHEN registering multiple unique extensions THEN all should be registered',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = AnotherTestExtension();
@@ -954,7 +1032,8 @@ void main() {
         expect(extension.disposeCalled, isTrue);
       });
 
-      test('WHEN unregistering non-existent extension THEN should not throw', () {
+      test('WHEN unregistering non-existent extension THEN should not throw',
+          () {
         // Arrange
         final extension = TestExtension();
 
@@ -962,7 +1041,9 @@ void main() {
         expect(() => console.unregisterExtension(extension), returnsNormally);
       });
 
-      test('WHEN unregistering one of multiple extensions THEN only that extension should be removed', () {
+      test(
+          'WHEN unregistering one of multiple extensions THEN only that extension should be removed',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = AnotherTestExtension();
@@ -978,7 +1059,8 @@ void main() {
         final extensions = console.getExtensions();
         expect(extensions.length, equals(2));
         expect(extensions.any((e) => e.id == 'test_extension'), isTrue);
-        expect(extensions.any((e) => e.id == 'another_test_extension'), isFalse);
+        expect(
+            extensions.any((e) => e.id == 'another_test_extension'), isFalse);
         expect(extensions.any((e) => e.id == 'third_test_extension'), isTrue);
         expect(extension2.disposeCalled, isTrue);
       });
@@ -996,7 +1078,9 @@ void main() {
         expect(extension.buildWidgetCalled, isTrue);
       });
 
-      test('WHEN re-registering unregistered extension THEN should register successfully', () {
+      test(
+          'WHEN re-registering unregistered extension THEN should register successfully',
+          () {
         // Arrange
         final extension = TestExtension();
         console.registerExtension(extension);
@@ -1012,7 +1096,9 @@ void main() {
         expect(extension.initCalled, isTrue);
       });
 
-      test('WHEN getting extensions THEN should return list in registration order', () {
+      test(
+          'WHEN getting extensions THEN should return list in registration order',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = AnotherTestExtension();
@@ -1036,12 +1122,15 @@ void main() {
         console.registerExtension(extension);
 
         // Assert
-        expect(extension.description, equals('A test extension with description'));
+        expect(
+            extension.description, equals('A test extension with description'));
       });
     });
 
     group('GIVEN multiple extensions', () {
-      test('WHEN all extensions are registered THEN lifecycle methods should be called in order', () {
+      test(
+          'WHEN all extensions are registered THEN lifecycle methods should be called in order',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = AnotherTestExtension();
@@ -1061,7 +1150,9 @@ void main() {
         expect(extension3.disposeCalled, isFalse);
       });
 
-      test('WHEN all extensions are unregistered THEN onDispose should be called for all', () {
+      test(
+          'WHEN all extensions are unregistered THEN onDispose should be called for all',
+          () {
         // Arrange
         final extension1 = TestExtension();
         final extension2 = AnotherTestExtension();
@@ -1100,7 +1191,7 @@ class TestExtension extends InAppConsoleExtension {
   String get version => '1.0.0';
 
   @override
-  void onInit() {
+  void onInit(InAppConsoleExtensionContext extensionContext) {
     initCalled = true;
   }
 
@@ -1136,7 +1227,7 @@ class AnotherTestExtension extends InAppConsoleExtension {
   String get version => '2.0.0';
 
   @override
-  void onInit() {
+  void onInit(InAppConsoleExtensionContext extensionContext) {
     initCalled = true;
   }
 
@@ -1165,7 +1256,7 @@ class ThirdTestExtension extends InAppConsoleExtension {
   String get version => '3.0.0';
 
   @override
-  void onInit() {
+  void onInit(InAppConsoleExtensionContext extensionContext) {
     initCalled = true;
   }
 

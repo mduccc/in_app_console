@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'package:in_app_console/src/ui/in_app_console_extensions_screen.dart';
 
@@ -119,7 +120,7 @@ class InAppConsoleScreen extends StatefulWidget {
 }
 
 class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
-  final InAppConsole _console = InAppConsole.instance;
+  final InAppConsoleInternal _console = InAppConsole.instance as InAppConsoleInternal;
   final List<InAppLoggerData> _loggerData = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -186,7 +187,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
 
   void _clearLogs() {
     setState(() {
-      _console.clearHistory();
+      _console.clearLogs();
       _loggerData.clear();
     });
   }

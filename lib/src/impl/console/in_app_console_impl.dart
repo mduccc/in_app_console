@@ -3,21 +3,31 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
+import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 
 /// Implementation of the [InAppConsoleInternal] interface.
 ///
 class InAppConsoleImpl implements InAppConsoleInternal {
+  /// Constructor for the [InAppConsoleImpl].
+  ///
+  InAppConsoleImpl(this.extensionContext);
+
+  /// The extension context instance.
+  /// This instance provides access to the console's stream and history for extensions.
+  ///
+  final InAppConsoleExtensionContext extensionContext;
+
   /// The map of registered loggers with their hash code.
-  /// 
+  ///
   /// This map is used to store the registered loggers with their hash code.
-  /// 
+  ///
   final Map<int, InAppLogger> _registeredLoggersWithHashCode = {};
 
   /// The map of subscriptions of loggers with their hash code.
-  /// 
+  ///
   /// This map is used to store the subscriptions of loggers with their hash code.
-  /// 
+  ///
   final Map<int, StreamSubscription<InAppLoggerData>>
       _subscriptionsLoggersWithHashCode = {};
 
@@ -51,9 +61,9 @@ class InAppConsoleImpl implements InAppConsoleInternal {
   /// Otherwise, it will be registered and the data will be emitted to the stream and the history will be updated.
   ///
   /// Also log to the console of the IDE
-  /// 
+  ///
   /// If the [kEnableConsole] flag is false, it will not be emit and store the data to the history.
-  /// 
+  ///
   @override
   void addLogger(InAppLogger logger) {
     if (_registeredLoggersWithHashCode.containsKey(logger.hashCode)) {
@@ -116,7 +126,7 @@ class InAppConsoleImpl implements InAppConsoleInternal {
   }
 
   @override
-  void clearHistory() {
+  void clearLogs() {
     _history.clear();
   }
 
@@ -133,7 +143,7 @@ class InAppConsoleImpl implements InAppConsoleInternal {
     _registeredExtensionsWithID[extension.id] = extension;
 
     // Initialize the extension
-    extension.onInit();
+    extension.onInit(extensionContext);
   }
 
   /// Unregister an extension from the console.

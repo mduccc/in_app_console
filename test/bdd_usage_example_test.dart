@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'dart:async';
 
@@ -10,15 +11,15 @@ import 'dart:async';
 void main() {
   group('Microservice Logging Scenario', () {
     group('GIVEN a Flutter app with multiple microservices', () {
-      late InAppConsole console;
+      late InAppConsoleInternal console;
       late InAppLogger authService;
       late InAppLogger paymentService;
       late InAppLogger userService;
 
       setUp(() {
-        console = InAppConsole.instance;
+        console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = true;
-        console.clearHistory();
+        console.clearLogs();
         
         // Initialize microservices with their own loggers
         authService = InAppLogger()..setLabel('AUTH');
@@ -131,9 +132,9 @@ void main() {
     group('GIVEN multiple concurrent services', () {
       test('WHEN many services log simultaneously THEN all messages should be captured', () async {
         // Arrange
-        final console = InAppConsole.instance;
+        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = true;
-        console.clearHistory();
+        console.clearLogs();
         
         final services = List.generate(10, (index) {
           final logger = InAppLogger()..setLabel('SERVICE_$index');
@@ -176,15 +177,15 @@ void main() {
 
   group('Production Mode with kEnableConsole = false', () {
     group('GIVEN a production environment', () {
-      late InAppConsole console;
+      late InAppConsoleInternal console;
       late InAppLogger authService;
       late InAppLogger paymentService;
       late InAppLogger userService;
 
       setUp(() {
-        console = InAppConsole.instance;
+        console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = false; // Production mode
-        console.clearHistory();
+        console.clearLogs();
         
         // Initialize services
         authService = InAppLogger()..setLabel('AUTH');
@@ -298,8 +299,8 @@ void main() {
     group('GIVEN a feature flag system for console control', () {
       test('WHEN feature flag toggles console THEN should respect the flag', () async {
         // Arrange - Simulate feature flag system
-        final console = InAppConsole.instance;
-        console.clearHistory();
+        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
+        console.clearLogs();
         
         bool isDebugModeEnabled = false; // Feature flag
         InAppConsole.kEnableConsole = isDebugModeEnabled;
@@ -335,9 +336,9 @@ void main() {
     group('GIVEN high-frequency logging in production', () {
       test('WHEN kEnableConsole is false THEN should have minimal performance impact', () async {
         // Arrange
-        final console = InAppConsole.instance;
+        final InAppConsoleInternal console = InAppConsole.instance as InAppConsoleInternal;
         InAppConsole.kEnableConsole = false;
-        console.clearHistory();
+        console.clearLogs();
         
         final highFrequencyService = InAppLogger()..setLabel('HIGH_FREQ');
         console.addLogger(highFrequencyService);

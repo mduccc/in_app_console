@@ -1,43 +1,29 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_app_console/src/core/extension/in_app_console_extension.dart';
+import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger.dart';
-import 'package:in_app_console/src/core/logger/in_app_logger_data.dart';
 import 'package:in_app_console/src/impl/console/in_app_console_impl.dart';
 
-/// Interface for a in app console.
+/// Core interface for a in app console.
 ///
 /// This class is used to combine multiple [InAppLogger] into a single stream.
 ///
 abstract class InAppConsole {
-  
   /// Whether to enable the in app console.
-  /// 
+  ///
   /// If your app is in production, you can set this to false to disable the in app console.
   ///
   /// Default is false.
-  /// 
+  ///
   static bool kEnableConsole = false;
 
   /// Default instance of the [InAppConsole].
-  static final InAppConsole _instance = InAppConsoleImpl();
+  static final InAppConsole _instance =
+      InAppConsoleImpl(InAppConsoleExtensionContext.instance);
 
-  /// Default instance of the [InAppConsole].
+  /// Default instance of the [InAppConsole] for external use.
   ///
   static InAppConsole get instance => _instance;
-
-  /// The stream of in app logger data.
-  ///
-  /// This stream is used to listen to the in app logger data.
-  ///
-  /// Every [InAppLogger] will emit a new [InAppLoggerData] object, which will be combined into a single stream.
-  ///
-  Stream<InAppLoggerData> get stream;
-
-  /// The history of in app logger data.
-  ///
-  /// This history is used to store the in app logger data.
-  ///
-  List<InAppLoggerData> get history;
 
   /// Add a in app logger to the console.
   ///
@@ -52,20 +38,20 @@ abstract class InAppConsole {
   void removeLogger(InAppLogger logger);
 
   /// Open in app console screen.
-  /// 
+  ///
   /// Ensures the console is enabled by checking the [kEnableConsole] flag before opening the console.
-  /// 
+  ///
   Future<void> openConsole(BuildContext context);
 
   /// Close in app console screen.
   ///
   void closeConsole(BuildContext context);
 
-  /// Clear the history of the in app console.
+  /// Clear the logs history of the in app console.
   ///
-  /// This method is used to clear the history of the in app console.
+  /// This method is used to clear the logs history of the in app console.
   ///
-  void clearHistory();
+  void clearLogs();
 
   /// Register an extension with the console.
   ///

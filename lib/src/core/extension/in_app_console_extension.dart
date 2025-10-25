@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 
 /// Abstract interface for In-App Console extensions.
 ///
@@ -60,7 +61,7 @@ abstract class InAppConsoleExtension {
   ///
   /// Use this to initialize resources, set up listeners, or perform
   /// any setup logic needed for your extension.
-  void onInit() {}
+  void onInit(InAppConsoleExtensionContext extensionContext) {}
 
   /// Called when the extension is unregistered from the console.
   ///
