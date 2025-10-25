@@ -1,3 +1,23 @@
+## Table of Contents
+
+- [From Pain Point to Idea](#from-pain-point-to-idea)
+- [Designed for Micro-frontend Architecture](#designed-for-micro-frontend-architecture)
+- [Screenshots](#screenshots)
+- [Usage](#usage)
+  - [1. Add dependency](#1-add-dependency)
+  - [2. Import the package](#2-import-the-package)
+  - [3. Create logger and add to console](#3-create-logger-and-add-to-console)
+  - [4. Log messages](#4-log-messages)
+  - [5. Show console screen](#5-show-console-screen)
+- [Extension System](#extension-system)
+  - [Using Extensions](#using-extensions)
+  - [Creating Custom Extensions](#creating-custom-extensions)
+  - [Extension Lifecycle](#extension-lifecycle)
+  - [Extension Guidelines](#extension-guidelines)
+- [Roadmap](#roadmap)
+
+---
+
 ## From pain point  to Idea
 
 **Pain point**
@@ -112,13 +132,14 @@ The in-app console supports a powerful extension system that allows you to add c
 To use an extension, simply register it with the console:
 
 ```dart
-import 'package:your_extension_package/your_extension.dart';
-
 // Register extension
-InAppConsole.instance.registerExtension(YourExtension());
+InAppConsole.instance.registerExtension(LogStatisticsExtension());
 
-// Unregister when no longer needed
-InAppConsole.instance.unregisterExtension(yourExtension);
+// Unregister when no longer needed (optional)
+final extension = LogStatisticsExtension();
+InAppConsole.instance.registerExtension(extension);
+// Later...
+InAppConsole.instance.unregisterExtension(extension);
 ```
 
 Extensions are displayed in the Extensions screen, accessible from the console UI. Each extension provides its own UI widget and functionality.
@@ -131,21 +152,22 @@ You can create custom extensions by implementing the `InAppConsoleExtension` abs
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 
-class LogExportExtension extends InAppConsoleExtension {
+/// Sample extension that displays log statistics and analytics.
+class LogStatisticsExtension extends InAppConsoleExtension {
   @override
-  String get id => 'com.example.log_export';
+  String get id => 'com.example.log_statistics';
 
   @override
-  String get name => 'Log Export';
+  String get name => 'Log Statistics';
 
   @override
   String get version => '1.0.0';
 
   @override
-  String get description => 'Export logs to file';
+  String get description => 'View log statistics and analytics';
 
   @override
-  Widget get icon => const Icon(Icons.download);
+  Widget get icon => const Icon(Icons.analytics_outlined);
 
   late InAppConsoleExtensionContext _extensionContext;
 
@@ -153,36 +175,47 @@ class LogExportExtension extends InAppConsoleExtension {
   void onInit(InAppConsoleExtensionContext extensionContext) {
     // Initialize resources, set up listeners
     _extensionContext = extensionContext;
-    print('Log Export extension initialized');
+    debugPrint('[$name] Extension initialized');
   }
 
   @override
   void onDispose() {
     // Clean up resources
-    print('Log Export extension disposed');
+    debugPrint('[$name] Extension disposed');
   }
 
   @override
   Widget buildWidget(BuildContext context) {
+    final logs = _extensionContext.history;
+
+    // Calculate statistics
+    final totalLogs = logs.length;
+    final infoCount = logs.where((log) => log.type == InAppLoggerType.info).length;
+    final warningCount = logs.where((log) => log.type == InAppLoggerType.warning).length;
+    final errorCount = logs.where((log) => log.type == InAppLoggerType.error).length;
+
     return Card(
-      child: ListTile(
-        title: Text(name),
-        subtitle: Text(description),
-        trailing: ElevatedButton(
-          onPressed: () => _exportLogs(),
-          child: Text('Export'),
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Log Statistics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            Text('Total Logs: $totalLogs'),
+            Text('Info: $infoCount'),
+            Text('Warnings: $warningCount'),
+            Text('Errors: $errorCount'),
+          ],
         ),
       ),
     );
   }
-
-  void _exportLogs() {
-    // Access console logs
-    final logs = _extensionContext.history;
-    // Implement export logic
-  }
 }
 ```
+
+**See the complete example in:** [`example/lib/extensions/log_statistics_extension.dart`](example/lib/extensions/log_statistics_extension.dart)
 
 ### Extension Lifecycle
 
@@ -205,4 +238,4 @@ class LogExportExtension extends InAppConsoleExtension {
 
 Future enhancements:
 
-  [ ] Community extension packages (log export, network inspector, database viewer)
+ - [ ] Community extension packages (log export, network inspector, database viewer)
