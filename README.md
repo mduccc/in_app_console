@@ -47,9 +47,13 @@
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/1.1.0/screenshots/console.png?raw=true)" alt="Log List"/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/console.png?raw=true)" alt="Log List"/>
+
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_list.png?raw=true)" alt="Extensions List"/>
+
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_detail_sample.png?raw=true)" alt="A extension"/>
 
 ## Usage
 
