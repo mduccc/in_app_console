@@ -53,7 +53,7 @@
 
 <img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_list.png?raw=true)" alt="Extensions List" width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_detail_sample.png?raw=true)" alt="A extension width="45%""/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_detail_sample.png?raw=true)" alt="A extension " width="45%"/>
 
 ## Usage
 
