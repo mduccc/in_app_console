@@ -1,7 +1,8 @@
 ## Table of Contents
 
-- [From Pain Point to Idea](#from-pain-point-to-idea)
-- [Designed for Micro-frontend Architecture](#designed-for-micro-frontend-architecture)
+- [Table of Contents](#table-of-contents)
+- [Idea](#idea)
+- [Designed for Micro-frontend architecture](#designed-for-micro-frontend-architecture)
 - [Screenshots](#screenshots)
 - [Usage](#usage)
   - [1. Add dependency](#1-add-dependency)
@@ -18,15 +19,8 @@
 
 ---
 
-## From pain point  to Idea
-
-**Pain point**
-- Developers can build and view logs, but testers normally can't.
-- In micro-frontend architecture, it's difficult to track logs when each module logs differently.
-
-**Idea**
-- The package bridges that gap by providing unified in-app log viewing.
-- Enables both developers and testers to easily check logs across all modules in one centralized console, making debugging faster and bug reports more detailed.
+## Idea
+In-app console for real-time log viewing. Bridges developers and testers with unified logging across micro-frontend modules. Extensible with custom plugins.
 
 ## Designed for Micro-frontend architecture
 ```
