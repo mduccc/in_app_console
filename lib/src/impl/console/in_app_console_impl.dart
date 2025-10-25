@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
-import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 import 'package:in_app_console/src/ui/in_app_console_screen.dart';
 
 /// Implementation of the [InAppConsoleInternal] interface.

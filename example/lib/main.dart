@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 
+import 'extensions/log_statistics_extension.dart';
+
 void main() {
   /// Enable the in app console for debugging purposes.
   InAppConsole.kEnableConsole = true;
@@ -45,6 +47,9 @@ class MicroFrontendApp {
     InAppConsole.instance.addLogger(paymentModule.logger);
     InAppConsole.instance.addLogger(profileModule.logger);
     InAppConsole.instance.addLogger(chatModule.logger);
+
+    // Register extensions
+    InAppConsole.instance.registerExtension(LogStatisticsExtension());
   }
 }
 

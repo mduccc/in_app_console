@@ -26,18 +26,52 @@ class _InAppConsoleExtensionsScreenState
         titleSpacing: 0,
       ),
       body: extensions.isEmpty
-          ? _buildEmptyState()
+          ? const _EmptyState()
           : ListView.builder(
               itemCount: extensions.length,
               itemBuilder: (context, index) {
                 final extension = extensions[index];
-                return _buildExtensionTile(context, extension, index + 1);
+                return _ExtensionTile(
+                  extension: extension,
+                  index: index + 1,
+                  onTap: () => _showExtensionDetails(context, extension),
+                );
               },
             ),
     );
   }
 
-  Widget _buildEmptyState() {
+  void _showExtensionDetails(
+    BuildContext context,
+    InAppConsoleExtension extension,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) {
+          return _ExtensionDetails(
+            extension: extension,
+            scrollController: scrollController,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -68,41 +102,43 @@ class _InAppConsoleExtensionsScreenState
       ),
     );
   }
+}
 
-  Widget _buildExtensionTile(
-    BuildContext context,
-    InAppConsoleExtension extension,
-    int index,
-  ) {
+class _ExtensionTile extends StatelessWidget {
+  const _ExtensionTile({
+    required this.extension,
+    required this.index,
+    required this.onTap,
+  });
+
+  final InAppConsoleExtension extension;
+  final int index;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     final hasDescription = extension.description.isNotEmpty;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
       child: InkWell(
-        onTap: () => _showExtensionDetails(context, extension),
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Index badge
+              // Extension icon
               Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                width: 48,
+                height: 48,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
                 ),
                 child: Center(
-                  child: Text(
-                    '#$index',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
+                  child: SizedBox(width: 28, height: 28, child: extension.icon),
                 ),
               ),
               const SizedBox(width: 16),
@@ -155,38 +191,19 @@ class _InAppConsoleExtensionsScreenState
       ),
     );
   }
+}
 
-  void _showExtensionDetails(
-    BuildContext context,
-    InAppConsoleExtension extension,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) {
-          return _buildExtensionDetails(
-            context,
-            extension,
-            scrollController,
-          );
-        },
-      ),
-    );
-  }
+class _ExtensionDetails extends StatelessWidget {
+  const _ExtensionDetails({
+    required this.extension,
+    required this.scrollController,
+  });
 
-  Widget _buildExtensionDetails(
-    BuildContext context,
-    InAppConsoleExtension extension,
-    ScrollController scrollController,
-  ) {
+  final InAppConsoleExtension extension;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: ListView(
@@ -211,14 +228,12 @@ class _InAppConsoleExtensionsScreenState
               Container(
                 width: 56,
                 height: 56,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(28),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                 shape: BoxShape.circle
                 ),
-                child: Icon(
-                  Icons.extension,
-                  size: 32,
-                  color: Theme.of(context).primaryColor,
+                child: Center(
+                  child: extension.icon,
                 ),
               ),
               const SizedBox(width: 16),
@@ -252,22 +267,20 @@ class _InAppConsoleExtensionsScreenState
           const SizedBox(height: 16),
 
           // Extension ID
-          _buildDetailRow(
-            context,
-            'ID',
-            extension.id,
-            Icons.fingerprint,
+          _DetailRow(
+            label: 'ID',
+            value: extension.id,
+            icon: Icons.fingerprint,
           ),
 
           const SizedBox(height: 16),
 
           // Extension description
           if (extension.description.isNotEmpty) ...[
-            _buildDetailRow(
-              context,
-              'Description',
-              extension.description,
-              Icons.description,
+            _DetailRow(
+              label: 'Description',
+              value: extension.description,
+              icon: Icons.description,
             ),
             const SizedBox(height: 16),
           ],
@@ -296,13 +309,21 @@ class _InAppConsoleExtensionsScreenState
       ),
     );
   }
+}
 
-  Widget _buildDetailRow(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 
@@ -28,7 +29,10 @@ import 'package:in_app_console/src/core/extension/in_app_console_extension_conte
 ///   String get version => '1.0.0';
 ///
 ///   @override
-///   void onInit() {
+///   Widget get icon => Icon(Icons.download);
+///
+///   @override
+///   void onInit(InAppConsoleExtensionContext extensionContext) {
 ///     print('Extension initialized');
 ///   }
 ///
@@ -56,6 +60,25 @@ abstract class InAppConsoleExtension {
 
   /// Optional description of what this extension does.
   String get description => '';
+
+  /// Optional icon widget for the extension.
+  ///
+  /// This icon will be displayed in the extension list and details.
+  /// Can be an Icon, Image, or any custom widget.
+  /// If not provided, a default extension icon will be used.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// Widget get icon => Icon(Icons.analytics);
+  /// ```
+  ///
+  /// Or with a custom image:
+  /// ```dart
+  /// @override
+  /// Widget get icon => Image.asset('assets/my_icon.png', width: 24, height: 24);
+  /// ```
+  Widget get icon => const Icon(Icons.extension);
 
   /// Called when the extension is registered with the console.
   ///

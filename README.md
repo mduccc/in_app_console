@@ -56,7 +56,7 @@
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^1.1.0
+  in_app_console: ^2.0.0
 ```
 
 ### 2. Import the package
@@ -101,11 +101,106 @@ logger.logError(
 InAppConsole.instance.openConsole(context);
 ```
 
+## Extension System
+
+The in-app console supports a powerful extension system that allows you to add custom functionality without modifying the core package. Extensions can add features like log export, network inspection, database viewing, or any custom tooling you need.
+
+### Using Extensions
+
+To use an extension, simply register it with the console:
+
+```dart
+import 'package:your_extension_package/your_extension.dart';
+
+// Register extension
+InAppConsole.instance.registerExtension(YourExtension());
+
+// Unregister when no longer needed
+InAppConsole.instance.unregisterExtension(yourExtension);
+```
+
+Extensions are displayed in the Extensions screen, accessible from the console UI. Each extension provides its own UI widget and functionality.
+
+### Creating Custom Extensions
+
+You can create custom extensions by implementing the `InAppConsoleExtension` abstract class:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:in_app_console/in_app_console.dart';
+
+class LogExportExtension extends InAppConsoleExtension {
+  @override
+  String get id => 'com.example.log_export';
+
+  @override
+  String get name => 'Log Export';
+
+  @override
+  String get version => '1.0.0';
+
+  @override
+  String get description => 'Export logs to file';
+
+  @override
+  Widget get icon => const Icon(Icons.download);
+
+  late InAppConsoleExtensionContext _extensionContext;
+
+  @override
+  void onInit(InAppConsoleExtensionContext extensionContext) {
+    // Initialize resources, set up listeners
+    _extensionContext = extensionContext;
+    print('Log Export extension initialized');
+  }
+
+  @override
+  void onDispose() {
+    // Clean up resources
+    print('Log Export extension disposed');
+  }
+
+  @override
+  Widget buildWidget(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(name),
+        subtitle: Text(description),
+        trailing: ElevatedButton(
+          onPressed: () => _exportLogs(),
+          child: Text('Export'),
+        ),
+      ),
+    );
+  }
+
+  void _exportLogs() {
+    // Access console logs
+    final logs = _extensionContext.history;
+    // Implement export logic
+  }
+}
+```
+
+### Extension Lifecycle
+
+1. **Registration**: Call `InAppConsole.instance.registerExtension(extension)`
+2. **Initialization**: `onInit()` is called when the extension is registered
+3. **Rendering**: `buildWidget()` is called to render the extension's UI
+4. **Cleanup**: `onDispose()` is called when the extension is unregistered
+
+### Extension Guidelines
+
+- **Unique IDs**: Use reverse domain notation (e.g., `com.yourcompany.extension_name`)
+- **Custom Icons**: Provide a custom icon widget (Icon, Image, etc.) to visually identify your extension
+- **Lightweight**: Keep extensions performant and avoid heavy operations in `buildWidget()`
+- **Access Console Data**: Use the `InAppConsoleExtensionContext` provided in `onInit()` to access log data via `extensionContext.history`
+- **Context Access**: Use the provided `BuildContext` in `buildWidget()` for theming and navigation
+
 ## Roadmap
-This package would be more powerful if it supported features like exporting logs to files, inspecting network traffic, and viewing databases...
 
-However, implementing those features directly in the package would introduce complex dependencies and break its nature as a pure Flutter package.
+~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
 
-Therefore, supporting extensions that can plug in additional functionalities makes it easier to extend and maintain the package.
+Future enhancements:
 
-- [ ] Support plugging extensions into the in-app console.
+  [ ] Community extension packages (log export, network inspector, database viewer)

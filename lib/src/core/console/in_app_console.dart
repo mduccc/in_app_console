@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_app_console/src/core/extension/in_app_console_extension.dart';
-import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 import 'package:in_app_console/src/core/logger/in_app_logger.dart';
 import 'package:in_app_console/src/impl/console/in_app_console_impl.dart';
+import 'package:in_app_console/src/impl/extension/in_app_console_extension_context.dart';
 
 /// Core interface for a in app console.
 ///
@@ -19,7 +19,7 @@ abstract class InAppConsole {
 
   /// Default instance of the [InAppConsole].
   static final InAppConsole _instance =
-      InAppConsoleImpl(InAppConsoleExtensionContext.instance);
+      InAppConsoleImpl(InAppConsoleExtensionContextImpl());
 
   /// Default instance of the [InAppConsole] for external use.
   ///
