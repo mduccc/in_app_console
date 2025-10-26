@@ -1,3 +1,6 @@
+## 2.0.1
+* Removed "Widget Preview" label and preview container wrapper
+
 ## 2.0.0
 
 ### Breaking Changes

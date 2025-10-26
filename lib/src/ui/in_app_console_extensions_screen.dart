@@ -205,107 +205,90 @@ class _ExtensionDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      child: ListView(
+      padding: const EdgeInsets.only(left: 18, right: 18, top: 18),
+      child: SingleChildScrollView(
         controller: scrollController,
-        children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+        child: Column(
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
 
-          // Extension icon and title
-          Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                 shape: BoxShape.circle
+            // Extension icon and title
+            Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: Center(
+                    child: extension.icon,
+                  ),
                 ),
-                child: Center(
-                  child: extension.icon,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      extension.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        extension.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Version ${extension.version}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                      const SizedBox(height: 4),
+                      Text(
+                        'Version ${extension.version}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-          const Divider(),
-          const SizedBox(height: 16),
-
-          // Extension ID
-          _DetailRow(
-            label: 'ID',
-            value: extension.id,
-            icon: Icons.fingerprint,
-          ),
-
-          const SizedBox(height: 16),
-
-          // Extension description
-          if (extension.description.isNotEmpty) ...[
-            _DetailRow(
-              label: 'Description',
-              value: extension.description,
-              icon: Icons.description,
+              ],
             ),
+
+            const SizedBox(height: 24),
+            const Divider(),
             const SizedBox(height: 16),
-          ],
 
-          // Extension widget preview
-          const SizedBox(height: 8),
-          Text(
-            'Widget Preview',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+            // Extension ID
+            _DetailRow(
+              label: 'ID',
+              value: extension.id,
+              icon: Icons.fingerprint,
             ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: extension.buildWidget(context),
-          ),
-        ],
+
+            const SizedBox(height: 16),
+
+            // Extension description
+            if (extension.description.isNotEmpty) ...[
+              _DetailRow(
+                label: 'Description',
+                value: extension.description,
+                icon: Icons.description,
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Extension widget
+            const SizedBox(height: 8),
+            extension.buildWidget(context),
+          ],
+        ),
       ),
     );
   }

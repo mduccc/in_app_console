@@ -1,5 +1,6 @@
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Designed for Micro-frontend architecture](#designed-for-micro-frontend-architecture)
 - [Screenshots](#screenshots)
@@ -61,18 +62,18 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_list.png?raw=true)" alt="Extensions List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/extension_detail_sample.png?raw=true)" alt="A extension " width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/extension_list.png?raw=true)" alt="Extensions List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/extension_detail_sample.png?raw=true)" alt="A extension " width="45%"/>
 
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.0/screenshots/console.png?raw=true)" alt="Log List"/>
+<img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/console.png?raw=true)" alt="Log List"/>
 
 ## Usage
 
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^2.0.0
+  in_app_console: ^2.0.1
 ```
 
 ### 2. Import the package
@@ -228,7 +229,7 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 
 ## Roadmap
 
-~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
+~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.1**
 
 Future enhancements:
 

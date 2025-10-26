@@ -43,7 +43,6 @@ class LogStatisticsExtension extends InAppConsoleExtension {
   @override
   Widget buildWidget(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
