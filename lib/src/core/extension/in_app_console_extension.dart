@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:in_app_console/src/core/extension/in_app_console_extension_context.dart';
 
 /// Abstract interface for In-App Console extensions.

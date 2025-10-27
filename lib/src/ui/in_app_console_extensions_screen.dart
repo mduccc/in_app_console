@@ -52,9 +52,9 @@ class _InAppConsoleExtensionsScreenState
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
+        initialChildSize: 0.85,
         minChildSize: 0.4,
-        maxChildSize: 0.9,
+        maxChildSize: 0.85,
         expand: false,
         builder: (context, scrollController) {
           return _ExtensionDetails(
