@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import '../iac_export_logs_ext_platform_interface.dart';
 
 enum _ExportState { idle, loading, success, error }
 
@@ -19,15 +19,16 @@ Future<Directory?> _getExportDirectory() async {
   }
 }
 
-Future<bool> _shareFileIOS(String filePath) async {
-  final xFile = XFile(filePath);
-  final result = await SharePlus.instance.share(ShareParams(
-    files: [xFile],
-    previewThumbnail: xFile,
-    text: 'In-App Console Logs Export',
-  ));
-
-  return result.status == ShareResultStatus.success;
+Future<bool> _shareFileViaMethodChannel(String filePath) async {
+  try {
+    final result = await IacExportLogsExtPlatform.instance.shareFile(
+      filePath: filePath,
+    );
+    return result;
+  } catch (e) {
+    debugPrint('Error sharing file via method channel: $e');
+    return false;
+  }
 }
 
 class InAppConsoleExportLogsExtension extends InAppConsoleExtension {
@@ -132,18 +133,17 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
         buffer.writeln('-' * 80);
       }
 
-      bool isExportSuccessful = false;
-
-      // Write to file
+      // Write to file first
       final writtenFile = await file.writeAsString(buffer.toString());
 
-      if (Platform.isAndroid) {
-        isExportSuccessful = await writtenFile.exists();
-      }
+      bool isExportSuccessful = false;
 
-      // For iOS, share the file via share sheet
+      // For iOS, share the file via method channel with LinkPresentation
       if (Platform.isIOS) {
-        isExportSuccessful = await _shareFileIOS(file.path);
+        isExportSuccessful = await _shareFileViaMethodChannel(writtenFile.path);
+      } else {
+        // For Android and other platforms, just check if file exists
+        isExportSuccessful = await writtenFile.exists();
       }
 
       if (!mounted) {
@@ -157,7 +157,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
         });
         return;
       }
-      
+
       setState(() {
         _state = _ExportState.error;
         _errorMessage = 'Export failed';

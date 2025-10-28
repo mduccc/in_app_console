@@ -1,39 +1,66 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# iac_export_logs_ext
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+An extension for the `in_app_console` package that provides log export functionality with platform-specific implementations.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Export logs to file**: Save console logs to a text file
+- **iOS Native Share**: Uses native method channels with LinkPresentation for sharing on iOS
+- **Android Direct Save**: Saves logs directly to external storage on Android
+- **Extension Architecture**: Implements the `InAppConsoleExtension` interface
 
-## Getting started
+## Platform Support
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- ✅ iOS (using UIActivityViewController with LinkPresentation)
+- ✅ Android (direct file save to external storage)
+- ⚠️ Desktop platforms (uses downloads directory)
+
+## Implementation Details
+
+### iOS
+On iOS, the extension:
+1. Writes log content to a file in the temporary directory
+2. Passes the file path to native code via method channel
+3. Native code presents the iOS share sheet (UIActivityViewController)
+4. Uses LinkPresentation framework for rich sharing experience
+5. Supports iPad with proper popover presentation
+6. Returns boolean indicating success/completion
+
+### Android
+On Android, logs are saved directly to the external storage directory.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
 ```dart
-const like = 'sample';
+import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
+import 'package:in_app_console/in_app_console.dart';
+
+// Register the extension
+InAppConsole.instance.registerExtension(
+  InAppConsoleExportLogsExtension(),
+);
 ```
 
-## Additional information
+## Technical Architecture
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+The package follows Flutter's plugin architecture with:
+- **Platform Interface** (`iac_export_logs_ext_platform_interface.dart`): Abstract interface defining `shareFile(filePath)` method
+- **Method Channel** (`iac_export_logs_ext_method_channel.dart`): Default implementation using method channels
+- **Native iOS Code** (`IacExportLogsExtPlugin.swift`): Swift implementation with LinkPresentation
+  - Receives file path (not file content)
+  - Verifies file exists before sharing
+  - Returns boolean for success/completion
+- **Extension Widget** (`in_app_console_export_logs_extension.dart`): UI and business logic
+  - Writes log content to file first
+  - Passes file path to native code for sharing on iOS
+
+## Dependencies
+
+This package does NOT use `share_plus`. Instead, it implements custom method channels for platform-specific sharing functionality.
+
+Required dependencies:
+- `flutter`
+- `plugin_platform_interface`
+- `path_provider`
+- `in_app_console`
+
