@@ -36,6 +36,9 @@ flutter:
   # adding or updating assets for this project.
   plugin:
     platforms:
+      android:
+        package: com.example.iac_export_logs_ext
+        pluginClass: IacExportLogsExtPlugin
       ios:
         pluginClass: IacExportLogsExtPlugin
 

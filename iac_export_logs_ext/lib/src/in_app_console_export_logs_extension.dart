@@ -7,11 +7,10 @@ import '../iac_export_logs_ext_platform_interface.dart';
 enum _ExportState { idle, loading, success, error }
 
 Future<Directory?> _getExportDirectory() async {
-  if (Platform.isAndroid) {
-    // For Android, use external storage directory (Downloads)
-    return await getExternalStorageDirectory();
-  } else if (Platform.isIOS) {
-    // For iOS, use temporary directory (will be shared via share sheet)
+  if (Platform.isAndroid || Platform.isIOS) {
+    // For mobile platforms, use temporary directory
+    // Files will be saved to Downloads via MediaStore on Android
+    // Files will be shared via share sheet on iOS
     return await getTemporaryDirectory();
   } else {
     // For desktop platforms
@@ -138,11 +137,13 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
 
       bool isExportSuccessful = false;
 
-      // For iOS, share the file via method channel with LinkPresentation
-      if (Platform.isIOS) {
+      // For iOS and Android, use method channel
+      if (Platform.isIOS || Platform.isAndroid) {
+        // iOS: Share via UIActivityViewController
+        // Android: Save to Downloads using MediaStore
         isExportSuccessful = await _shareFileViaMethodChannel(writtenFile.path);
       } else {
-        // For Android and other platforms, just check if file exists
+        // For desktop platforms, just check if file exists
         isExportSuccessful = await writtenFile.exists();
       }
 
@@ -199,7 +200,11 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Export log history to downloads folder',
+                        Platform.isAndroid
+                            ? 'Export logs to Downloads folder'
+                            : Platform.isIOS
+                                ? 'Export logs via share sheet'
+                                : 'Export log history to downloads folder',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[600],
