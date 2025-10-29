@@ -5,7 +5,6 @@ import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
 import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
-
 void main() {
   /// Enable the in app console for debugging purposes.
   InAppConsole.kEnableConsole = true;
@@ -146,7 +145,7 @@ class PaymentModule {
 /// Profile Module - Handles user profile management
 class ProfileModule {
   final InAppLogger logger = InAppLogger()..setLabel('Profile');
-  Map<String, dynamic> _profileData = {};
+  final Map<String, dynamic> _profileData = {};
 
   Future<void> updateProfile(Map<String, dynamic> data) async {
     logger.logInfo('Updating profile data: ${data.keys.join(', ')}');
@@ -301,21 +300,20 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Header
-            Card(
+            const Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const Icon(Icons.architecture,
-                        size: 48, color: Colors.blue),
-                    const SizedBox(height: 8),
-                    const Text(
+                    Icon(Icons.architecture, size: 48, color: Colors.blue),
+                    SizedBox(height: 8),
+                    Text(
                       'Micro-Frontend Architecture Demo',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       'This demo shows how multiple modules (Auth, Payment, Profile, Chat) log to a central console',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),

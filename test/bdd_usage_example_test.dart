@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
-import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'dart:async';
 
 /// Example BDD-style tests demonstrating how to use the InAppConsole package

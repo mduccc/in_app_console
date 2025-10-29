@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
-import 'package:in_app_console/src/core/logger/in_app_logger_type.dart';
 import 'package:in_app_console/src/ui/in_app_console_extensions_screen.dart';
 
 /// Utility class for common InAppConsole operations and styling.

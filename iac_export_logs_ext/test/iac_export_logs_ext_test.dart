@@ -7,18 +7,19 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockIacExportLogsExtPlatform
     with MockPlatformInterfaceMixin
     implements IacExportLogsExtPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
   Future<bool> shareFile({
     required String filePath,
-  }) => Future.value(true);
+  }) =>
+      Future.value(true);
 }
 
 void main() {
-  final IacExportLogsExtPlatform initialPlatform = IacExportLogsExtPlatform.instance;
+  final IacExportLogsExtPlatform initialPlatform =
+      IacExportLogsExtPlatform.instance;
 
   test('$MethodChannelIacExportLogsExt is the default instance', () {
     expect(initialPlatform, isInstanceOf<MethodChannelIacExportLogsExt>());

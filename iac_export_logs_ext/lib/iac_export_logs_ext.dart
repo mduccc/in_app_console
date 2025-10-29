@@ -1,4 +1,3 @@
-
 import 'iac_export_logs_ext_platform_interface.dart';
 
 export 'src/in_app_console_export_logs_extension.dart';
