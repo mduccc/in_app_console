@@ -7,7 +7,7 @@ A Flutter plugin that adds log export functionality to the [in_app_console](http
 This extension adds an "Export Logs" button to your in-app console that lets you save all console logs to a text file
 
 ## Screenshots
-<img src="https://github.com/mduccc/in_app_console/blob/main/iac_export_logs_ext/screenshots/simulator_screenshot_AD73AE3A-782D-4365-A581-4B166B1573F3.png?raw=true" width="45%"/>
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/170ee66c27ef65a9db892cbfb554023941f784ae/iac_export_logs_ext/screenshots/screenshot.png" width="45%"/>
 
 
 ## Register the extension
