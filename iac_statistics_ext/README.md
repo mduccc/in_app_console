@@ -8,6 +8,7 @@ This extension displays real-time log statistics including total log counts, bre
 
 ## Screenshots
 
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/3f59d05ea85afb5cb1c618452e9dee71f6eb1bfb/iac_statistics_ext/screenshots/screenshot.png" width="45%"/>
 
 ## Register the extension
 
