@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
+import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
-import 'extensions/log_statistics_extension.dart';
 
 void main() {
   /// Enable the in app console for debugging purposes.

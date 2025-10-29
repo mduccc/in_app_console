@@ -10,7 +10,7 @@ import 'package:in_app_console/in_app_console.dart';
 /// - Building interactive UI widgets
 class LogStatisticsExtension extends InAppConsoleExtension {
   @override
-  String get id => 'com.example.log_statistics';
+  String get id => 'iac_statistics_ext';
 
   @override
   String get name => 'Log Statistics';

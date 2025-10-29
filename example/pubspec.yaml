@@ -40,6 +40,8 @@ dependencies:
     path: ../
   iac_export_logs_ext:
     path: ../iac_export_logs_ext
+  iac_statistics_ext:
+    path: ../iac_statistics_ext
 
 dev_dependencies:
   flutter_test:
