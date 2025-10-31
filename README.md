@@ -223,7 +223,7 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 
 - **Unique IDs**: Use reverse domain notation (e.g., `com.yourcompany.extension_name`)
 - **Custom Icons**: Provide a custom icon widget (Icon, Image, etc.) to visually identify your extension
-- **Lightweight**: Keep extensions performant and avoid heavy operations in `buildWidget()`
+- **Widget Building**: Keep extensions performant and avoid heavy operations in `buildWidget()`
 - **Access Console Data**: Use the `InAppConsoleExtensionContext` provided in `onInit()` to access log data via `extensionContext.history`
 - **Context Access**: Use the provided `BuildContext` in `buildWidget()` for theming and navigation
 
