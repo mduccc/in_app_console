@@ -1,0 +1,9 @@
+# melos_managed_dependency_overrides: iac_export_logs_ext,iac_statistics_ext,in_app_console,flutter_lints
+dependency_overrides:
+  iac_export_logs_ext:
+    path: ../packages/iac_export_logs_ext
+  iac_statistics_ext:
+    path: ../packages/iac_statistics_ext
+  in_app_console:
+    path: ../
+  flutter_lints: ^4.0.0

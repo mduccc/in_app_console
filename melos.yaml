@@ -1,0 +1,5 @@
+name: in_app_console
+packages:
+  - packages/*
+  - example
+  - ./
