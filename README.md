@@ -122,7 +122,7 @@ InAppConsole.instance.openConsole(context);
 
 ## Extension System
 
-The in-app console supports a powerful extension system that allows you to add custom functionality without modifying the core package. Extensions can add features like log export, network inspection, database viewing, or any custom tooling you need.
+The in-app console supports a powerful extension system that allows you to add custom functionality without modifying the core package. Extensions can add features like log statistics, log export, network inspection, database viewing, or any custom tooling you need.
 
 ### Using Extensions
 
