@@ -212,8 +212,6 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 }
 ```
 
-**See the complete example in:** [`example/lib/extensions/log_statistics_extension.dart`](example/lib/extensions/log_statistics_extension.dart)
-
 ### Extension Lifecycle
 
 1. **Registration**: Call `InAppConsole.instance.registerExtension(extension)`
