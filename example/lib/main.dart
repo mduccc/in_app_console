@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
+import 'package:iac_network_inspector_ext/iac_network_inspector_ext.dart';
 import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
@@ -50,6 +51,7 @@ class MicroFrontendApp {
     // Register extensions
     InAppConsole.instance.registerExtension(LogStatisticsExtension());
     InAppConsole.instance.registerExtension(InAppConsoleExportLogsExtension());
+    InAppConsole.instance.registerExtension(IacNetworkInspectorExt());
   }
 }
 

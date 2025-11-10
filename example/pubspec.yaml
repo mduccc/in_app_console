@@ -42,6 +42,8 @@ dependencies:
     path: ../packages/iac_export_logs_ext
   iac_statistics_ext:
     path: ../packages/iac_statistics_ext
+  iac_network_inspector_ext:
+    path: ../packages/iac_network_inspector_ext
 
 dev_dependencies:
   flutter_test:
