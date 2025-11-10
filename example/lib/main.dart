@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
 import 'package:iac_network_inspector_ext/iac_network_inspector_ext.dart';
@@ -34,9 +35,13 @@ class MicroFrontendApp {
   static late PaymentModule paymentModule;
   static late ProfileModule profileModule;
   static late ChatModule chatModule;
+  static late IacNetworkInspectorExt networkInspector;
 
   static void initialize() {
-    // Initialize all modules
+    // Create network inspector
+    networkInspector = IacNetworkInspectorExt();
+
+    // Initialize all modules with their Dio instances
     authModule = AuthModule();
     paymentModule = PaymentModule();
     profileModule = ProfileModule();
@@ -48,16 +53,28 @@ class MicroFrontendApp {
     InAppConsole.instance.addLogger(profileModule.logger);
     InAppConsole.instance.addLogger(chatModule.logger);
 
+    // Register Dio instances with network inspector
+    networkInspector.addDio(DioWrapper(dio: authModule.dio, tag: 'Auth API'));
+    networkInspector
+        .addDio(DioWrapper(dio: paymentModule.dio, tag: 'Payment API'));
+    networkInspector
+        .addDio(DioWrapper(dio: profileModule.dio, tag: 'Profile API'));
+
     // Register extensions
     InAppConsole.instance.registerExtension(LogStatisticsExtension());
     InAppConsole.instance.registerExtension(InAppConsoleExportLogsExtension());
-    InAppConsole.instance.registerExtension(IacNetworkInspectorExt());
+    InAppConsole.instance.registerExtension(networkInspector);
   }
 }
 
 /// Authentication Module - Handles user login/logout
 class AuthModule {
   final InAppLogger logger = InAppLogger()..setLabel('Auth');
+  final Dio dio = Dio(BaseOptions(
+    baseUrl: 'https://jsonplaceholder.typicode.com',
+    connectTimeout: const Duration(seconds: 5),
+    receiveTimeout: const Duration(seconds: 3),
+  ));
   bool _isLoggedIn = false;
   String? _currentUser;
 
@@ -67,19 +84,33 @@ class AuthModule {
   Future<bool> login(String username, String password) async {
     logger.logInfo('Login attempt for user: $username');
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // Make actual API request
+      final response = await dio.post(
+        '/posts',
+        data: {'username': username, 'password': password},
+      );
 
-    if (username.isNotEmpty && password.length >= 6) {
-      _isLoggedIn = true;
-      _currentUser = username;
-      logger.logInfo('Login successful for user: $username');
-      return true;
-    } else {
+      logger.logInfo('Auth API responded with status: ${response.statusCode}');
+
+      if (username.isNotEmpty && password.length >= 6) {
+        _isLoggedIn = true;
+        _currentUser = username;
+        logger.logInfo('Login successful for user: $username');
+        return true;
+      } else {
+        logger.logError(
+          message: 'Login failed for user: $username - Invalid credentials',
+          error: ArgumentError('Invalid username or password'),
+          stackTrace: StackTrace.current,
+        );
+        return false;
+      }
+    } catch (e, stackTrace) {
       logger.logError(
-        message: 'Login failed for user: $username - Invalid credentials',
-        error: ArgumentError('Invalid username or password'),
-        stackTrace: StackTrace.current,
+        message: 'Login API call failed',
+        error: e,
+        stackTrace: stackTrace,
       );
       return false;
     }
@@ -91,11 +122,16 @@ class AuthModule {
     _currentUser = null;
   }
 
-  void validateSession() {
-    if (_isLoggedIn) {
-      logger.logInfo('Session validation successful for: $_currentUser');
-    } else {
-      logger.logWarning(message: 'No active session found');
+  Future<void> validateSession() async {
+    logger.logInfo('Validating session...');
+    try {
+      // Make GET request to validate session
+      final response = await dio.get('/users/1');
+      logger.logInfo('Session validation successful: ${response.statusCode}');
+    } catch (e) {
+      logger.logWarning(
+        message: 'Session validation failed: $e',
+      );
     }
   }
 }
@@ -103,42 +139,71 @@ class AuthModule {
 /// Payment Module - Handles payment processing
 class PaymentModule {
   final InAppLogger logger = InAppLogger()..setLabel('Payment');
+  final Dio dio = Dio(BaseOptions(
+    baseUrl: 'https://jsonplaceholder.typicode.com',
+    connectTimeout: const Duration(seconds: 5),
+    receiveTimeout: const Duration(seconds: 3),
+  ));
 
   Future<bool> processPayment(double amount, String method) async {
     logger.logInfo(
         'Processing payment: \$${amount.toStringAsFixed(2)} via $method');
 
-    // Simulate payment processing
-    await Future.delayed(const Duration(milliseconds: 1200));
+    try {
+      // Make payment API request
+      final response = await dio.post(
+        '/posts',
+        data: {
+          'amount': amount,
+          'method': method,
+          'currency': 'USD',
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+        queryParameters: {'simulate_delay': Random().nextInt(3) + 1},
+      );
 
-    // Simulate random payment failures
-    if (Random().nextBool()) {
+      logger.logInfo('Payment API responded: ${response.statusCode}');
+
+      // Simulate random payment failures
+      if (Random().nextBool()) {
+        logger.logError(
+          message: 'Payment failed: Gateway timeout',
+          error: StateError('Payment gateway not responding'),
+          stackTrace: StackTrace.current,
+        );
+        return false;
+      }
+
+      // Simulate slow payment warnings
+      if (Random().nextBool()) {
+        logger.logWarning(
+            message:
+                'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
+      }
+
+      logger.logInfo('Payment successful: \$${amount.toStringAsFixed(2)}');
+      return true;
+    } catch (e, stackTrace) {
       logger.logError(
-        message: 'Payment failed: Gateway timeout',
-        error: StateError('Payment gateway not responding'),
-        stackTrace: StackTrace.current,
+        message: 'Payment API call failed',
+        error: e,
+        stackTrace: stackTrace,
       );
       return false;
     }
-
-    // Simulate slow payment warnings
-    if (Random().nextBool()) {
-      logger.logWarning(
-          message:
-              'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
-    }
-
-    logger.logInfo('Payment successful: \$${amount.toStringAsFixed(2)}');
-    return true;
   }
 
-  void validatePaymentMethod(String method) {
+  Future<void> validatePaymentMethod(String method) async {
     logger.logInfo('Validating payment method: $method');
-    if (method.isEmpty) {
+    try {
+      // Make validation request
+      await dio.get('/posts/${Random().nextInt(100) + 1}');
+      logger.logInfo('Payment method validated: $method');
+    } catch (e, stackTrace) {
       logger.logError(
-        message: 'Invalid payment method',
-        error: ArgumentError('Payment method cannot be empty'),
-        stackTrace: StackTrace.current,
+        message: 'Payment method validation failed',
+        error: e,
+        stackTrace: stackTrace,
       );
     }
   }
@@ -147,36 +212,82 @@ class PaymentModule {
 /// Profile Module - Handles user profile management
 class ProfileModule {
   final InAppLogger logger = InAppLogger()..setLabel('Profile');
+  final Dio dio = Dio(BaseOptions(
+    baseUrl: 'https://jsonplaceholder.typicode.com',
+    connectTimeout: const Duration(seconds: 5),
+    receiveTimeout: const Duration(seconds: 3),
+  ));
   final Map<String, dynamic> _profileData = {};
 
   Future<void> updateProfile(Map<String, dynamic> data) async {
     logger.logInfo('Updating profile data: ${data.keys.join(', ')}');
 
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      // Make PUT request to update profile
+      final response = await dio.put(
+        '/users/1',
+        data: data,
+      );
 
-    _profileData.addAll(data);
-    logger.logInfo('Profile updated successfully');
+      logger.logInfo('Profile update API responded: ${response.statusCode}');
+      _profileData.addAll(data);
+      logger.logInfo('Profile updated successfully');
+    } catch (e, stackTrace) {
+      logger.logError(
+        message: 'Profile update failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   Future<void> uploadProfileImage() async {
     logger.logInfo('Starting profile image upload');
 
-    // Simulate upload progress
-    for (int i = 1; i <= 5; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      logger.logInfo('Upload progress: ${i * 20}%');
-    }
+    try {
+      // Simulate multiple API calls for upload progress
+      for (int i = 1; i <= 5; i++) {
+        await dio.post(
+          '/photos',
+          data: {
+            'progress': i * 20,
+            'chunk': i,
+            'total': 5,
+          },
+        );
+        logger.logInfo('Upload progress: ${i * 20}%');
+      }
 
-    logger.logInfo('Profile image uploaded successfully');
+      logger.logInfo('Profile image uploaded successfully');
+    } catch (e, stackTrace) {
+      logger.logError(
+        message: 'Image upload failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
-  void fetchProfile(String userId) {
+  Future<void> fetchProfile(String userId) async {
     logger.logInfo('Fetching profile for user: $userId');
-    if (userId.isEmpty) {
+    try {
+      if (userId.isEmpty) {
+        logger.logError(
+          message: 'Cannot fetch profile: Invalid user ID',
+          error: ArgumentError('User ID is required'),
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
+
+      // Make GET request to fetch profile
+      final response = await dio.get('/users/$userId');
+      logger.logInfo('Profile fetched: ${response.statusCode}');
+    } catch (e, stackTrace) {
       logger.logError(
-        message: 'Cannot fetch profile: Invalid user ID',
-        error: ArgumentError('User ID is required'),
-        stackTrace: StackTrace.current,
+        message: 'Profile fetch failed',
+        error: e,
+        stackTrace: stackTrace,
       );
     }
   }
@@ -439,6 +550,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 24),
 
+            // Network Inspector Demo Section
+            const Text(
+              'Network Inspector Demo:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+
+            _buildModuleCard(
+              'HTTP Request Testing',
+              Icons.network_check,
+              Colors.teal,
+              [
+                ElevatedButton(
+                  onPressed: _makeGetRequest,
+                  child: const Text('GET Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makePostRequest,
+                  child: const Text('POST Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makePutRequest,
+                  child: const Text('PUT Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makeDeleteRequest,
+                  child: const Text('DELETE Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makeErrorRequest,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade100,
+                  ),
+                  child: const Text('Simulate Error'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
             // Console Button
             Card(
               color: Colors.red.shade50,
@@ -511,6 +662,98 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  // Network Inspector Demo Methods
+  Future<void> _makeGetRequest() async {
+    try {
+      await MicroFrontendApp.authModule.dio.get(
+        '/users/${Random().nextInt(10) + 1}',
+        queryParameters: {
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+          'page': Random().nextInt(5) + 1,
+        },
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('GET request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makePostRequest() async {
+    try {
+      await MicroFrontendApp.paymentModule.dio.post(
+        '/posts',
+        data: {
+          'title': 'Test Post #${Random().nextInt(1000)}',
+          'body': 'This is a test post created from the example app',
+          'userId': Random().nextInt(10) + 1,
+        },
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('POST request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makePutRequest() async {
+    try {
+      await MicroFrontendApp.profileModule.dio.put(
+        '/users/1',
+        data: {
+          'name': 'Updated User',
+          'email': 'updated@example.com',
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PUT request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makeDeleteRequest() async {
+    try {
+      await MicroFrontendApp.authModule.dio.delete(
+        '/posts/${Random().nextInt(100) + 1}',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('DELETE request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makeErrorRequest() async {
+    try {
+      await MicroFrontendApp.authModule.dio.get(
+        '/this-endpoint-does-not-exist-404',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error request sent - Check Network Inspector for details!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   @override
