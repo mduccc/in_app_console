@@ -15,7 +15,7 @@ final class IacNetworkError {
   final int? code;
 
   /// The error object, if available.
-  final Error? error;
+  final Object? error;
 
   /// The stack trace associated with the error, if available.
   final StackTrace? stackTrace;
