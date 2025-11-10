@@ -4,8 +4,8 @@ version: 0.0.1
 repository: https://github.com/mduccc/in_app_console/tree/main/iac_network_inspector_ext
 
 environment:
-  sdk: ^3.8.1
-  flutter: ">=1.17.0"
+  sdk: ^3.5.4
+  flutter: '>=3.3.0'
 
 dependencies:
   flutter:
