@@ -229,7 +229,7 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 
 ## Roadmap
 
-~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.1**
+~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
 
 Extension packages:
 - [x] **iac_export_logs_ext** - Export captured logs to external files or share via system share sheet
