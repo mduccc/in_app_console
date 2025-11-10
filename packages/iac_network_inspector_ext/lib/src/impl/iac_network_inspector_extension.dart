@@ -2,17 +2,18 @@ import 'package:dio/src/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:iac_network_inspector_ext/src/core/iac_network_inspector_core.dart';
 import 'package:iac_network_inspector_ext/src/core/iac_network_interceptor.dart';
+import 'package:iac_network_inspector_ext/src/core/model/dio_wrapper.dart';
 import 'package:iac_network_inspector_ext/src/external/iac_network_inspector_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
-class IacNetworkInspectorExtImpl
+final class IacNetworkInspectorExtImpl
     implements
         InAppConsoleExtension,
         IacNetworkInspectorExt,
         IacNetworkInspectorExtCore {
   IacNetworkInspectorExtImpl(this._interceptor);
 
-  final Map<int, Dio> _dioInstancesByHashcode = {};
+  final Map<int, DioWrapper> _dioInstancesByHashCode = {};
   final IacNetworkInterceptor _interceptor;
 
   @override
@@ -42,23 +43,23 @@ class IacNetworkInspectorExtImpl
 
   @override
   void onDispose() {
-    _dioInstancesByHashcode.clear();
+    _dioInstancesByHashCode.clear();
   }
 
   @override
-  void addDio(Dio dio) {
-    if (_dioInstancesByHashcode.containsKey(dio.hashCode)) {
+  void addDio(DioWrapper dioWrapper) {
+    if (_dioInstancesByHashCode.containsKey(dioWrapper.hashCode)) {
       return;
     }
-    dio.interceptors.add(_interceptor);
-    _dioInstancesByHashcode[dio.hashCode] = dio;
+    dioWrapper.dio.interceptors.add(_interceptor);
+    _dioInstancesByHashCode[dioWrapper.hashCode] = dioWrapper;
   }
 
   @override
-  void removeDio(Dio dio) {
-    if (_dioInstancesByHashcode.containsKey(dio.hashCode)) {
-      dio.interceptors.remove(_interceptor);
-      _dioInstancesByHashcode.remove(dio.hashCode);
+  void removeDio(DioWrapper dioWrapper) {
+    if (_dioInstancesByHashCode.containsKey(dioWrapper.hashCode)) {
+      dioWrapper.dio.interceptors.remove(_interceptor);
+      _dioInstancesByHashCode.remove(dioWrapper.hashCode);
     }
   }
 }
