@@ -233,8 +233,8 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 
 Extension packages:
 - [x] **iac_export_logs_ext** - Export captured logs to external files or share via system share sheet
-- [x] **iac_network_inspector_ext** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
-- [ ] **iac_statistics_ext** - (Inprogress) View statistics and analytics of captured logs (counts by type, frequency charts, etc.)
+- [ ] **iac_network_inspector_ext** - (Inprogress) Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
+- [x] **iac_statistics_ext** -  View statistics and analytics of captured logs (counts by type, frequency charts, etc.)
 - [ ] **iac_device_info_ext** - Display device information (OS version, model, screen size, CPU, etc.)
 
 Future enhancements:
