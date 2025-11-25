@@ -201,7 +201,11 @@ class IacNetworkDetailScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: SelectableText(value),
+            child: SelectableRegion(
+              focusNode: FocusNode(),
+              selectionControls: MaterialTextSelectionControls(),
+              child: Text(value),
+            ),
           ),
         ],
       ),
@@ -223,14 +227,22 @@ class IacNetworkDetailScreen extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: SelectableText(
-                    entry.key,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  child: SelectableRegion(
+                    focusNode: FocusNode(),
+                    selectionControls: MaterialTextSelectionControls(),
+                    child: Text(
+                      entry.key,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: SelectableText(entry.value.toString()),
+                  child: SelectableRegion(
+                    focusNode: FocusNode(),
+                    selectionControls: MaterialTextSelectionControls(),
+                    child: Text(entry.value.toString()),
+                  ),
                 ),
               ],
             ),
@@ -255,14 +267,22 @@ class IacNetworkDetailScreen extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 2,
-                  child: SelectableText(
-                    entry.key,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  child: SelectableRegion(
+                    focusNode: FocusNode(),
+                    selectionControls: MaterialTextSelectionControls(),
+                    child: Text(
+                      entry.key,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: SelectableText(entry.value.join(', ')),
+                  child: SelectableRegion(
+                    focusNode: FocusNode(),
+                    selectionControls: MaterialTextSelectionControls(),
+                    child: Text(entry.value.join(', ')),
+                  ),
                 ),
               ],
             ),
@@ -297,9 +317,13 @@ class IacNetworkDetailScreen extends StatelessWidget {
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SelectableText(
-        formatted,
-        style: const TextStyle(fontFamily: 'monospace'),
+      child: SelectableRegion(
+        focusNode: FocusNode(),
+        selectionControls: MaterialTextSelectionControls(),
+        child: Text(
+          formatted,
+          style: const TextStyle(fontFamily: 'monospace'),
+        ),
       ),
     );
   }

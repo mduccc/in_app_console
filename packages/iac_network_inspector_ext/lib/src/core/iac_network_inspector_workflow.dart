@@ -1,11 +1,11 @@
 import 'package:iac_network_inspector_ext/src/core/model/dio_wrapper.dart';
 import 'package:iac_network_inspector_ext/src/core/model/iac_network_rs.dart';
 
-/// An interface for IacNetworkInspectorExt.
+/// An interface for IacNetworkInspectorExtWorkflow.
 /// Definition core functionalities.
 ///
-interface class IacNetworkInspectorExtCore {
-  const IacNetworkInspectorExtCore();
+interface class IacNetworkInspectorExtWorkflow {
+  const IacNetworkInspectorExtWorkflow();
 
   /// Add a Dio instance to be inspected.
   void addDio(DioWrapper dioWrapper) {

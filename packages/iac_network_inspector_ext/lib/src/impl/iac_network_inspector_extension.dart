@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:iac_network_inspector_ext/src/core/iac_network_inspector_core.dart';
+import 'package:iac_network_inspector_ext/src/core/iac_network_inspector_workflow.dart';
 import 'package:iac_network_inspector_ext/src/core/iac_network_interceptor.dart';
 import 'package:iac_network_inspector_ext/src/core/model/dio_wrapper.dart';
 import 'package:iac_network_inspector_ext/src/core/model/iac_network_rs.dart';
@@ -14,7 +13,7 @@ final class IacNetworkInspectorExtImpl
     implements
         InAppConsoleExtension,
         IacNetworkInspectorExt,
-        IacNetworkInspectorExtCore {
+        IacNetworkInspectorExtWorkflow {
   IacNetworkInspectorExtImpl(this._interceptor);
 
   final Map<int, DioWrapper> _dioInstancesByHashCode = {};
@@ -89,7 +88,7 @@ final class IacNetworkInspectorExtImpl
 
     // Dispose interceptor
     if (_interceptor is IacNetworkInterceptorImpl) {
-      (_interceptor as IacNetworkInterceptorImpl).dispose();
+      (_interceptor).dispose();
     }
 
     // Cancel subscription and close stream
