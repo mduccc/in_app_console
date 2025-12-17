@@ -62,9 +62,9 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/list.png?raw=true)" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
 
-<img src="https://raw.githubusercontent.com/mduccc/in_app_console/ba5c89b84630c256f8b33a528ea823093b49986d/screenshots/extension_list.png" alt="Extensions List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/extension_detail_sample.png?raw=true)" alt="A extension " width="45%"/>
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/ba5c89b84630c256f8b33a528ea823093b49986d/screenshots/extension_list.png" alt="Extensions List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/f695ec224b53fe39082a64b6d52ac4625a6a5fea/screenshots/extension_detail_sample.png?raw=true" alt="A extension " width="45%"/>
 
 <img src="https://raw.githubusercontent.com/mduccc/in_app_console/ba5c89b84630c256f8b33a528ea823093b49986d/screenshots/extension_export_log.png" alt="A extension " width="45%"/>
 
