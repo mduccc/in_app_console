@@ -579,6 +579,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Text('DELETE Request'),
                 ),
                 ElevatedButton(
+                  onPressed: _makePatchRequest,
+                  child: const Text('PATCH Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makeHeadRequest,
+                  child: const Text('HEAD Request'),
+                ),
+                ElevatedButton(
+                  onPressed: _makeOptionsRequest,
+                  child: const Text('OPTIONS Request'),
+                ),
+                ElevatedButton(
                   onPressed: _makeErrorRequest,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade100,
@@ -753,6 +765,56 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _makePatchRequest() async {
+    try {
+      await MicroFrontendApp.profileModule.dio.patch(
+        '/posts/${Random().nextInt(100) + 1}',
+        data: {
+          'title': 'Patched Title #${Random().nextInt(1000)}',
+          'updatedAt': DateTime.now().toIso8601String(),
+        },
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PATCH request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makeHeadRequest() async {
+    try {
+      await MicroFrontendApp.authModule.dio.head(
+        '/users/${Random().nextInt(10) + 1}',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('HEAD request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
+    }
+  }
+
+  Future<void> _makeOptionsRequest() async {
+    try {
+      await MicroFrontendApp.paymentModule.dio.request(
+        '/posts',
+        options: Options(method: 'OPTIONS'),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('OPTIONS request sent - Check Network Inspector!')),
+        );
+      }
+    } catch (e) {
+      // Error will be captured by network inspector
     }
   }
 
