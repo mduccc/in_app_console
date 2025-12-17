@@ -1,5 +1,5 @@
 name: iac_device_info_ext
-description: "A new Flutter plugin project."
+description: "Device information extension for in_app_console package. Display device details and system information in the console."
 version: 0.0.1
 repository: https://github.com/mduccc/in_app_console/tree/main/iac_device_info_ext
 

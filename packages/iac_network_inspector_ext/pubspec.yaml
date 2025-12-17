@@ -1,5 +1,5 @@
 name: iac_network_inspector_ext
-description: "A new Flutter package project."
+description: "Network inspector extension for in_app_console package. Inspect HTTP/HTTPS requests made via Dio with detailed request/response viewer and CURL export."
 version: 1.0.0
 repository: https://github.com/mduccc/in_app_console/tree/main/iac_network_inspector_ext
 
