@@ -8,8 +8,9 @@ This extension captures and displays all network requests from your Dio instance
 
 ## Screenshots
 
-![Network List](screenshots/network_list.png)
-![Network Detail](screenshots/network_detail.png)
+<img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/packages/iac_network_inspector_ext/screenshots/preview.png?raw=true" width=45%>
+<img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/packages/iac_network_inspector_ext/screenshots/list.png?raw=true" width=45%>
+<img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/packages/iac_network_inspector_ext/screenshots/detail.png?raw=true" width=45%>
 
 ## Register the extension
 
