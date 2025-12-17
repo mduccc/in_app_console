@@ -1,7 +1,7 @@
 name: iac_device_info_ext
 description: "A new Flutter plugin project."
 version: 0.0.1
-homepage:
+repository: https://github.com/mduccc/in_app_console/tree/main/iac_device_info_ext
 
 environment:
   sdk: ^3.5.4

@@ -1,6 +1,6 @@
 name: iac_statistics_ext
 description: "A new Flutter package project."
-version: 0.0.1
+version: 1.0.0
 repository: https://github.com/mduccc/in_app_console/tree/main/iac_statistics_ext
 
 environment:
