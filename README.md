@@ -126,7 +126,15 @@ The in-app console supports a powerful extension system that allows you to add c
 
 ### Using Extensions
 
-To use an extension, simply register it with the console:
+#### Official Extensions
+
+Several official extensions are available on pub.dev:
+
+- **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** - Export console logs to files
+- **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** - Inspect HTTP/HTTPS network requests made via Dio
+- **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** - View log statistics and analytics
+
+To use an extension, add it to your `pubspec.yaml` and register it with the console:
 
 ```dart
 // Register extension
@@ -232,7 +240,7 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 ~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
 
 Extension packages:
-- [x] **iac_export_logs_ext** - Export captured logs to external files or share via system share sheet
-- [x] **iac_network_inspector_ext** - (Inprogress) Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
-- [x] **iac_statistics_ext** -  View statistics and analytics of captured logs (counts by type, frequency charts, etc.)
+- [x] **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** ✅ **Published v1.0.0** - Export console logs to files
+- [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** ✅ **Published v1.0.0** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
+- [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published v1.0.0** - View log statistics and analytics
 - [ ] **iac_device_info_ext** - Display device information (OS version, model, screen size, CPU, etc.)
