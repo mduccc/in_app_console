@@ -1,3 +1,13 @@
+## 2.0.2
+
+### Improvements
+* Adjusted extension details sheet size for better UX (initialChildSize: 0.85, maxChildSize: 0.85)
+* Code cleanup: removed unused imports across multiple files
+
+### Documentation
+* Updated README with extension package information and examples
+* Updated LICENSE copyright year to 2025
+
 ## 2.0.1
 * Removed "Widget Preview" label and preview container wrapper
 
