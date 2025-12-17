@@ -23,6 +23,6 @@ InAppConsole.instance.registerExtension(networkInspector);
 // Add your Dio instances with tags
 networkInspector.addDio(DioWrapper(
   dio: yourDioInstance,
-  tag: 'Payment',
+  tag: 'Payment API',
 ));
 ```
