@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  in_app_console: 
+  in_app_console: ^2.0.1
   dio: 
 
 dev_dependencies:

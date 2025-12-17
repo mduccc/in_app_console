@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  path_provider:
-  in_app_console: 
+  path_provider: ^2.1.5
+  in_app_console: ^2.0.1
   
 dev_dependencies:
   flutter_test:
