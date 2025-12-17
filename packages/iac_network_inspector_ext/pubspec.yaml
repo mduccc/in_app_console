@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   in_app_console: ^2.0.1
-  dio: 
+  dio: ^5.9.0
 
 dev_dependencies:
   flutter_test:
