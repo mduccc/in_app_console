@@ -245,4 +245,4 @@ Extension packages:
 - [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** ✅ **Published** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
 - [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published** - View log statistics and analytics
 - [ ] **iac_device_info_ext** - Display device information (OS version, model, screen size, CPU, etc.)
-- [ ] **Navigation tracker** - 
+- [ ] **iac_route_monitor_ext** - Monitor route, included current route name, route args and route history.
