@@ -1,7 +1,7 @@
 name: iac_network_inspector_ext
 description: "Network inspector extension for in_app_console package. Inspect HTTP/HTTPS requests made via Dio with detailed request/response viewer and CURL export."
-version: 1.0.0
-repository: https://github.com/mduccc/in_app_console/tree/main/iac_network_inspector_ext
+version: 1.0.1
+repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_network_inspector_ext
 
 environment:
   sdk: ^3.5.4

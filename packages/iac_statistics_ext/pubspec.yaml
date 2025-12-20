@@ -1,7 +1,7 @@
 name: iac_statistics_ext
 description: "Log statistics extension for in_app_console package. View real-time log analytics with breakdowns by type and module."
-version: 1.0.0
-repository: https://github.com/mduccc/in_app_console/tree/main/iac_statistics_ext
+version: 1.0.1
+repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_statistics_ext
 
 environment:
   sdk: ^3.5.4
