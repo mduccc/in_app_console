@@ -241,7 +241,8 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 ~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
 
 Extension packages:
-- [x] **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** ✅ **Published v1.0.1** - Export console logs to files
-- [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** ✅ **Published v1.0.1** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
-- [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published v1.0.1** - View log statistics and analytics
+- [x] **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** ✅ **Published** - Export console logs to files
+- [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** ✅ **Published** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
+- [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published** - View log statistics and analytics
 - [ ] **iac_device_info_ext** - Display device information (OS version, model, screen size, CPU, etc.)
+- [ ] **Navigation tracker** - 
