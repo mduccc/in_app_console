@@ -12,6 +12,8 @@ public class IacDeviceInfoExtPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "getPlatformVersion":
       result("iOS " + UIDevice.current.systemVersion)
+    case "getTotalRam":
+      result(ProcessInfo.processInfo.physicalMemory)
     default:
       result(FlutterMethodNotImplemented)
     }

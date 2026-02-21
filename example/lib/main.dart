@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:iac_device_info_ext/iac_device_info_ext.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
 import 'package:iac_network_inspector_ext/iac_network_inspector_ext.dart';
 import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   /// Enable the in app console for debugging purposes.
   InAppConsole.kEnableConsole = true;
   // Initialize micro-frontend modules
@@ -64,6 +66,7 @@ class MicroFrontendApp {
     InAppConsole.instance.registerExtension(LogStatisticsExtension());
     InAppConsole.instance.registerExtension(InAppConsoleExportLogsExtension());
     InAppConsole.instance.registerExtension(networkInspector);
+    InAppConsole.instance.registerExtension(IacDeviceInfoExtension());
   }
 }
 
