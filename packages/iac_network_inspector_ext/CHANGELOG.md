@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Corrected extension version string to match package version.
+
 ## 1.0.1
 
 * Fixed repository URL in pubspec.yaml to include correct packages directory path.
