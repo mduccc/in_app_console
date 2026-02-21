@@ -1,34 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:in_app_console/in_app_console.dart';
 import 'package:path_provider/path_provider.dart';
-import '../iac_export_logs_ext_platform_interface.dart';
+import 'package:share_plus/share_plus.dart';
 
-enum _ExportState { idle, loading, success, error }
+enum _SaveState { idle, success, error }
 
-Future<Directory?> _getExportDirectory() async {
-  if (Platform.isAndroid || Platform.isIOS) {
-    // For mobile platforms, use temporary directory
-    // Files will be saved to Downloads via MediaStore on Android
-    // Files will be shared via share sheet on iOS
-    return await getTemporaryDirectory();
-  } else {
-    // For desktop platforms
-    return await getDownloadsDirectory();
-  }
-}
-
-Future<bool> _shareFileViaMethodChannel(String filePath) async {
-  try {
-    final result = await IacExportLogsExtPlatform.instance.shareFile(
-      filePath: filePath,
-    );
-    return result;
-  } catch (e) {
-    debugPrint('Error sharing file via method channel: $e');
-    return false;
-  }
-}
+enum _ShareState { idle, success, error }
 
 class InAppConsoleExportLogsExtension extends InAppConsoleExtension {
   late final InAppConsoleExtensionContext _extensionContext;
@@ -71,103 +50,122 @@ class _ExportLogsWidget extends StatefulWidget {
 }
 
 class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
-  _ExportState _state = _ExportState.idle;
-  String? _exportedFilePath;
-  String? _errorMessage;
+  _SaveState _saveState = _SaveState.idle;
+  _ShareState _shareState = _ShareState.idle;
+String? _saveErrorMessage;
+  String? _shareErrorMessage;
 
-  Future<void> _handleExport() async {
+  String _formatLogs() {
+    final history = widget.extensionContext.history;
+    final buffer = StringBuffer();
+    buffer.writeln('In-App Console Logs Export');
+    buffer.writeln('Generated: ${DateTime.now()}');
+    buffer.writeln('Total Logs: ${history.length}');
+    buffer.writeln('${'=' * 80}\n');
+
+    for (var log in history) {
+      buffer.writeln(
+          '${log.timestamp} [${log.type.name.toUpperCase()}]${log.label != null ? ' [${log.label}]' : ''}');
+      buffer.writeln('Message: ${log.message}');
+
+      if (log.error != null) {
+        buffer.writeln('Error: ${log.error}');
+      }
+
+      if (log.stackTrace != null) {
+        buffer.writeln('Stack Trace:\n${log.stackTrace}');
+      }
+
+      buffer.writeln('-' * 80);
+    }
+
+    return buffer.toString();
+  }
+
+  Future<void> _handleSave() async {
     setState(() {
-      _state = _ExportState.loading;
-      _exportedFilePath = null;
-      _errorMessage = null;
+      _saveErrorMessage = null;
     });
 
     final history = widget.extensionContext.history;
 
     if (history.isEmpty) {
       setState(() {
-        _state = _ExportState.error;
-        _errorMessage = 'No logs to export';
+        _saveState = _SaveState.error;
+        _saveErrorMessage = 'No logs to export';
       });
       return;
     }
 
     try {
-      // Get export directory
-      final directory = await _getExportDirectory();
-
-      if (directory == null) {
-        setState(() {
-          _state = _ExportState.error;
-          _errorMessage = 'Could not access storage';
-        });
-        return;
-      }
-
-      // Generate filename with timestamp
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
       final fileName = 'logs_$timestamp.txt';
-      final file = File('${directory.path}/$fileName');
 
-      // Format logs as text
-      final buffer = StringBuffer();
-      buffer.writeln('In-App Console Logs Export');
-      buffer.writeln('Generated: ${DateTime.now()}');
-      buffer.writeln('Total Logs: ${history.length}');
-      buffer.writeln('${'=' * 80}\n');
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsString(_formatLogs());
 
-      for (var log in history) {
-        buffer.writeln(
-            '${log.timestamp} [${log.type.name.toUpperCase()}]${log.label != null ? ' [${log.label}]' : ''}');
-        buffer.writeln('Message: ${log.message}');
+      final params = SaveFileDialogParams(sourceFilePath: tempFile.path);
+      final savedFilePath = await FlutterFileDialog.saveFile(params: params);
+      await tempFile.delete();
 
-        if (log.error != null) {
-          buffer.writeln('Error: ${log.error}');
-        }
+      if (!mounted) return;
 
-        if (log.stackTrace != null) {
-          buffer.writeln('Stack Trace:\n${log.stackTrace}');
-        }
-
-        buffer.writeln('-' * 80);
-      }
-
-      // Write to file first
-      final writtenFile = await file.writeAsString(buffer.toString());
-
-      bool isExportSuccessful = false;
-
-      // For iOS and Android, use method channel
-      if (Platform.isIOS || Platform.isAndroid) {
-        // iOS: Share via UIActivityViewController
-        // Android: Save to Downloads using MediaStore
-        isExportSuccessful = await _shareFileViaMethodChannel(writtenFile.path);
+      if (savedFilePath != null) {
+        setState(() => _saveState = _SaveState.success);
       } else {
-        // For desktop platforms, just check if file exists
-        isExportSuccessful = await writtenFile.exists();
+        setState(() => _saveState = _SaveState.idle);
       }
-
-      if (!mounted) {
-        return;
-      }
-
-      if (isExportSuccessful) {
-        setState(() {
-          _state = _ExportState.success;
-          _exportedFilePath = file.path;
-        });
-        return;
-      }
-
-      setState(() {
-        _state = _ExportState.error;
-        _errorMessage = 'Export failed';
-      });
     } catch (e) {
       if (mounted) {
         setState(() {
-          _state = _ExportState.error;
-          _errorMessage = 'Export failed: $e';
+          _saveState = _SaveState.error;
+          _saveErrorMessage = 'Export failed: $e';
+        });
+      }
+    }
+  }
+
+  Future<void> _handleShare() async {
+    setState(() {
+      _shareErrorMessage = null;
+      _shareState = _ShareState.idle;
+    });
+
+    final history = widget.extensionContext.history;
+
+    if (history.isEmpty) {
+      setState(() {
+        _shareState = _ShareState.error;
+        _shareErrorMessage = 'No logs to share';
+      });
+      return;
+    }
+
+    try {
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final fileName = 'logs_$timestamp.txt';
+
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsString(_formatLogs());
+
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(tempFile.path)],
+        ),
+      );
+
+      await tempFile.delete();
+
+      if (mounted && result.status == ShareResultStatus.success) {
+        setState(() => _shareState = _ShareState.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _shareState = _ShareState.error;
+          _shareErrorMessage = 'Share failed: $e';
         });
       }
     }
@@ -200,11 +198,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        Platform.isAndroid
-                            ? 'Export logs to Downloads folder'
-                            : Platform.isIOS
-                                ? 'Export logs via share sheet'
-                                : 'Export log history to downloads folder',
+                        'Save logs to a file via native dialog',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[600],
@@ -219,13 +213,9 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
             const Divider(),
             const SizedBox(height: 16),
 
-            // State-based content
-            if (_state == _ExportState.loading)
-              _buildLoadingWidget()
-            else if (_state == _ExportState.success)
-              _buildSuccessWidget()
-            else if (_state == _ExportState.error)
-              _buildErrorWidget()
+            // Save state-based content
+            if (_saveState == _SaveState.error)
+              _buildSaveErrorWidget()
             else
               _buildIdleWidget(),
           ],
@@ -235,93 +225,59 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
   }
 
   Widget _buildIdleWidget() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: _handleExport,
-        icon: const Icon(Icons.file_download),
-        label: const Text('Export to File'),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingWidget() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      child: const Column(
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text(
-            'Exporting logs...',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuccessWidget() {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.green[200]!),
-          ),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                size: 48,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Export Successful!',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (_exportedFilePath != null)
-                Text(
-                  'Saved to:\n$_exportedFilePath',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                  ),
-                ),
-            ],
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _handleSave,
+            icon: const Icon(Icons.save_alt),
+            label: const Text('Save as file'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(16),
+            ),
           ),
         ),
-        const SizedBox(height: 16),
+        if (_saveState == _SaveState.success) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Saved successfully!',
+            style: TextStyle(fontSize: 12, color: Colors.green[700]),
+            textAlign: TextAlign.center,
+          ),
+        ],
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: () {
-              setState(() => _state = _ExportState.idle);
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Export Again'),
+            onPressed: _handleShare,
+            icon: const Icon(Icons.share),
+            label: const Text('Share'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.all(16),
+            ),
           ),
         ),
+        if (_shareState == _ShareState.success) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Shared successfully!',
+            style: TextStyle(fontSize: 12, color: Colors.green[700]),
+            textAlign: TextAlign.center,
+          ),
+        ] else if (_shareState == _ShareState.error && _shareErrorMessage != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _shareErrorMessage!,
+            style: TextStyle(fontSize: 12, color: Colors.red[700]),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildErrorWidget() {
+  Widget _buildSaveErrorWidget() {
     return Column(
       children: [
         Container(
@@ -348,9 +304,9 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
                 ),
               ),
               const SizedBox(height: 8),
-              if (_errorMessage != null)
+              if (_saveErrorMessage != null)
                 Text(
-                  _errorMessage!,
+                  _saveErrorMessage!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
@@ -364,7 +320,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: _handleExport,
+            onPressed: _handleSave,
             icon: const Icon(Icons.refresh),
             label: const Text('Try Again'),
           ),
