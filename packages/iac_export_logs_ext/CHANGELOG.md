@@ -1,8 +1,9 @@
 ## 1.1.0
 
-* Added a **Share** button to send logs via the native share sheet.
-* Save as file now uses a native save dialog — pick where to save directly from the app.
-* Success feedback is shown inline after saving or sharing.
+* Added a **Share** button to send logs via the native share sheet using `share_plus`.
+* Renamed "Export to File" button to "Save as file".
+* Save as file uses a native save dialog via `flutter_file_dialog`.
+* Inline error feedback shown when save or share fails.
 
 ## 1.0.1
 

@@ -5,9 +5,9 @@ import 'package:in_app_console/in_app_console.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-enum _SaveState { idle, success, error }
+enum _SaveState { idle, error }
 
-enum _ShareState { idle, success, error }
+enum _ShareState { idle, error }
 
 class InAppConsoleExportLogsExtension extends InAppConsoleExtension {
   late final InAppConsoleExtensionContext _extensionContext;
@@ -111,9 +111,7 @@ String? _saveErrorMessage;
 
       if (!mounted) return;
 
-      if (savedFilePath != null) {
-        setState(() => _saveState = _SaveState.success);
-      } else {
+      if (savedFilePath == null) {
         setState(() => _saveState = _SaveState.idle);
       }
     } catch (e) {
@@ -150,7 +148,7 @@ String? _saveErrorMessage;
       final tempFile = File('${tempDir.path}/$fileName');
       await tempFile.writeAsString(_formatLogs());
 
-      final result = await SharePlus.instance.share(
+      await SharePlus.instance.share(
         ShareParams(
           files: [XFile(tempFile.path)],
         ),
@@ -158,9 +156,6 @@ String? _saveErrorMessage;
 
       await tempFile.delete();
 
-      if (mounted && result.status == ShareResultStatus.success) {
-        setState(() => _shareState = _ShareState.success);
-      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -238,14 +233,6 @@ String? _saveErrorMessage;
             ),
           ),
         ),
-        if (_saveState == _SaveState.success) ...[
-          const SizedBox(height: 8),
-          Text(
-            'Saved successfully!',
-            style: TextStyle(fontSize: 12, color: Colors.green[700]),
-            textAlign: TextAlign.center,
-          ),
-        ],
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -258,14 +245,7 @@ String? _saveErrorMessage;
             ),
           ),
         ),
-        if (_shareState == _ShareState.success) ...[
-          const SizedBox(height: 8),
-          Text(
-            'Shared successfully!',
-            style: TextStyle(fontSize: 12, color: Colors.green[700]),
-            textAlign: TextAlign.center,
-          ),
-        ] else if (_shareState == _ShareState.error && _shareErrorMessage != null) ...[
+        if (_shareState == _ShareState.error && _shareErrorMessage != null) ...[
           const SizedBox(height: 8),
           Text(
             _shareErrorMessage!,
