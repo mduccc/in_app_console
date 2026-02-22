@@ -26,10 +26,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run tests
-        run: flutter test
-
       - name: Check formatting
         run: |
           dart format ./
           git diff --exit-code
+
+      - name: Run tests
+        run: flutter test
