@@ -6,6 +6,10 @@ A Flutter plugin that adds navigation tracking to the [in_app_console](https://p
 
 This extension displays real-time navigation state including the current route stack with payloads and a chronological history of push/pop events with timestamps. It uses Flutter's Navigator 1.0 observer API and only tracks `MaterialPageRoute` transitions.
 
+## Screenshot
+
+![Route Tracker Extension](screenshot/screenshot.png)
+
 ## Register the observer and extension
 
 ```dart

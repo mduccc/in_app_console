@@ -240,12 +240,12 @@ class LogStatisticsExtension extends InAppConsoleExtension {
 
 ## Roadmap
 
-~~Support plugging extensions into the in-app console~~ ✅ **Completed in v2.0.0**
+~~Support plugging extensions into the in-app console~~ **Completed in v2.0.0**
 
 Extension packages:
-- [x] **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** ✅ **Published** - Export console logs to files
-- [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** ✅ **Published** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
-- [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published** - View log statistics and analytics
-- [x] **[iac_device_info_ext](https://pub.dev/packages/iac_device_info_ext)** ✅ **Published** - Display device information (platform, OS version, model, RAM, architecture)
-- [x] **[iac_route_tracker_ext](https://pub.dev/packages/iac_route_tracker_ext)** ✅ **Published** - Track navigation routes, route stack, and payloads
+- [x] **[iac_export_logs_ext](https://pub.dev/packages/iac_export_logs_ext)** **Published** - Export console logs to files
+- [x] **[iac_network_inspector_ext](https://pub.dev/packages/iac_network_inspector_ext)** **Published** - Inspect HTTP/HTTPS network requests made via Dio, view request/response details, and copy as CURL
+- [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** **Published** - View log statistics and analytics
+- [x] **[iac_device_info_ext](https://pub.dev/packages/iac_device_info_ext)** **Published** - Display device information (platform, OS version, model, RAM, architecture)
+- [x] **[iac_route_tracker_ext](https://pub.dev/packages/iac_route_tracker_ext)** **Published** - Track navigation routes, route stack, and payloads
 - [ ] **iac_snapshot_ext** - One-tap diagnostic snapshot that freezes the app state at the captured moment (logs, route stack, device info, and extension data) into a single report, then share or save to file
