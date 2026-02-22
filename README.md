@@ -70,7 +70,7 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^2.1.0
+  in_app_console: ^3.0.0
 ```
 
 ### 2. Import the package
