@@ -64,7 +64,7 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="30%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="30%"/><img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/screenshots/extension_list.png?raw=true" alt="Extensions List" width="30%"/>
+<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="30%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="30%"/><img src="https://raw.githubusercontent.com/mduccc/in_app_console/b6d62688ed59eb5dc25a4d7ceb85fe1c70e7fe03/screenshots/extension_list.png" alt="Extensions List" width="30%"/>
 ## Usage
 
 ### 1. Add dependency
