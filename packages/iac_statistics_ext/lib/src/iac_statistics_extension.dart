@@ -16,7 +16,7 @@ class LogStatisticsExtension extends InAppConsoleExtension {
   String get name => 'Log Statistics';
 
   @override
-  String get version => '1.0.2';
+  String get version => '2.0.0';
 
   @override
   String get description => 'View log statistics and analytics';
