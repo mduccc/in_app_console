@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
+import 'package:in_app_console/src/core/console/in_app_console_internal.dart';
 
 /// A draggable floating bubble that opens the in-app console on tap.
 ///
@@ -53,6 +54,9 @@ class _InAppConsoleBubbleState extends State<InAppConsoleBubble>
 
   late AnimationController _snapController;
   late Animation<Offset> _snapAnimation;
+
+  final InAppConsoleInternal _console =
+      InAppConsole.instance as InAppConsoleInternal;
 
   @override
   void initState() {
@@ -126,32 +130,42 @@ class _InAppConsoleBubbleState extends State<InAppConsoleBubble>
   Widget build(BuildContext context) {
     if (!InAppConsole.kEnableConsole) return widget.child;
 
-    return Stack(
-      children: [
-        widget.child,
-        AnimatedBuilder(
-          animation: _snapController,
-          builder: (context, _) {
-            final pos =
-                _snapController.isAnimating ? _snapAnimation.value : _position;
-            return Positioned(
-              left: pos.dx,
-              top: pos.dy,
-              child: _BubbleButton(
-                size: widget.bubbleSize,
-                onTap: () {
-                  final navContext = widget.navigatorKey.currentContext;
-                  if (navContext != null) {
-                    InAppConsole.instance.openConsole(navContext);
-                  }
-                },
-                onDragUpdate: _onDragUpdate,
-                onDragEnd: _onDragEnd,
-              ),
-            );
-          },
-        ),
-      ],
+    return StreamBuilder<bool>(
+      stream: _console.isConsoleVisibleStream,
+      initialData: false,
+      builder: (context, snapshot) {
+        final isConsoleVisible = snapshot.data ?? false;
+        if (isConsoleVisible) return widget.child;
+
+        return Stack(
+          children: [
+            widget.child,
+            AnimatedBuilder(
+              animation: _snapController,
+              builder: (context, _) {
+                final pos = _snapController.isAnimating
+                    ? _snapAnimation.value
+                    : _position;
+                return Positioned(
+                  left: pos.dx,
+                  top: pos.dy,
+                  child: _BubbleButton(
+                    size: widget.bubbleSize,
+                    onTap: () {
+                      final navContext = widget.navigatorKey.currentContext;
+                      if (navContext != null) {
+                        InAppConsole.instance.openConsole(navContext);
+                      }
+                    },
+                    onDragUpdate: _onDragUpdate,
+                    onDragEnd: _onDragEnd,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

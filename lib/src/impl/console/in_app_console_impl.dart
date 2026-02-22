@@ -49,6 +49,14 @@ class InAppConsoleImpl implements InAppConsoleInternal {
   ///
   final Map<String, InAppConsoleExtension> _registeredExtensionsWithID = {};
 
+  /// Stream controller that emits visibility events for the console screen.
+  ///
+  final StreamController<bool> _isConsoleVisibleController =
+      StreamController<bool>.broadcast();
+
+  @override
+  Stream<bool> get isConsoleVisibleStream => _isConsoleVisibleController.stream;
+
   @override
   Stream<InAppLoggerData> get stream => _streamController.stream;
 
@@ -108,11 +116,12 @@ class InAppConsoleImpl implements InAppConsoleInternal {
     if (!InAppConsole.kEnableConsole) {
       return Future.value();
     }
+    _isConsoleVisibleController.add(true);
     return Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const InAppConsoleScreen(),
       ),
-    );
+    ).whenComplete(() => _isConsoleVisibleController.add(false));
   }
 
   /// Close the in app console screen.

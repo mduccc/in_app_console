@@ -26,4 +26,11 @@ abstract class InAppConsoleInternal extends InAppConsole {
   ///
   ///
   List<InAppConsoleExtension> getExtensions();
+
+  /// A broadcast stream that emits [true] when the console screen is opened
+  /// and [false] when it is closed.
+  ///
+  /// Use this to react to console visibility changes from anywhere in the app.
+  ///
+  Stream<bool> get isConsoleVisibleStream;
 }
