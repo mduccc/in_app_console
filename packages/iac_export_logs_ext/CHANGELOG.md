@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Corrected README.md
+  
 ## 1.1.1
 
 * Corrected extension version string to match package version.
