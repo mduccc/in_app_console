@@ -8,8 +8,7 @@ This extension displays real-time device information including platform, OS vers
 
 ## Screenshot
 
-![Device Info Extension](screenshot/screenshot.png)
-
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/2c6a6c1aff170e0408768bbdea0103dbbb49dd80/packages/iac_device_info_ext/screenshot/screenshot.png" width=35%> 
 ## Register the extension
 
 ```dart
