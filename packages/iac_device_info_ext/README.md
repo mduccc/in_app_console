@@ -1,15 +1,15 @@
-# iac_device_info_ext
+# Device Info Extension for In-App Console
 
-A new Flutter plugin project.
+A Flutter plugin that adds device information display to the [in_app_console](https://pub.dev/packages/in_app_console) package. View hardware and system specs directly in your in-app console.
 
-## Getting Started
+## What does it do?
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+This extension displays real-time device information including platform, OS version, device model, manufacturer, CPU architecture, and total RAM. Supports Android and iOS.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Register the extension
 
+```dart
+InAppConsole.instance.registerExtension(
+  IacDeviceInfoExtension(),
+);
+```
