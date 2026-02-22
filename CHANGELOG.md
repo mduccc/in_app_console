@@ -1,8 +1,9 @@
-## 2.1.0
+## 3.0.0
 * Added `InAppConsoleBubble` — a draggable floating button that opens the console on tap
   * Auto-snaps to the nearest horizontal edge on release
   * Hidden automatically when `InAppConsole.kEnableConsole` is `false`
   * Configurable size (`bubbleSize`) and edge margin (`edgeMargin`)
+* Update minimum Dart SDK version requirement to `3.5`
 
 ## 2.0.2
 
