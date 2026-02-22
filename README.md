@@ -10,6 +10,7 @@
   - [3. Create logger and add to console](#3-create-logger-and-add-to-console)
   - [4. Log messages](#4-log-messages)
   - [5. Show console screen](#5-show-console-screen)
+  - [6. Use the floating bubble (optional)](#6-use-the-floating-bubble-optional)
 - [Extension System](#extension-system)
   - [Using Extensions](#using-extensions)
     - [Official Extensions](#official-extensions)
@@ -63,20 +64,13 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="45%"/>
-
-<img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/screenshots/extension_list.png?raw=true" alt="Extensions List" width="45%"/> <img src="https://github.com/mduccc/in_app_console/blob/f695ec224b53fe39082a64b6d52ac4625a6a5fea/screenshots/extension_detail_sample.png?raw=true" alt="A extension " width="45%"/>
-
-<img src="https://raw.githubusercontent.com/mduccc/in_app_console/ba5c89b84630c256f8b33a528ea823093b49986d/screenshots/extension_export_log.png" alt="A extension " width="45%"/>
-
-<img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/console.png?raw=true)" alt="Console"/>
-
+<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="30%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="30%"/><img src="https://github.com/mduccc/in_app_console/blob/8edaebd5cc91cff4251ffae9d69bcfb816881e7d/screenshots/extension_list.png?raw=true" alt="Extensions List" width="30%"/>
 ## Usage
 
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^2.0.1
+  in_app_console: ^2.1.0
 ```
 
 ### 2. Import the package
@@ -119,6 +113,24 @@ logger.logError(
 ```dart
 // Using InAppConsole helper method
 InAppConsole.instance.openConsole(context);
+```
+
+### 6. Use the floating bubble (optional)
+
+`InAppConsoleBubble` is a draggable floating button that opens the console on tap and auto-snaps to the nearest edge on release. It is hidden when `InAppConsole.kEnableConsole` is `false`.
+
+Place it in `MaterialApp.builder` with the same `navigatorKey`:
+
+```dart
+final _navigatorKey = GlobalKey<NavigatorState>();
+
+MaterialApp(
+  navigatorKey: _navigatorKey,
+  builder: (context, child) => InAppConsoleBubble(
+    navigatorKey: _navigatorKey,
+    child: child!,
+  ),
+)
 ```
 
 ## Extension System
