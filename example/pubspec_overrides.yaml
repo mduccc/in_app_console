@@ -1,4 +1,4 @@
-# melos_managed_dependency_overrides: iac_export_logs_ext,iac_statistics_ext,in_app_console,flutter_lints,iac_network_inspector_ext
+# melos_managed_dependency_overrides: iac_export_logs_ext,iac_statistics_ext,in_app_console,flutter_lints,iac_network_inspector_ext,iac_device_info_ext,iac_route_tracker_ext
 dependency_overrides:
   iac_export_logs_ext:
     path: ../packages/iac_export_logs_ext
@@ -9,3 +9,7 @@ dependency_overrides:
   flutter_lints: ^4.0.0
   iac_network_inspector_ext:
     path: ../packages/iac_network_inspector_ext
+  iac_device_info_ext:
+    path: ../packages/iac_device_info_ext
+  iac_route_tracker_ext:
+    path: ../packages/iac_route_tracker_ext

@@ -23,8 +23,11 @@ jobs:
           flutter-version: 3.38.9
       - run: flutter --version
 
+      - name: Install melos
+        run: dart pub global activate melos ^6.3.2
+
       - name: Install dependencies
-        run: flutter pub get
+        run: melos bootstrap
 
       - name: Check formatting
         run: |
