@@ -3,38 +3,15 @@ import 'package:flutter/services.dart';
 
 import 'iac_device_info_model.dart';
 
-class IacDeviceInfoWidget extends StatefulWidget {
+class IacDeviceInfoWidget extends StatelessWidget {
   const IacDeviceInfoWidget({super.key, required this.deviceInfoFuture});
 
   final Future<IacDeviceInfoModel> deviceInfoFuture;
 
   @override
-  State<IacDeviceInfoWidget> createState() => _IacDeviceInfoWidgetState();
-}
-
-class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
-  bool _copied = false;
-
-  Future<void> _copyToClipboard(IacDeviceInfoModel model) async {
-    final size = MediaQuery.sizeOf(context);
-    final ratio = MediaQuery.devicePixelRatioOf(context);
-    final physicalWidth = (size.width * ratio).toStringAsFixed(0);
-    final physicalHeight = (size.height * ratio).toStringAsFixed(0);
-
-    final text = model.toFormattedString(
-      screenResolution: '$physicalWidth x $physicalHeight px (${size.width.toStringAsFixed(0)} x ${size.height.toStringAsFixed(0)} logical)',
-      pixelRatio: ratio.toStringAsFixed(2),
-    );
-    await Clipboard.setData(ClipboardData(text: text));
-    setState(() => _copied = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) setState(() => _copied = false);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<IacDeviceInfoModel>(
-      future: widget.deviceInfoFuture,
+      future: deviceInfoFuture,
       builder: (context, snapshot) {
         return Card(
           child: Padding(
@@ -42,14 +19,14 @@ class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
+                const _Header(),
                 const Divider(height: 24),
                 if (snapshot.connectionState == ConnectionState.waiting)
                   const Center(child: CircularProgressIndicator())
                 else if (snapshot.hasError)
-                  _buildError(snapshot.error)
+                  _ErrorView(error: snapshot.error)
                 else if (snapshot.hasData)
-                  _buildInfo(snapshot.data!),
+                  _InfoView(model: snapshot.data!),
               ],
             ),
           ),
@@ -57,8 +34,13 @@ class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
       },
     );
   }
+}
 
-  Widget _buildHeader() {
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         const Icon(Icons.phone_android, color: Colors.indigo, size: 28),
@@ -79,8 +61,15 @@ class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
       ],
     );
   }
+}
 
-  Widget _buildError(Object? error) {
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.error});
+
+  final Object? error;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -102,75 +91,106 @@ class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
       ),
     );
   }
+}
 
-  Widget _buildInfo(IacDeviceInfoModel model) {
+class _InfoView extends StatefulWidget {
+  const _InfoView({required this.model});
+
+  final IacDeviceInfoModel model;
+
+  @override
+  State<_InfoView> createState() => _InfoViewState();
+}
+
+class _InfoViewState extends State<_InfoView> {
+  bool _copied = false;
+
+  Future<void> _copyToClipboard() async {
     final size = MediaQuery.sizeOf(context);
     final ratio = MediaQuery.devicePixelRatioOf(context);
     final physicalWidth = (size.width * ratio).toStringAsFixed(0);
     final physicalHeight = (size.height * ratio).toStringAsFixed(0);
 
-    final isAndroid = model.platform == 'Android';
+    final text = widget.model.toFormattedString(
+      screenResolution:
+          '$physicalWidth x $physicalHeight px (${size.width.toStringAsFixed(0)} x ${size.height.toStringAsFixed(0)} logical)',
+      pixelRatio: ratio.toStringAsFixed(2),
+    );
+    await Clipboard.setData(ClipboardData(text: text));
+    setState(() => _copied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _copied = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final ratio = MediaQuery.devicePixelRatioOf(context);
+    final physicalWidth = (size.width * ratio).toStringAsFixed(0);
+    final physicalHeight = (size.height * ratio).toStringAsFixed(0);
+    final isAndroid = widget.model.platform == 'Android';
 
     return Column(
       children: [
-        _buildRow(
+        _InfoRow(
           icon: isAndroid ? Icons.android : Icons.apple,
           iconColor: isAndroid ? Colors.green : Colors.grey[800]!,
           label: 'Platform',
-          value: model.platform,
+          value: widget.model.platform,
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.system_update_alt,
           label: 'OS Version',
-          value: model.osVersion,
+          value: widget.model.osVersion,
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.devices,
           label: 'Model',
-          value: model.model,
+          value: widget.model.model,
         ),
-        if (model.manufacturer.isNotEmpty)
-          _buildRow(
+        if (widget.model.manufacturer.isNotEmpty)
+          _InfoRow(
             icon: Icons.business,
             label: 'Manufacturer',
-            value: model.manufacturer,
+            value: widget.model.manufacturer,
           ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.memory,
           label: 'Architecture',
-          value: model.architecture,
+          value: widget.model.architecture,
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.storage,
           label: 'Total RAM',
-          value: model.totalRam,
+          value: widget.model.totalRam,
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.stay_current_portrait,
           label: 'Screen',
           value: '${physicalWidth}x$physicalHeight px',
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.grid_on,
           label: 'Logical Size',
-          value: '${size.width.toStringAsFixed(0)}x${size.height.toStringAsFixed(0)} dp',
+          value:
+              '${size.width.toStringAsFixed(0)}x${size.height.toStringAsFixed(0)} dp',
         ),
-        _buildRow(
+        _InfoRow(
           icon: Icons.hd,
           label: 'Pixel Ratio',
           value: ratio.toStringAsFixed(2),
         ),
-        if (model.additionalInfo != null)
-          _buildRow(
+        if (widget.model.additionalInfo != null)
+          _InfoRow(
             icon: Icons.info_outline,
             label: 'Additional',
-            value: model.additionalInfo!,
+            value: widget.model.additionalInfo!,
           ),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: () => _copyToClipboard(model),
+            onPressed: _copyToClipboard,
             icon: Icon(_copied ? Icons.check : Icons.copy, size: 18),
             label: Text(_copied ? 'Copied!' : 'Copy to Clipboard'),
           ),
@@ -178,13 +198,23 @@ class _IacDeviceInfoWidgetState extends State<IacDeviceInfoWidget> {
       ],
     );
   }
+}
 
-  Widget _buildRow({
-    required IconData icon,
-    Color? iconColor,
-    required String label,
-    required String value,
-  }) {
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    this.iconColor,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final Color? iconColor;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(

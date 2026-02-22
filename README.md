@@ -248,3 +248,4 @@ Extension packages:
 - [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** ✅ **Published** - View log statistics and analytics
 - [x] **[iac_device_info_ext](https://pub.dev/packages/iac_device_info_ext)** ✅ **Published** - Display device information (platform, OS version, model, RAM, architecture)
 - [x] **[iac_route_tracker_ext](https://pub.dev/packages/iac_route_tracker_ext)** ✅ **Published** - Track navigation routes, route stack, and payloads
+- [ ] **iac_snapshot_ext** - One-tap diagnostic snapshot that freezes the app state at the captured moment (logs, route stack, device info, and extension data) into a single report, then share or save to file
