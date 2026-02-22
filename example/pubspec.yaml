@@ -47,6 +47,8 @@ dependencies:
     path: ../packages/iac_network_inspector_ext
   iac_device_info_ext:
     path: ../packages/iac_device_info_ext
+  iac_route_tracker_ext:
+    path: ../packages/iac_route_tracker_ext
 
 dev_dependencies:
   flutter_test:

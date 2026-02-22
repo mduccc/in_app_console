@@ -1,5 +1,2 @@
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'package:iac_route_tracker_ext/src/iac_route_tracker_navigation_observer.dart';
+export 'package:iac_route_tracker_ext/src/iac_route_tracker_extension.dart';

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iac_device_info_ext/iac_device_info_ext.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
 import 'package:iac_network_inspector_ext/iac_network_inspector_ext.dart';
+import 'package:iac_route_tracker_ext/iac_route_tracker_ext.dart';
 import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
 
@@ -27,6 +28,16 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           useMaterial3: true,
         ),
+        navigatorObservers: [MicroFrontendApp.routeTracker],
+        routes: {
+          '/shop': (_) => const _DemoScreen(title: 'Shop', route: '/shop'),
+          '/profile': (_) =>
+              const _DemoScreen(title: 'Profile', route: '/profile'),
+          '/checkout': (_) =>
+              const _DemoScreen(title: 'Checkout', route: '/checkout'),
+          '/settings': (_) =>
+              const _DemoScreen(title: 'Settings', route: '/settings'),
+        },
         home: const HomeScreen(),
       );
 }
@@ -38,8 +49,12 @@ class MicroFrontendApp {
   static late ProfileModule profileModule;
   static late ChatModule chatModule;
   static late IacNetworkInspectorExt networkInspector;
+  static late IacRouteTrackerNavigationObserver routeTracker;
 
   static void initialize() {
+    // Create route tracker
+    routeTracker = IacRouteTrackerNavigationObserver();
+
     // Create network inspector
     networkInspector = IacNetworkInspectorExt();
 
@@ -67,6 +82,8 @@ class MicroFrontendApp {
     InAppConsole.instance.registerExtension(InAppConsoleExportLogsExtension());
     InAppConsole.instance.registerExtension(networkInspector);
     InAppConsole.instance.registerExtension(IacDeviceInfoExtension());
+    InAppConsole.instance
+        .registerExtension(IacRouteTrackerExtension(observer: routeTracker));
   }
 }
 
@@ -605,6 +622,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 24),
 
+            // Route Tracker Demo Section
+            const Text(
+              'Route Tracker Demo:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+
+            _buildModuleCard(
+              'Navigation',
+              Icons.route,
+              Colors.deepPurple,
+              [
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/shop'),
+                  child: const Text('Go to Shop'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/profile'),
+                  child: const Text('Go to Profile'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/checkout'),
+                  child: const Text('Go to Checkout'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/settings'),
+                  child: const Text('Go to Settings'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
             // Console Button
             Card(
               color: Colors.red.shade50,
@@ -826,5 +876,43 @@ class _HomeScreenState extends State<HomeScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Route Tracker demo screens
+// ---------------------------------------------------------------------------
+
+class _DemoScreen extends StatelessWidget {
+  const _DemoScreen({required this.title, required this.route});
+
+  final String title;
+  final String route;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              route,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
