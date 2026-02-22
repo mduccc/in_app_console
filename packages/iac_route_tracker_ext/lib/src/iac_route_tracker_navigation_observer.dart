@@ -2,7 +2,36 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// A [RouteObserver] that tracks the current and previous deep link (route name)
+/// A single entry in the live route stack.
+class IacRouteStackEntry {
+  final String routeName;
+
+  /// Optional arguments passed to the route via [RouteSettings.arguments].
+  final Object? payload;
+
+  const IacRouteStackEntry({required this.routeName, this.payload});
+}
+
+/// A single navigation event recorded in the route history.
+class IacRouteHistoryEntry {
+  final String routeName;
+
+  /// `true` if the route was pushed, `false` if it was popped.
+  final bool isPush;
+  final DateTime timestamp;
+
+  /// Optional arguments passed to the route via [RouteSettings.arguments].
+  final Object? payload;
+
+  const IacRouteHistoryEntry({
+    required this.routeName,
+    required this.isPush,
+    required this.timestamp,
+    this.payload,
+  });
+}
+
+/// A [RouteObserver] that tracks navigation history and the live route stack
 /// as the user navigates through the app using Flutter Navigator 1.0.
 ///
 /// Only [MaterialPageRoute] transitions are tracked; dialogs, bottom sheets, and
@@ -19,38 +48,42 @@ import 'package:flutter/material.dart';
 /// ```
 class IacRouteTrackerNavigationObserver
     extends RouteObserver<PageRoute<dynamic>> {
-  String _currentDeepLink = '';
-  String _previousDeepLink = '';
-  final List<String> _deepLinkStack = [];
-  final StreamController<List<String>> _routeStackController =
-      StreamController<List<String>>.broadcast();
+  final List<IacRouteStackEntry> _deepLinkStack = [];
+  final List<IacRouteHistoryEntry> _routeHistory = [];
+  final StreamController<List<IacRouteStackEntry>> _routeStackController =
+      StreamController<List<IacRouteStackEntry>>.broadcast();
 
-  /// The name (deep link) of the currently visible route, or an empty string
-  /// if the current route has no name.
-  String get currentDeepLink => _currentDeepLink;
+  /// An unmodifiable snapshot of the route stack (bottom to top).
+  List<IacRouteStackEntry> get routeStack => List.unmodifiable(_deepLinkStack);
 
-  /// The name (deep link) of the previously visible route, or an empty string
-  /// if there was no previous named route.
-  String get previousDeepLink => _previousDeepLink;
+  /// An unmodifiable chronological list of all navigation events (oldest first).
+  List<IacRouteHistoryEntry> get routeHistory =>
+      List.unmodifiable(_routeHistory);
 
-  /// An unmodifiable snapshot of the deep link stack (bottom to top).
-  List<String> get routeStack => List.unmodifiable(_deepLinkStack);
-
-  /// A broadcast stream that emits the updated deep link stack on every push/pop.
-  Stream<List<String>> get routeStackStream => _routeStackController.stream;
+  /// A broadcast stream that emits the updated route stack on every push/pop.
+  Stream<List<IacRouteStackEntry>> get routeStackStream =>
+      _routeStackController.stream;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    if (route is! PageRoute) return;
+    if (route is! PageRoute || (route.settings.name ?? '').trim().isEmpty) {
+      return;
+    }
 
-    _deepLinkStack.add(route.settings.name ?? '');
-    _previousDeepLink = _currentDeepLink;
-    _currentDeepLink = route.settings.name ?? '';
-    debugPrint(
-      '[RouteTracker] didPush: $_currentDeepLink (previous: $_previousDeepLink)',
+    final name = route.settings.name ?? '';
+    final payload = route.settings.arguments;
+    _deepLinkStack.add(IacRouteStackEntry(routeName: name, payload: payload));
+    _routeHistory.add(
+      IacRouteHistoryEntry(
+        routeName: name,
+        isPush: true,
+        timestamp: DateTime.now(),
+        payload: payload,
+      ),
     );
+    debugPrint('[RouteTracker] didPush: $name');
 
     _routeStackController.add(List.unmodifiable(_deepLinkStack));
   }
@@ -59,14 +92,21 @@ class IacRouteTrackerNavigationObserver
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    if (route is! PageRoute) return;
+    if (route is! PageRoute || (route.settings.name ?? '').trim().isEmpty) {
+      return;
+    }
 
+    final name = route.settings.name ?? '';
     if (_deepLinkStack.isNotEmpty) _deepLinkStack.removeLast();
-    _previousDeepLink = _currentDeepLink;
-    _currentDeepLink = previousRoute?.settings.name ?? '';
-    debugPrint(
-      '[RouteTracker] didPop: $_currentDeepLink (previous: $_previousDeepLink)',
+    _routeHistory.add(
+      IacRouteHistoryEntry(
+        routeName: name,
+        isPush: false,
+        timestamp: DateTime.now(),
+        payload: route.settings.arguments,
+      ),
     );
+    debugPrint('[RouteTracker] didPop: $name');
 
     _routeStackController.add(List.unmodifiable(_deepLinkStack));
   }

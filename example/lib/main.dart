@@ -30,14 +30,138 @@ class MyApp extends StatelessWidget {
         ),
         navigatorKey: MicroFrontendApp.navigatorKey,
         navigatorObservers: [MicroFrontendApp.routeTracker],
-        routes: {
-          '/shop': (_) => const _DemoScreen(title: 'Shop', route: '/shop'),
-          '/profile': (_) =>
-              const _DemoScreen(title: 'Profile', route: '/profile'),
-          '/checkout': (_) =>
-              const _DemoScreen(title: 'Checkout', route: '/checkout'),
-          '/settings': (_) =>
-              const _DemoScreen(title: 'Settings', route: '/settings'),
+        onGenerateRoute: (settings) {
+          final uri = Uri.parse(settings.name ?? '/');
+          Widget? page;
+          switch (uri.path) {
+            // Shop flow: /shop → /shop/category?… → /shop/product?…
+            case '/shop':
+              page = const _DemoScreen(
+                title: 'Shop',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Browse Category',
+                    route: '/shop/category?category=electronics&sort=price_asc',
+                  ),
+                ],
+              );
+            case '/shop/category':
+              page = const _DemoScreen(
+                title: 'Shop Category',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'View Product',
+                    route: '/shop/product?productId=PRD-042',
+                    payload: <String, Object>{
+                      'name': 'Wireless Headphones',
+                      'price': 99.99,
+                      'inStock': true,
+                    },
+                  ),
+                ],
+              );
+            case '/shop/product':
+              page = const _DemoScreen(title: 'Product Detail');
+
+            // Profile flow: /profile → /profile/edit → /profile/change-password?…
+            case '/profile':
+              page = const _DemoScreen(
+                title: 'Profile',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Edit Profile',
+                    route: '/profile/edit',
+                    payload: <String, Object>{
+                      'userId': 'user_123',
+                      'name': 'John Doe',
+                      'email': 'john@example.com',
+                    },
+                  ),
+                ],
+              );
+            case '/profile/edit':
+              page = const _DemoScreen(
+                title: 'Edit Profile',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Change Password',
+                    route:
+                        '/profile/change-password?userId=user_123&requireOtp=true',
+                  ),
+                ],
+              );
+            case '/profile/change-password':
+              page = const _DemoScreen(title: 'Change Password');
+
+            // Checkout flow: /checkout → /checkout/payment → /checkout/confirmation?…
+            case '/checkout':
+              page = const _DemoScreen(
+                title: 'Checkout',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Proceed to Payment',
+                    route: '/checkout/payment',
+                    payload: <String, Object>{
+                      'cartTotal': 149.98,
+                      'itemCount': 3,
+                      'currency': 'USD',
+                    },
+                  ),
+                ],
+              );
+            case '/checkout/payment':
+              page = const _DemoScreen(
+                title: 'Payment',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'View Confirmation',
+                    route:
+                        '/checkout/confirmation?orderId=ORD-2024-789&method=credit_card',
+                    payload: <String, Object>{
+                      'last4': '4242',
+                      'brand': 'Visa',
+                    },
+                  ),
+                ],
+              );
+            case '/checkout/confirmation':
+              page = const _DemoScreen(title: 'Order Confirmation');
+
+            // Settings flow: /settings → /settings/notifications?… → /settings/notifications/schedule
+            case '/settings':
+              page = const _DemoScreen(
+                title: 'Settings',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Notifications',
+                    route: '/settings/notifications?tab=push&userId=user_123',
+                  ),
+                ],
+              );
+            case '/settings/notifications':
+              page = const _DemoScreen(
+                title: 'Notifications',
+                childRoutes: [
+                  _ChildRouteConfig(
+                    label: 'Edit Schedule',
+                    route: '/settings/notifications/schedule',
+                    payload: <String, Object>{
+                      'quietStart': '22:00',
+                      'quietEnd': '08:00',
+                      'timezone': 'America/New_York',
+                      'enabled': true,
+                    },
+                  ),
+                ],
+              );
+            case '/settings/notifications/schedule':
+              page = const _DemoScreen(title: 'Notification Schedule');
+          }
+          if (page == null) return null;
+          return MaterialPageRoute(
+            builder: (_) => page!,
+            settings: settings, // preserve name (with query string) + arguments
+          );
         },
         home: const HomeScreen(),
         builder: (context, child) => InAppConsoleBubble(
@@ -889,32 +1013,114 @@ class _HomeScreenState extends State<HomeScreen> {
 // Route Tracker demo screens
 // ---------------------------------------------------------------------------
 
+class _ChildRouteConfig {
+  const _ChildRouteConfig({
+    required this.label,
+    required this.route,
+    this.payload = const <String, Object>{},
+  });
+
+  final String label;
+  // Full route string including query params, e.g. '/profile/change-password?userId=user_123&requireOtp=true'
+  final String route;
+  final Map<String, Object> payload;
+}
+
 class _DemoScreen extends StatelessWidget {
-  const _DemoScreen({required this.title, required this.route});
+  const _DemoScreen({
+    required this.title,
+    this.childRoutes = const [],
+  });
 
   final String title;
-  final String route;
+  final List<_ChildRouteConfig> childRoutes;
 
   @override
   Widget build(BuildContext context) {
+    final routeName = ModalRoute.of(context)?.settings.name ?? '';
+    final uri = Uri.parse(routeName);
+    final queryParams = uri.queryParameters; // parsed from the route URL
+    final payload =
+        ModalRoute.of(context)?.settings.arguments as Map<String, Object>? ??
+            {};
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              route,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            // Route info card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      routeName,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    if (queryParams.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      const Text('Query Params',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue)),
+                      const SizedBox(height: 4),
+                      ...queryParams.entries.map(
+                        (e) => Text(
+                          '  ${e.key}: ${e.value}',
+                          style: const TextStyle(fontFamily: 'monospace'),
+                        ),
+                      ),
+                    ],
+                    if (payload.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      const Text('Payload',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green)),
+                      const SizedBox(height: 4),
+                      ...payload.entries.map(
+                        (e) => Text(
+                          '  ${e.key}: ${e.value}',
+                          style: const TextStyle(fontFamily: 'monospace'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            // Child navigation buttons
+            ...childRoutes.map(
+              (r) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    r.route,
+                    arguments: r.payload.isEmpty ? null : r.payload,
+                  ),
+                  icon: const Icon(Icons.arrow_forward),
+                  label: Text(r.label),
+                ),
+              ),
+            ),
+            if (childRoutes.isNotEmpty) const SizedBox(height: 4),
             ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.arrow_back),
               label: const Text('Go Back'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade200),
             ),
           ],
         ),

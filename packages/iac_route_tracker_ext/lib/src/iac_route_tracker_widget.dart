@@ -12,24 +12,20 @@ class IacRouteTrackerWidget extends StatefulWidget {
 }
 
 class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
-  late String _currentDeepLink;
-  late String _previousDeepLink;
-  late List<String> _routeStack;
+  late List<IacRouteStackEntry> _routeStack;
+  late List<IacRouteHistoryEntry> _routeHistory;
 
   @override
   void initState() {
     super.initState();
-    _currentDeepLink = widget.observer.currentDeepLink;
-    _previousDeepLink = widget.observer.previousDeepLink;
     _routeStack = widget.observer.routeStack;
+    _routeHistory = widget.observer.routeHistory;
 
-    widget.observer.routeStackStream.listen((stack) {
-      debugPrint('[RouteTrackerWidget] routeStackStream emitted new stack: $stack');
+    widget.observer.routeStackStream.listen((_) {
       if (!mounted) return;
       setState(() {
-        _routeStack = stack;
-        _currentDeepLink = widget.observer.currentDeepLink;
-        _previousDeepLink = widget.observer.previousDeepLink;
+        _routeStack = widget.observer.routeStack;
+        _routeHistory = widget.observer.routeHistory;
       });
     });
   }
@@ -42,47 +38,41 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            const _Header(),
             const Divider(height: 24),
-            _buildDeepLinkRow(
-              label: 'Current',
-              value: _currentDeepLink,
-              color: Colors.blue,
-              icon: Icons.location_on,
-            ),
+            _SectionHeader(title: 'Current Stack', count: _routeStack.length),
             const SizedBox(height: 8),
-            _buildDeepLinkRow(
-              label: 'Previous',
-              value: _previousDeepLink,
-              color: Colors.grey,
-              icon: Icons.history,
-            ),
-            if (_routeStack.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Route Stack (${_routeStack.length})',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[700],
-                ),
-              ),
-              const SizedBox(height: 8),
+            if (_routeStack.isEmpty)
+              const _EmptyState(message: 'Stack is empty')
+            else
               ..._routeStack.reversed.toList().asMap().entries.map(
-                    (entry) => _buildStackEntry(
+                    (entry) => _StackEntry(
                       index: _routeStack.length - 1 - entry.key,
-                      deepLink: entry.value,
+                      stackEntry: entry.value,
                       isTop: entry.key == 0,
                     ),
                   ),
-            ],
+            const Divider(height: 24),
+            _SectionHeader(title: 'History', count: _routeHistory.length),
+            const SizedBox(height: 8),
+            if (_routeHistory.isEmpty)
+              const _EmptyState(message: 'No navigation events yet')
+            else
+              ..._routeHistory.reversed.toList().map(
+                    (entry) => _HistoryEntry(entry: entry),
+                  ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         const Icon(Icons.route, color: Colors.deepPurple, size: 28),
@@ -103,93 +93,223 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
       ],
     );
   }
+}
 
-  Widget _buildDeepLinkRow({
-    required String label,
-    required String value,
-    required Color color,
-    required IconData icon,
-  }) {
-    final isEmpty = value.isEmpty;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: 64,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            isEmpty ? '—' : value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isEmpty ? FontWeight.normal : FontWeight.w500,
-              color: isEmpty ? Colors.grey[400] : null,
-              fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
-            ),
-          ),
-        ),
-      ],
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '$title ($count)',
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        color: Colors.grey[700],
+      ),
     );
   }
+}
 
-  Widget _buildStackEntry({
-    required int index,
-    required String deepLink,
-    required bool isTop,
-  }) {
-    final isEmpty = deepLink.isEmpty;
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text(
+        message,
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.grey[400],
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+    );
+  }
+}
+
+class _StackEntry extends StatelessWidget {
+  const _StackEntry({
+    required this.index,
+    required this.stackEntry,
+    required this.isTop,
+  });
+
+  final int index;
+  final IacRouteStackEntry stackEntry;
+  final bool isTop;
+
+  @override
+  Widget build(BuildContext context) {
+    final isNameEmpty = stackEntry.routeName.isEmpty;
+    final hasPayload = stackEntry.payload != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 22,
-            height: 22,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: isTop ? Colors.deepPurple : Colors.grey[200],
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '$index',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: isTop ? Colors.white : Colors.grey[700],
+          Row(
+            children: [
+              Container(
+                width: 22,
+                height: 22,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isTop ? Colors.deepPurple : Colors.grey[200],
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$index',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isTop ? Colors.white : Colors.grey[700],
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isNameEmpty ? '(no name)' : stackEntry.routeName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isTop ? FontWeight.w500 : FontWeight.normal,
+                    color: isNameEmpty ? Colors.grey[400] : null,
+                    fontStyle: isNameEmpty ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ),
+              if (isTop)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'TOP',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              isEmpty ? '(no name)' : deepLink,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isTop ? FontWeight.w500 : FontWeight.normal,
-                color: isEmpty ? Colors.grey[400] : null,
-                fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
+          if (hasPayload)
+            Padding(
+              padding: const EdgeInsets.only(left: 30, top: 2),
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  stackEntry.payload.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[700],
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ),
             ),
-          ),
-          if (isTop)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.deepPurple.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+        ],
+      ),
+    );
+  }
+}
+
+class _HistoryEntry extends StatelessWidget {
+  const _HistoryEntry({required this.entry});
+
+  final IacRouteHistoryEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPush = entry.isPush;
+    final color = isPush ? Colors.green[700]! : Colors.orange[700]!;
+    final icon = isPush ? Icons.arrow_upward : Icons.arrow_downward;
+    final label = isPush ? 'PUSH' : 'POP';
+    final t = entry.timestamp;
+    final time =
+        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:${t.second.toString().padLeft(2, '0')}';
+    final isNameEmpty = entry.routeName.isEmpty;
+    final hasPayload = entry.payload != null;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
               ),
-              child: const Text(
-                'TOP',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isNameEmpty ? '(no name)' : entry.routeName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isNameEmpty ? Colors.grey[400] : null,
+                    fontStyle:
+                        isNameEmpty ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ),
+              Text(
+                time,
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+          if (hasPayload)
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 2),
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  entry.payload.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[700],
+                    fontFamily: 'monospace',
+                  ),
                 ),
               ),
             ),
