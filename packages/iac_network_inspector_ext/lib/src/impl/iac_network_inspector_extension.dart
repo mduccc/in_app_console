@@ -34,7 +34,7 @@ final class IacNetworkInspectorExtImpl
       'An extension to inspect network requests made using Dio.';
 
   @override
-  String get version => '2.0.0';
+  String get version => '2.0.1';
 
   @override
   Widget get icon => const Icon(Icons.network_check);
