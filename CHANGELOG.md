@@ -1,3 +1,9 @@
+## 2.1.0
+* Added `InAppConsoleBubble` — a draggable floating button that opens the console on tap
+  * Auto-snaps to the nearest horizontal edge on release
+  * Hidden automatically when `InAppConsole.kEnableConsole` is `false`
+  * Configurable size (`bubbleSize`) and edge margin (`edgeMargin`)
+
 ## 2.0.2
 
 ### Improvements
