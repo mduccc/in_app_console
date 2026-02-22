@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           useMaterial3: true,
         ),
+        navigatorKey: MicroFrontendApp.navigatorKey,
         navigatorObservers: [MicroFrontendApp.routeTracker],
         routes: {
           '/shop': (_) => const _DemoScreen(title: 'Shop', route: '/shop'),
@@ -39,11 +40,16 @@ class MyApp extends StatelessWidget {
               const _DemoScreen(title: 'Settings', route: '/settings'),
         },
         home: const HomeScreen(),
+        builder: (context, child) => InAppConsoleBubble(
+          navigatorKey: MicroFrontendApp.navigatorKey,
+          child: child!,
+        ),
       );
 }
 
 /// Central application that manages all micro-frontend modules
 class MicroFrontendApp {
+  static final navigatorKey = GlobalKey<NavigatorState>();
   static late AuthModule authModule;
   static late PaymentModule paymentModule;
   static late ProfileModule profileModule;
