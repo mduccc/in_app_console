@@ -11,6 +11,7 @@ import 'package:in_app_console/in_app_console.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   /// Enable the in app console for debugging purposes.
   InAppConsole.kEnableConsole = true;
   // Initialize micro-frontend modules
@@ -871,7 +872,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('GET request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('GET request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -891,7 +893,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('POST request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('POST request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -911,7 +914,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PUT request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('PUT request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -926,7 +930,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('DELETE request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('DELETE request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -943,7 +948,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error request sent - Check Network Inspector for details!'),
+            content: Text(
+                'Error request sent - Check Network Inspector for details!'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -962,7 +968,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PATCH request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('PATCH request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -977,7 +984,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('HEAD request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('HEAD request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -993,7 +1001,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('OPTIONS request sent - Check Network Inspector!')),
+          const SnackBar(
+              content: Text('OPTIONS request sent - Check Network Inspector!')),
         );
       }
     } catch (e) {
@@ -1070,8 +1079,7 @@ class _DemoScreen extends StatelessWidget {
                       const SizedBox(height: 10),
                       const Text('Query Params',
                           style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue)),
+                              fontWeight: FontWeight.w600, color: Colors.blue)),
                       const SizedBox(height: 4),
                       ...queryParams.entries.map(
                         (e) => Text(

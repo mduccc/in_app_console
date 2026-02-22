@@ -18,8 +18,7 @@ class IacNetworkInspectorScreen extends StatefulWidget {
       _IacNetworkInspectorScreenState();
 }
 
-class _IacNetworkInspectorScreenState
-    extends State<IacNetworkInspectorScreen> {
+class _IacNetworkInspectorScreenState extends State<IacNetworkInspectorScreen> {
   String _searchQuery = '';
   String? _selectedTag;
   String? _selectedMethod;
@@ -107,14 +106,10 @@ class _IacNetworkInspectorScreenState
   }
 
   Widget _buildFilters() {
-    final allTags = widget.extension.history
-        .map((e) => e.dioTag)
-        .toSet()
-        .toList();
-    final allMethods = widget.extension.history
-        .map((e) => e.request.method)
-        .toSet()
-        .toList();
+    final allTags =
+        widget.extension.history.map((e) => e.dioTag).toSet().toList();
+    final allMethods =
+        widget.extension.history.map((e) => e.request.method).toSet().toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -178,8 +173,7 @@ class _IacNetworkInspectorScreenState
       }
 
       // Filter by method
-      if (_selectedMethod != null &&
-          item.request.method != _selectedMethod) {
+      if (_selectedMethod != null && item.request.method != _selectedMethod) {
         return false;
       }
 

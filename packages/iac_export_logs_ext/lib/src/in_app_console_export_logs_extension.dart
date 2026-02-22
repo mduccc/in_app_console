@@ -52,7 +52,7 @@ class _ExportLogsWidget extends StatefulWidget {
 class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
   _SaveState _saveState = _SaveState.idle;
   _ShareState _shareState = _ShareState.idle;
-String? _saveErrorMessage;
+  String? _saveErrorMessage;
   String? _shareErrorMessage;
 
   String _formatLogs() {
@@ -155,7 +155,6 @@ String? _saveErrorMessage;
       );
 
       await tempFile.delete();
-
     } catch (e) {
       if (mounted) {
         setState(() {

@@ -20,10 +20,8 @@ void main() {
         // Assert
         expect(extension.id, equals('iac_network_inspector_ext'));
         expect(extension.name, equals('Network Inspector'));
-        expect(
-            extension.description,
-            equals(
-                'An extension to inspect network requests made using Dio.'));
+        expect(extension.description,
+            equals('An extension to inspect network requests made using Dio.'));
         expect(extension.version, equals('1.0.0'));
         expect(extension.icon, isNotNull);
       });
@@ -56,7 +54,8 @@ void main() {
         extension.addDio(wrapper);
 
         // Assert
-        expect(testDio.interceptors.length, equals(initialInterceptorsCount + 1));
+        expect(
+            testDio.interceptors.length, equals(initialInterceptorsCount + 1));
         expect(testDio.options.extra['iac_dio_tag'], equals('TestAPI'));
       });
 
@@ -70,7 +69,8 @@ void main() {
         extension.addDio(wrapper);
 
         // Assert
-        expect(testDio.interceptors.length, equals(interceptorsCountAfterFirstAdd));
+        expect(testDio.interceptors.length,
+            equals(interceptorsCountAfterFirstAdd));
       });
 
       test('THEN should add multiple different Dio instances', () {
@@ -110,8 +110,7 @@ void main() {
       test('THEN should handle removing non-existent Dio instance gracefully',
           () {
         // Arrange
-        final unregisteredWrapper =
-            DioWrapper(dio: Dio(), tag: 'Unregistered');
+        final unregisteredWrapper = DioWrapper(dio: Dio(), tag: 'Unregistered');
 
         // Act & Assert - Should not throw
         expect(() => extension.removeDio(unregisteredWrapper), returnsNormally);
@@ -264,8 +263,8 @@ void main() {
 
         // Assert
         final networkData = await streamFuture;
-        expect(
-            networkData.request.headers['Authorization'], equals('Bearer token123'));
+        expect(networkData.request.headers['Authorization'],
+            equals('Bearer token123'));
       });
 
       test('THEN should maintain history of all requests', () async {
@@ -340,7 +339,8 @@ void main() {
         // Assert
         expect(extension.history.length, equals(2));
 
-        final apiRequest = extension.history.firstWhere((r) => r.dioTag == 'API');
+        final apiRequest =
+            extension.history.firstWhere((r) => r.dioTag == 'API');
         final authRequest =
             extension.history.firstWhere((r) => r.dioTag == 'Auth');
 
@@ -368,13 +368,15 @@ void main() {
         expect(curl, contains('https://api.example.com/users'));
       });
 
-      test('WHEN generating CURL with headers THEN should include headers',
-          () {
+      test('WHEN generating CURL with headers THEN should include headers', () {
         // Arrange
         final networkData = _createMockNetworkData(
           method: 'GET',
           url: 'https://api.example.com/users',
-          headers: {'Authorization': 'Bearer token', 'Accept': 'application/json'},
+          headers: {
+            'Authorization': 'Bearer token',
+            'Accept': 'application/json'
+          },
         );
 
         // Act

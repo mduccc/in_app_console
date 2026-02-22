@@ -82,5 +82,6 @@ final class IacNetworkResponse {
       statusCode != null && statusCode! >= 200 && statusCode! < 300;
 
   /// Check if the response has an error
-  bool get hasError => error != null || (statusCode != null && statusCode! >= 400);
+  bool get hasError =>
+      error != null || (statusCode != null && statusCode! >= 400);
 }

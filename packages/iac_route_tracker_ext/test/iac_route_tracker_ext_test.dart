@@ -43,8 +43,7 @@ void main() {
       await subscription.cancel();
     });
 
-    test(
-        'WHEN a non-MaterialPageRoute is pushed THEN state is unchanged',
+    test('WHEN a non-MaterialPageRoute is pushed THEN state is unchanged',
         () async {
       final nonPageRoute = _TestNonPageRoute(
         settings: const RouteSettings(name: '/dialog'),

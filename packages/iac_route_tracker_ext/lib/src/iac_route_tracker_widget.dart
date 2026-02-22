@@ -182,7 +182,8 @@ class _StackEntry extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: isTop ? FontWeight.w500 : FontWeight.normal,
                     color: isNameEmpty ? Colors.grey[400] : null,
-                    fontStyle: isNameEmpty ? FontStyle.italic : FontStyle.normal,
+                    fontStyle:
+                        isNameEmpty ? FontStyle.italic : FontStyle.normal,
                   ),
                 ),
               ),
@@ -210,8 +211,7 @@ class _StackEntry extends StatelessWidget {
               padding: const EdgeInsets.only(left: 30, top: 2),
               child: Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(4),
@@ -259,8 +259,7 @@ class _HistoryEntry extends StatelessWidget {
               Icon(icon, size: 14, color: color),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
@@ -297,8 +296,7 @@ class _HistoryEntry extends StatelessWidget {
               padding: const EdgeInsets.only(left: 20, top: 2),
               child: Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(4),

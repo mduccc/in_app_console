@@ -98,8 +98,7 @@ class _InAppConsoleBubbleState extends State<InAppConsoleBubble>
     final size = MediaQuery.of(context).size;
     final padding = MediaQuery.of(context).padding;
 
-    final snapToRight =
-        _position.dx + widget.bubbleSize / 2 > size.width / 2;
+    final snapToRight = _position.dx + widget.bubbleSize / 2 > size.width / 2;
     final targetX = snapToRight
         ? size.width - widget.bubbleSize - widget.edgeMargin
         : widget.edgeMargin;
