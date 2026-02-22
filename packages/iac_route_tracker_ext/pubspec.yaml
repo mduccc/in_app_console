@@ -1,6 +1,6 @@
 name: iac_route_tracker_ext
 description: "Route tracker extension for in_app_console. Tracks navigation routes and deep links using Flutter's Navigator 1.0 observer API."
-version: 1.0.0
+version: 2.0.0
 repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_route_tracker_ext
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  in_app_console: ^2.0.2
+  in_app_console: ^3.0.0
 
 dev_dependencies:
   flutter_test:
