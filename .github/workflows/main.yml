@@ -15,7 +15,10 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-        
+
+      - name: Check version consistency
+        run: bash scripts/check_version_consistent.sh
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
