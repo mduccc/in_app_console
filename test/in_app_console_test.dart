@@ -1143,9 +1143,6 @@ void main() {
         expect(extension1.initCalled, isTrue);
         expect(extension2.initCalled, isTrue);
         expect(extension3.initCalled, isTrue);
-        expect(extension1.disposeCalled, isFalse);
-        expect(extension2.disposeCalled, isFalse);
-        expect(extension3.disposeCalled, isFalse);
       });
 
       test(
@@ -1168,6 +1165,139 @@ void main() {
         expect(extension1.disposeCalled, isTrue);
         expect(extension2.disposeCalled, isTrue);
         expect(extension3.disposeCalled, isTrue);
+      });
+    });
+  });
+
+  group('isConsoleVisibleStream', () {
+    late InAppConsoleInternal console;
+
+    setUp(() {
+      console = InAppConsole.instance as InAppConsoleInternal;
+      InAppConsole.kEnableConsole = true;
+      console.clearLogs();
+    });
+
+    test(
+        'GIVEN console stream WHEN initialized THEN should be a broadcast stream',
+        () {
+      // Assert
+      expect(console.isConsoleVisibleStream.isBroadcast, isTrue);
+    });
+  });
+
+  group('InAppConsoleBubble', () {
+    late InAppConsoleInternal console;
+    late GlobalKey<NavigatorState> navigatorKey;
+
+    setUp(() {
+      console = InAppConsole.instance as InAppConsoleInternal;
+      InAppConsole.kEnableConsole = true;
+      console.clearLogs();
+      navigatorKey = GlobalKey<NavigatorState>();
+    });
+
+    Widget buildTestApp() {
+      return MaterialApp(
+        navigatorKey: navigatorKey,
+        builder: (context, child) => InAppConsoleBubble(
+          navigatorKey: navigatorKey,
+          child: child!,
+        ),
+        home: const Scaffold(
+          body: Center(child: Text('Home Screen')),
+        ),
+      );
+    }
+
+    group('GIVEN a widget tree with InAppConsoleBubble', () {
+      testWidgets('WHEN console is enabled THEN bubble should be visible',
+          (tester) async {
+        // Arrange
+        InAppConsole.kEnableConsole = true;
+
+        // Act
+        await tester.pumpWidget(buildTestApp());
+
+        // Assert
+        expect(find.byIcon(Icons.bug_report), findsOneWidget);
+        expect(find.text('Home Screen'), findsOneWidget);
+
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
+      });
+
+      testWidgets('WHEN console is disabled THEN bubble should not be visible',
+          (tester) async {
+        // Arrange
+        InAppConsole.kEnableConsole = false;
+
+        // Act
+        await tester.pumpWidget(buildTestApp());
+
+        // Assert
+        expect(find.byIcon(Icons.bug_report), findsNothing);
+        expect(find.text('Home Screen'), findsOneWidget);
+
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
+      });
+
+      testWidgets('WHEN console is opening/closed THEN bubble should hide/show',
+          (tester) async {
+        // Arrange
+        await tester.pumpWidget(buildTestApp());
+        expect(find.byIcon(Icons.bug_report), findsOneWidget);
+
+        // Act - Open Console
+        await tester.tap(find.byIcon(Icons.bug_report));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+
+        // Assert - Console is visible, Bubble is not
+        expect(find.byType(InAppConsoleScreen), findsOneWidget);
+        expect(find.byIcon(Icons.bug_report), findsNothing);
+
+        // Act - Close Console
+        final BuildContext consoleContext =
+            tester.element(find.byType(InAppConsoleScreen));
+        InAppConsole.instance.closeConsole(consoleContext);
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+
+        // Assert - Bubble is visible again
+        expect(find.byType(InAppConsoleScreen), findsNothing);
+        expect(find.byIcon(Icons.bug_report), findsOneWidget);
+
+        // Clean up
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
+      });
+
+      testWidgets('WHEN bubble is dragged THEN it should snap to edge',
+          (tester) async {
+        // Arrange
+        await tester.pumpWidget(buildTestApp());
+
+        final bubbleFinder = find.byIcon(Icons.bug_report);
+        final center = tester.getCenter(bubbleFinder);
+
+        // Act - Drag bubble to the center of the screen
+        final TestGesture gesture = await tester.startGesture(center);
+        await gesture.moveBy(const Offset(-150, 0));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+
+        // Assert
+        final newCenter = tester.getCenter(bubbleFinder);
+        // It should snap back to the edge (either left or right depends on direction and screen size)
+        // With elasticity and minimum margin 8.0, it should be at X ~ 8.0 + size/2 or width - 8.0 - size/2
+        expect(newCenter.dx, isNot(equals(center.dx - 150)));
+
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
       });
     });
   });

@@ -117,11 +117,13 @@ class InAppConsoleImpl implements InAppConsoleInternal {
       return Future.value();
     }
     _isConsoleVisibleController.add(true);
-    return Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const InAppConsoleScreen(),
-      ),
-    ).whenComplete(() => _isConsoleVisibleController.add(false));
+    return Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => const InAppConsoleScreen(),
+          ),
+        )
+        .whenComplete(() => _isConsoleVisibleController.add(false));
   }
 
   /// Close the in app console screen.
