@@ -110,4 +110,8 @@ class IacRouteTrackerNavigationObserver
 
     _routeStackController.add(List.unmodifiable(_deepLinkStack));
   }
+
+  void dispose() {
+    _routeStackController.close();
+  }
 }

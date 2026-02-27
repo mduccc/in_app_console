@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'iac_route_tracker_navigation_observer.dart';
@@ -14,6 +16,7 @@ class IacRouteTrackerWidget extends StatefulWidget {
 class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
   late List<IacRouteStackEntry> _routeStack;
   late List<IacRouteHistoryEntry> _routeHistory;
+  late StreamSubscription<void> _subscription;
 
   @override
   void initState() {
@@ -21,13 +24,19 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
     _routeStack = widget.observer.routeStack;
     _routeHistory = widget.observer.routeHistory;
 
-    widget.observer.routeStackStream.listen((_) {
+    _subscription = widget.observer.routeStackStream.listen((_) {
       if (!mounted) return;
       setState(() {
         _routeStack = widget.observer.routeStack;
         _routeHistory = widget.observer.routeHistory;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override
