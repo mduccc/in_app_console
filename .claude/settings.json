@@ -6,7 +6,10 @@
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console status)",
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console diff --stat)",
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console log --oneline -5)",
-      "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console commit -m ' *)"
+      "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console commit -m ' *)",
+      "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console stash list)",
+      "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console diff --cached --stat)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

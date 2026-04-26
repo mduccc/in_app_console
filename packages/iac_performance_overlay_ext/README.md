@@ -8,6 +8,8 @@ This extension provides a draggable floating overlay that displays live performa
 
 ## Screenshot
 
+<img src="https://github.com/mduccc/in_app_console/blob/96961f40ed65afbb0db12953a50d792839babbd0/packages/iac_performance_overlay_ext/screenshot/iac_performance_overlay_ext.png?raw=true" width=35%>
+
 ## Register the extension
 
 ```dart
