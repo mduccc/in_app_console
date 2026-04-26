@@ -148,6 +148,7 @@ Several official extensions are available on pub.dev:
 - **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** - View log statistics and analytics
 - **[iac_device_info_ext](https://pub.dev/packages/iac_device_info_ext)** - Display device information (platform, OS version, model, RAM, architecture)
 - **[iac_route_tracker_ext](https://pub.dev/packages/iac_route_tracker_ext)** - Track navigation routes, route stack, and payloads
+- **[iac_performance_overlay_ext](https://pub.dev/packages/iac_performance_overlay_ext)** - Monitor FPS, CPU usage, and memory consumption via a draggable floating overlay
 
 To use an extension, add it to your `pubspec.yaml` and register it with the console:
 
@@ -260,4 +261,5 @@ Extension packages:
 - [x] **[iac_statistics_ext](https://pub.dev/packages/iac_statistics_ext)** **Published** - View log statistics and analytics
 - [x] **[iac_device_info_ext](https://pub.dev/packages/iac_device_info_ext)** **Published** - Display device information (platform, OS version, model, RAM, architecture)
 - [x] **[iac_route_tracker_ext](https://pub.dev/packages/iac_route_tracker_ext)** **Published** - Track navigation routes, route stack, and payloads
+- [x] **[iac_performance_overlay_ext](https://pub.dev/packages/iac_performance_overlay_ext)** **Published** - Monitor FPS, CPU usage, and memory consumption via a draggable floating overlay
 - [ ] **iac_snapshot_ext** - One-tap diagnostic snapshot that freezes the app state at the captured moment (logs, route stack, device info, and extension data) into a single report, then share or save to file
