@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iac_device_info_ext/iac_device_info_ext.dart';
 import 'package:iac_export_logs_ext/iac_export_logs_ext.dart';
 import 'package:iac_network_inspector_ext/iac_network_inspector_ext.dart';
+import 'package:iac_performance_overlay_ext/iac_performance_overlay_ext.dart';
 import 'package:iac_route_tracker_ext/iac_route_tracker_ext.dart';
 import 'package:iac_statistics_ext/iac_statistics_ext.dart';
 import 'package:in_app_console/in_app_console.dart';
@@ -165,9 +166,13 @@ class MyApp extends StatelessWidget {
           );
         },
         home: const HomeScreen(),
-        builder: (context, child) => InAppConsoleBubble(
-          navigatorKey: MicroFrontendApp.navigatorKey,
-          child: child!,
+        builder: (context, child) => IacPerformanceOverlayWidget(
+          service: MicroFrontendApp.performanceOverlay.service,
+          overlayVisible: MicroFrontendApp.performanceOverlay.overlayVisible,
+          child: InAppConsoleBubble(
+            navigatorKey: MicroFrontendApp.navigatorKey,
+            child: child!,
+          ),
         ),
       );
 }
@@ -181,6 +186,7 @@ class MicroFrontendApp {
   static late ChatModule chatModule;
   static late IacNetworkInspectorExt networkInspector;
   static late IacRouteTrackerNavigationObserver routeTracker;
+  static late IacPerformanceOverlayExtension performanceOverlay;
 
   static void initialize() {
     // Create route tracker
@@ -188,6 +194,9 @@ class MicroFrontendApp {
 
     // Create network inspector
     networkInspector = IacNetworkInspectorExt();
+
+    // Create performance overlay extension
+    performanceOverlay = IacPerformanceOverlayExtension();
 
     // Initialize all modules with their Dio instances
     authModule = AuthModule();
@@ -215,6 +224,7 @@ class MicroFrontendApp {
     InAppConsole.instance.registerExtension(IacDeviceInfoExtension());
     InAppConsole.instance
         .registerExtension(IacRouteTrackerExtension(observer: routeTracker));
+    InAppConsole.instance.registerExtension(performanceOverlay);
   }
 }
 
