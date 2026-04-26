@@ -12,8 +12,7 @@ import 'iac_performance_data.dart';
 /// approach. Without this, Flutter stops rendering when the app is static and
 /// the counter would incorrectly read 0–1 fps.
 class IacPerformanceService {
-  final _controller =
-      StreamController<IacPerformanceData>.broadcast();
+  final _controller = StreamController<IacPerformanceData>.broadcast();
 
   Stream<IacPerformanceData> get stream => _controller.stream;
 

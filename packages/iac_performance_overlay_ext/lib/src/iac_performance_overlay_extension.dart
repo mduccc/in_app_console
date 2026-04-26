@@ -45,8 +45,7 @@ class IacPerformanceOverlayExtension extends InAppConsoleExtension {
   String get description => 'Real-time FPS, CPU, and memory overlay';
 
   @override
-  Widget get icon =>
-      const Icon(Icons.speed_outlined, color: Colors.black);
+  Widget get icon => const Icon(Icons.speed_outlined, color: Colors.black);
 
   @override
   void onInit(InAppConsoleExtensionContext extensionContext) {

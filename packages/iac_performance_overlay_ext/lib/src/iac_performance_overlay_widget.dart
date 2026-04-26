@@ -65,8 +65,7 @@ class _IacPerformanceOverlayWidgetState
               left: _position.dx,
               top: _position.dy,
               child: GestureDetector(
-                onPanUpdate: (d) =>
-                    setState(() => _position += d.delta),
+                onPanUpdate: (d) => setState(() => _position += d.delta),
                 child: StreamBuilder<IacPerformanceData>(
                   stream: widget.service.stream,
                   initialData: widget.service.latest,
@@ -101,11 +100,16 @@ class _OverlayPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StatRow(label: 'FPS', value: data.fpsLabel, color: _fpsColor(data.fps)),
+          _StatRow(
+              label: 'FPS', value: data.fpsLabel, color: _fpsColor(data.fps)),
           const SizedBox(height: 2),
-          _StatRow(label: 'CPU', value: data.cpuLabel, color: _cpuColor(data.cpuUsage)),
+          _StatRow(
+              label: 'CPU',
+              value: data.cpuLabel,
+              color: _cpuColor(data.cpuUsage)),
           const SizedBox(height: 2),
-          _StatRow(label: 'MEM', value: data.memoryLabel, color: Colors.white70),
+          _StatRow(
+              label: 'MEM', value: data.memoryLabel, color: Colors.white70),
         ],
       ),
     );
@@ -125,7 +129,8 @@ class _OverlayPanel extends StatelessWidget {
 }
 
 class _StatRow extends StatelessWidget {
-  const _StatRow({required this.label, required this.value, required this.color});
+  const _StatRow(
+      {required this.label, required this.value, required this.color});
 
   final String label;
   final String value;

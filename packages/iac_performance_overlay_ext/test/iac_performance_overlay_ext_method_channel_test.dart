@@ -5,11 +5,13 @@ import 'package:iac_performance_overlay_ext/iac_performance_overlay_ext_method_c
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelIacPerformanceOverlayExt platform = MethodChannelIacPerformanceOverlayExt();
+  MethodChannelIacPerformanceOverlayExt platform =
+      MethodChannelIacPerformanceOverlayExt();
   const MethodChannel channel = MethodChannel('iac_performance_overlay_ext');
 
   setUp(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
       channel,
       (MethodCall methodCall) async {
         return '42';
@@ -18,7 +20,8 @@ void main() {
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
   });
 
   test('getPlatformVersion', () async {
