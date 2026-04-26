@@ -269,10 +269,10 @@ class _MetricRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-            ),
+            // Text(
+            //   subtitle,
+            //   style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            // ),
           ],
         ),
         const SizedBox(height: 4),

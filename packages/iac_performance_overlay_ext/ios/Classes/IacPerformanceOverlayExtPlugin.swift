@@ -49,7 +49,7 @@ public class IacPerformanceOverlayExtPlugin: NSObject, FlutterPlugin {
 
         for i in 0..<Int(threadCount) {
             var info = thread_basic_info()
-            var count = mach_msg_type_number_t(THREAD_BASIC_INFO_COUNT)
+            var count = mach_msg_type_number_t(MemoryLayout<thread_basic_info>.size / MemoryLayout<integer_t>.size)
             let kr = withUnsafeMutablePointer(to: &info) {
                 $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
                     thread_info(threadList[i], thread_flavor_t(THREAD_BASIC_INFO), $0, &count)

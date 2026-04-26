@@ -8,11 +8,16 @@ PODS:
     - Flutter
   - iac_export_logs_ext (0.0.1):
     - Flutter
+  - iac_performance_overlay_ext (0.0.1):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - share_plus (0.0.1):
     - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -20,8 +25,10 @@ DEPENDENCIES:
   - flutter_file_dialog (from `.symlinks/plugins/flutter_file_dialog/ios`)
   - iac_device_info_ext (from `.symlinks/plugins/iac_device_info_ext/ios`)
   - iac_export_logs_ext (from `.symlinks/plugins/iac_export_logs_ext/ios`)
+  - iac_performance_overlay_ext (from `.symlinks/plugins/iac_performance_overlay_ext/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
 
 EXTERNAL SOURCES:
   device_info_plus:
@@ -34,10 +41,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/iac_device_info_ext/ios"
   iac_export_logs_ext:
     :path: ".symlinks/plugins/iac_export_logs_ext/ios"
+  iac_performance_overlay_ext:
+    :path: ".symlinks/plugins/iac_performance_overlay_ext/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
   device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
@@ -45,8 +56,10 @@ SPEC CHECKSUMS:
   flutter_file_dialog: ca8d7fbd1772d4f0c2777b4ab20a7787ef4e7dd8
   iac_device_info_ext: bbfde89b0026ada1df29db804eedd2d3a320d0fe
   iac_export_logs_ext: 3f9e69342158bf475ce1eb8ee9a7eeba1bf40a11
+  iac_performance_overlay_ext: 5b5b49b8d7f98871e1607028fa377e2af1a80dd8
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
 
 PODFILE CHECKSUM: 4f1c12611da7338d21589c0b2ecd6bd20b109694
 

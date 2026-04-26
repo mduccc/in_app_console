@@ -54,31 +54,33 @@ class _IacPerformanceOverlayWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: widget.overlayVisible,
-      builder: (context, visible, child) {
-        if (!visible) return child!;
-        return Stack(
-          children: [
-            child!,
-            Positioned(
-              left: _position.dx,
-              top: _position.dy,
-              child: GestureDetector(
-                onPanUpdate: (d) => setState(() => _position += d.delta),
-                child: StreamBuilder<IacPerformanceData>(
-                  stream: widget.service.stream,
-                  initialData: widget.service.latest,
-                  builder: (_, snapshot) => _OverlayPanel(
-                    data: snapshot.data ?? IacPerformanceData.zero,
+    return Material(
+      child: ValueListenableBuilder<bool>(
+        valueListenable: widget.overlayVisible,
+        builder: (context, visible, child) {
+          if (!visible) return child!;
+          return Stack(
+            children: [
+              child!,
+              Positioned(
+                left: _position.dx,
+                top: _position.dy,
+                child: GestureDetector(
+                  onPanUpdate: (d) => setState(() => _position += d.delta),
+                  child: StreamBuilder<IacPerformanceData>(
+                    stream: widget.service.stream,
+                    initialData: widget.service.latest,
+                    builder: (_, snapshot) => _OverlayPanel(
+                      data: snapshot.data ?? IacPerformanceData.zero,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
-      child: widget.child,
+            ],
+          );
+        },
+        child: widget.child,
+      ),
     );
   }
 }
