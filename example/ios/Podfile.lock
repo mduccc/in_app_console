@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   iac_device_info_ext: bbfde89b0026ada1df29db804eedd2d3a320d0fe
   iac_export_logs_ext: 3f9e69342158bf475ce1eb8ee9a7eeba1bf40a11
   iac_performance_overlay_ext: 5b5b49b8d7f98871e1607028fa377e2af1a80dd8
-  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
 
