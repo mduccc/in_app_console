@@ -1,3 +1,6 @@
+## 3.0.1
+* Added `iac_performance_overlay_ext` to official extensions list in README
+
 ## 3.0.0
 * Added `InAppConsoleBubble` — a draggable floating button that opens the console on tap
   * Auto-snaps to the nearest horizontal edge on release
