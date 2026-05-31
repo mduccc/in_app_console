@@ -1,6 +1,6 @@
 name: iac_performance_overlay_ext
 description: "Performance overlay extension for in_app_console. Displays a real-time draggable overlay with FPS, CPU usage, and memory consumption."
-version: 1.1.0
+version: 1.1.1
 repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_performance_overlay_ext
 
 environment:
