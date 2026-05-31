@@ -10,6 +10,10 @@ Log analytics extension for [in_app_console](https://pub.dev/packages/in_app_con
 - **Module Health** — ranks modules by weighted error ratio, color-coded green / orange / red
 - **Persistent history** — logs are saved to device storage and survive app restarts (capped at 500 entries)
 
+## Screenshot
+
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/fd305f4687f6ca2033e940e2359556061eaed384/packages/iac_statistics_ext/screenshots/screenshot.png" width=35%>
+
 ## Grouping algorithms
 
 The "Top Repeated Issues" section supports two algorithms, switchable via the segmented control in the UI. **TF-IDF is the default.**
