@@ -1,3 +1,8 @@
+## 3.1.1
+
+* Copy icon in log list animates to a checkmark for 2 seconds after copying, then resets
+* Removed snackbar notification on copy
+
 ## 3.1.0
 
 * Added label filter — filter logs by module label via the filter sheet
