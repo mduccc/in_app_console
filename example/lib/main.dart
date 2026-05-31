@@ -366,7 +366,8 @@ class ProfileModule {
     logger.logInfo('Starting profile image upload');
     try {
       for (int i = 1; i <= 5; i++) {
-        await dio.post('/photos', data: {'progress': i * 20, 'chunk': i, 'total': 5});
+        await dio.post('/photos',
+            data: {'progress': i * 20, 'chunk': i, 'total': 5});
         logger.logInfo('Upload progress: ${i * 20}%');
       }
       logger.logInfo('Profile image uploaded successfully');
@@ -518,8 +519,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                textStyle: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500),
+                textStyle:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -536,7 +537,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildRunDemoButton(),
             const SizedBox(height: 32),
-
             _buildSectionLabel('Modules'),
             const SizedBox(height: 12),
             _buildModuleCard(
@@ -544,8 +544,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.shield_outlined,
               const Color(0xFF4A7CF6),
               [
-                _ActionItem('Login',
-                    () => MicroFrontendApp.authModule.login('testuser', 'pass123')),
+                _ActionItem(
+                    'Login',
+                    () => MicroFrontendApp.authModule
+                        .login('testuser', 'pass123')),
                 _ActionItem('Logout', MicroFrontendApp.authModule.logout),
               ],
             ),
@@ -602,9 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 32),
-
             _buildSectionLabel('Network Inspector'),
             const SizedBox(height: 12),
             _buildModuleCard(
@@ -622,9 +622,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _ActionItem('Error', _makeErrorRequest, isDestructive: true),
               ],
             ),
-
             const SizedBox(height: 32),
-
             _buildSectionLabel('Route Tracker'),
             const SizedBox(height: 12),
             _buildModuleCard(
@@ -642,9 +640,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     () => Navigator.pushNamed(context, '/settings')),
               ],
             ),
-
             const SizedBox(height: 32),
-
             _buildSectionLabel('Localization Test'),
             const SizedBox(height: 12),
             _buildModuleCard(
@@ -897,8 +893,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content:
-                Text('Error request sent — check Network Inspector for details'),
+            content: Text(
+                'Error request sent — check Network Inspector for details'),
             backgroundColor: Colors.orange,
           ),
         );
