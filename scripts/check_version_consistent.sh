@@ -106,6 +106,19 @@ for EXT_DIR in "$PACKAGES_DIR"/*/; do
       ok "${DART_BASENAME}: String get version ('${DART_VERSION}') matches pubspec.yaml (${PKG_VERSION})"
     fi
   fi
+
+  # --- in_app_console dependency must match main package version ---
+  if [ -n "$MAIN_VERSION" ]; then
+    IAC_DEP_VERSION=$(grep -oE 'in_app_console: \^[0-9]+\.[0-9]+\.[0-9]+' "$EXT_PUBSPEC" \
+      | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    if [ -z "$IAC_DEP_VERSION" ]; then
+      fail "No 'in_app_console: ^X.Y.Z' dependency found in pubspec.yaml"
+    elif [ "$IAC_DEP_VERSION" != "$MAIN_VERSION" ]; then
+      fail "in_app_console dependency is ^${IAC_DEP_VERSION} but main package is ${MAIN_VERSION}"
+    else
+      ok "in_app_console dependency (^${IAC_DEP_VERSION}) matches main package (${MAIN_VERSION})"
+    fi
+  fi
 done
 
 # ─────────────────────────────────────────

@@ -1,3 +1,7 @@
+## 2.1.1
+
+* Bump in_app_console dependency to ^3.1.1
+
 ## 2.1.0
 
 * Added copy-to-clipboard for current stack and navigation history

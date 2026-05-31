@@ -1,6 +1,6 @@
 name: iac_performance_overlay_ext
 description: "Performance overlay extension for in_app_console. Displays a real-time draggable overlay with FPS, CPU usage, and memory consumption."
-version: 1.1.0
+version: 1.1.1
 repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_performance_overlay_ext
 
 environment:
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  in_app_console: ^3.1.0
+  in_app_console: ^3.1.1
   shared_preferences: ^2.2.0
 
 dev_dependencies:

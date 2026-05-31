@@ -1,6 +1,6 @@
 name: iac_statistics_ext
 description: "Log statistics extension for in_app_console package. View real-time log analytics with breakdowns by type and module."
-version: 2.1.0
+version: 2.1.1
 repository: https://github.com/mduccc/in_app_console/tree/main/packages/iac_statistics_ext
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  in_app_console: ^3.1.0
+  in_app_console: ^3.1.1
   path_provider: ^2.1.5
 
 dev_dependencies:
