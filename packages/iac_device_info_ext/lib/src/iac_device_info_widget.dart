@@ -14,6 +14,12 @@ class IacDeviceInfoWidget extends StatelessWidget {
       future: deviceInfoFuture,
       builder: (context, snapshot) {
         return Card(
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey[200]!),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -43,7 +49,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.phone_android, color: Colors.indigo, size: 28),
+        const Icon(Icons.phone_android, color: Colors.black87, size: 28),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,6 +199,14 @@ class _InfoViewState extends State<_InfoView> {
             onPressed: _copyToClipboard,
             icon: Icon(_copied ? Icons.check : Icons.copy, size: 18),
             label: Text(_copied ? 'Copied!' : 'Copy to Clipboard'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              side: BorderSide(color: Colors.grey[300]!),
+              padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ),
       ],

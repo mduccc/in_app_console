@@ -28,6 +28,12 @@ class NetworkListItem extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -62,7 +68,7 @@ class NetworkListItem extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.2),
+                          color: statusColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: statusColor),
                         ),
@@ -83,7 +89,7 @@ class NetworkListItem extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.2),
+                          color: Colors.red.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: Colors.red),
                         ),
@@ -112,8 +118,10 @@ class NetworkListItem extends StatelessWidget {
                     Chip(
                       label: Text(
                         networkData.dioTag,
-                        style: const TextStyle(fontSize: 10),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.grey[200]!),
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
                     ),

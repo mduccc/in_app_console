@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -32,7 +33,7 @@ class InAppConsoleExportLogsExtension extends InAppConsoleExtension {
   String get name => 'Export Logs';
 
   @override
-  String get version => '2.0.1';
+  String get version => '2.0.2';
 
   @override
   String get description => 'Extension to export log history to a file';
@@ -58,6 +59,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
   String _formatLogs() {
     final history = widget.extensionContext.history;
     final buffer = StringBuffer();
+    buffer.write('﻿'); // UTF-8 BOM — helps iOS/Windows viewers detect encoding
     buffer.writeln('In-App Console Logs Export');
     buffer.writeln('Generated: ${DateTime.now()}');
     buffer.writeln('Total Logs: ${history.length}');
@@ -103,7 +105,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
 
       final tempDir = await getTemporaryDirectory();
       final tempFile = File('${tempDir.path}/$fileName');
-      await tempFile.writeAsString(_formatLogs());
+      await tempFile.writeAsString(_formatLogs(), encoding: utf8);
 
       final params = SaveFileDialogParams(sourceFilePath: tempFile.path);
       final savedFilePath = await FlutterFileDialog.saveFile(params: params);
@@ -146,7 +148,7 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
 
       final tempDir = await getTemporaryDirectory();
       final tempFile = File('${tempDir.path}/$fileName');
-      await tempFile.writeAsString(_formatLogs());
+      await tempFile.writeAsString(_formatLogs(), encoding: utf8);
 
       await SharePlus.instance.share(
         ShareParams(
@@ -169,6 +171,12 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(16),
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -228,11 +236,17 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
             icon: const Icon(Icons.save_alt),
             label: const Text('Save as file'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black87,
+              foregroundColor: Colors.white,
+              elevation: 0,
               padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
@@ -240,7 +254,12 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
             icon: const Icon(Icons.share),
             label: const Text('Share'),
             style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              side: BorderSide(color: Colors.grey[300]!),
               padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ),
@@ -302,6 +321,15 @@ class _ExportLogsWidgetState extends State<_ExportLogsWidget> {
             onPressed: _handleSave,
             icon: const Icon(Icons.refresh),
             label: const Text('Try Again'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black87,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ),
       ],

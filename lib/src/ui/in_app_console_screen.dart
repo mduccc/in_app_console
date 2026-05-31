@@ -132,6 +132,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
     InAppLoggerType.warning,
     InAppLoggerType.error,
   };
+  final Set<String> _selectedLabels = {};
 
   // Search state
   String _searchQuery = '';
@@ -172,6 +173,8 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
 
   List<InAppLoggerData> get _filteredData => _loggerData
       .where((data) => _visibleTypes.contains(data.type))
+      .where((data) =>
+          _selectedLabels.isEmpty || _selectedLabels.contains(data.label))
       .where((data) => _matchesSearch(data))
       .toList();
 
@@ -198,6 +201,16 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
         _visibleTypes.remove(type);
       } else {
         _visibleTypes.add(type);
+      }
+    });
+  }
+
+  void _toggleLabelFilter(String label) {
+    setState(() {
+      if (_selectedLabels.contains(label)) {
+        _selectedLabels.remove(label);
+      } else {
+        _selectedLabels.add(label);
       }
     });
   }
@@ -245,27 +258,217 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
     );
   }
 
+  int get _activeFilterCount =>
+      (InAppLoggerType.values.length - _visibleTypes.length) +
+      _selectedLabels.length;
+
+  void _resetFilters() {
+    _visibleTypes
+      ..clear()
+      ..addAll(InAppLoggerType.values);
+    _selectedLabels.clear();
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (_, setSheetState) {
+          final labels = _console.labels;
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    const Text(
+                      'Filter logs',
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    ),
+                    const Spacer(),
+                    if (_activeFilterCount > 0)
+                      GestureDetector(
+                        onTap: () {
+                          setState(_resetFilters);
+                          setSheetState(() {});
+                        },
+                        child: Text(
+                          'Reset',
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.blue[600]),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'TYPE',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[400],
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: InAppLoggerType.values.map((type) {
+                    final selected = _visibleTypes.contains(type);
+                    final color = InAppConsoleUtils.getTypeColor(type);
+                    return FilterChip(
+                      showCheckmark: false,
+                      label: Text(
+                        InAppConsoleUtils.getTypeLabel(type),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: selected ? color : Colors.grey[600],
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                      selected: selected,
+                      onSelected: (_) {
+                        _toggleFilter(type);
+                        setSheetState(() {});
+                      },
+                      selectedColor: color.withValues(alpha: 0.1),
+                      backgroundColor: Colors.grey[50],
+                      side: BorderSide(
+                        color: selected
+                            ? color.withValues(alpha: 0.4)
+                            : Colors.grey[200]!,
+                      ),
+                      avatar: Icon(
+                        InAppConsoleUtils.getTypeIcon(type),
+                        size: 15,
+                        color: selected ? color : Colors.grey[400],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                if (labels.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                    'LABEL',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[400],
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: labels.map((label) {
+                      final selected = _selectedLabels.contains(label);
+                      return FilterChip(
+                        showCheckmark: false,
+                        label: Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                selected ? Colors.blue[700] : Colors.grey[600],
+                            fontWeight:
+                                selected ? FontWeight.w600 : FontWeight.normal,
+                          ),
+                        ),
+                        selected: selected,
+                        onSelected: (_) {
+                          _toggleLabelFilter(label);
+                          setSheetState(() {});
+                        },
+                        selectedColor: Colors.blue.withValues(alpha: 0.08),
+                        backgroundColor: Colors.grey[50],
+                        side: BorderSide(
+                          color: selected
+                              ? Colors.blue.withValues(alpha: 0.35)
+                              : Colors.grey[200]!,
+                        ),
+                        avatar: Icon(
+                          Icons.label_outline,
+                          size: 15,
+                          color: selected ? Colors.blue[600] : Colors.grey[400],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredData = _filteredData;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('In App Console'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'In App Console',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+        ),
         titleSpacing: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.extension),
+            icon: const Icon(Icons.extension_outlined),
             onPressed: _navigateToExtensions,
             tooltip: 'Extensions',
           ),
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Icon(
+              _isSearchVisible ? Icons.search_off : Icons.search,
+            ),
             onPressed: _toggleSearch,
             tooltip: 'Search logs',
           ),
+          Badge(
+            isLabelVisible: _activeFilterCount > 0,
+            label: Text('$_activeFilterCount'),
+            alignment: const AlignmentDirectional(1.0, -0.6),
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: _showFilterSheet,
+              tooltip: 'Filter logs',
+            ),
+          ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_outlined),
+            icon: const Icon(Icons.delete_outline),
             onPressed: _clearLogs,
             tooltip: 'Clear logs',
           ),
@@ -276,110 +479,65 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
           // Search bar
           if (_isSearchVisible)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              color: Colors.white,
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Search logs...',
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  prefixIcon:
+                      Icon(Icons.search, color: Colors.grey[400], size: 20),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear,
+                              color: Colors.grey[400], size: 18),
+                          onPressed: _clearSearch,
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        BorderSide(color: Colors.grey[400]!, width: 1.5),
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Search logs...',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: _clearSearch,
-                                tooltip: 'Clear search',
-                              )
-                            : null,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: _toggleSearch,
-                    tooltip: 'Close search',
-                  ),
-                ],
-              ),
             ),
-          // Filter chips
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                const Text('Filters: ',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Expanded(
-                    child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      ...InAppLoggerType.values.map((type) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: FilterChip(
-                                showCheckmark: false,
-                                label: Text(
-                                  InAppConsoleUtils.getTypeLabel(type),
-                                  style: TextStyle(
-                                    color: _visibleTypes.contains(type)
-                                        ? InAppConsoleUtils.getTypeColor(type)
-                                        : null,
-                                    fontWeight: _visibleTypes.contains(type)
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                                selected: _visibleTypes.contains(type),
-                                onSelected: (_) => _toggleFilter(type),
-                                selectedColor:
-                                    InAppConsoleUtils.getTypeColor(type)
-                                        .withOpacity(0.3),
-                                avatar: Icon(
-                                  InAppConsoleUtils.getTypeIcon(type),
-                                  size: 16,
-                                  color: _visibleTypes.contains(type)
-                                      ? InAppConsoleUtils.getTypeColor(type)
-                                      : Colors.grey,
-                                )),
-                          )),
-                    ],
-                  ),
-                ))
-              ],
-            ),
-          ),
-          const Divider(height: 1),
+          if (_isSearchVisible)
+            Divider(height: 1, thickness: 1, color: Colors.grey[200]),
           // Logs list
           Expanded(
             child: filteredData.isEmpty
                 ? Center(
-                    child: Text(
-                      _searchQuery.isNotEmpty
-                          ? 'No logs match your search'
-                          : 'No logs available',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.inbox_outlined,
+                            size: 48, color: Colors.grey[300]),
+                        const SizedBox(height: 12),
+                        Text(
+                          _searchQuery.isNotEmpty
+                              ? 'No logs match your search'
+                              : 'No logs yet',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : Scrollbar(
@@ -481,22 +639,18 @@ class _LogItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(0, 10, 8, 10),
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border(
-            left: BorderSide(color: typeColor, width: 4),
-            bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+            left: BorderSide(color: typeColor, width: 3),
+            bottom: BorderSide(color: Colors.grey[100]!, width: 1),
           ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              InAppConsoleUtils.getTypeOutlineIcon(log.type),
-              color: typeColor,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,70 +659,59 @@ class _LogItem extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
+                            horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: typeColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
+                          color: typeColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(3),
                         ),
                         child: Text(
                           InAppConsoleUtils.getTypeLabel(log.type),
                           style: TextStyle(
                             color: typeColor,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      if (log.label != null) ...[
+                        const SizedBox(width: 6),
+                        _buildHighlightedText(
+                          log.label!,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ],
+                      const Spacer(),
                       Text(
                         InAppConsoleUtils.formatTimestamp(log.timestamp),
                         style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
+                          color: Colors.grey[400],
+                          fontSize: 11,
                           fontFamily: 'monospace',
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  if (log.label != null) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      margin: const EdgeInsets.only(bottom: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue[200]!, width: 1),
-                      ),
-                      child: _buildHighlightedText(
-                        log.label!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
                   _buildHighlightedText(
                     log.message,
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(
+                        fontSize: 13.5,
+                        color: Colors.grey[850] ?? Colors.black87),
                     maxLines: 3,
                   ),
                   if (log.error != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     _buildHighlightedText(
                       '${InAppConsoleUtils.getErrorPrefix(log.type)}: ${log.error}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: InAppConsoleUtils.getTypeColor(log.type)
-                            .withOpacity(0.8),
+                        color: typeColor.withValues(alpha: 0.75),
                         fontStyle: FontStyle.italic,
                       ),
                       maxLines: 2,
@@ -577,11 +720,13 @@ class _LogItem extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.copy, size: 16),
-              onPressed: onCopy,
-              tooltip: 'Copy log',
-              visualDensity: VisualDensity.compact,
+            GestureDetector(
+              onTap: onCopy,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 2),
+                child: Icon(Icons.copy_outlined,
+                    size: 15, color: Colors.grey[350]),
+              ),
             ),
           ],
         ),
@@ -591,7 +736,7 @@ class _LogItem extends StatelessWidget {
 }
 
 /// Screen for displaying detailed information about a single log entry.
-class InAppConsoleDetailScreen extends StatelessWidget {
+class InAppConsoleDetailScreen extends StatefulWidget {
   final InAppLoggerData log;
 
   const InAppConsoleDetailScreen({
@@ -599,33 +744,63 @@ class InAppConsoleDetailScreen extends StatelessWidget {
     required this.log,
   });
 
-  void _copyLogToClipboard(BuildContext context) {
-    InAppConsoleUtils.copyLogToClipboard(context, log);
+  @override
+  State<InAppConsoleDetailScreen> createState() =>
+      _InAppConsoleDetailScreenState();
+}
+
+class _InAppConsoleDetailScreenState extends State<InAppConsoleDetailScreen> {
+  bool _copied = false;
+
+  Future<void> _copyLogToClipboard() async {
+    final buffer = StringBuffer();
+    final log = widget.log;
+    buffer.writeln(
+        '[${InAppConsoleUtils.getTypeLabel(log.type)}] ${log.timestamp}');
+    if (log.label != null) buffer.writeln('Label: ${log.label}');
+    buffer.writeln(log.message);
+    if (log.error != null) {
+      buffer.writeln(
+          '${InAppConsoleUtils.getErrorPrefix(log.type)}: ${log.error}');
+    }
+    if (log.stackTrace != null) {
+      buffer.writeln('Stack Trace:');
+      buffer.writeln(log.stackTrace.toString());
+    }
+    await Clipboard.setData(ClipboardData(text: buffer.toString()));
+    if (!mounted) return;
+    setState(() => _copied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _copied = false);
   }
 
-  Widget _buildDetailSection(String title, String content) {
+  Widget _buildDetailSection(String title, String content,
+      {Color? titleColor}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: titleColor ?? Colors.grey[500],
+            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Colors.grey[50],
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[300]!),
+            border: Border.all(color: Colors.grey[200]!),
           ),
           child: SelectableText(
             content,
-            style: const TextStyle(fontFamily: 'monospace'),
+            style: TextStyle(
+                fontFamily: 'monospace', fontSize: 13, color: Colors.grey[800]),
           ),
         ),
       ],
@@ -634,15 +809,42 @@ class InAppConsoleDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final typeColor = InAppConsoleUtils.getTypeColor(widget.log.type);
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('${InAppConsoleUtils.getTypeLabel(log.type)} Details'),
-        backgroundColor: InAppConsoleUtils.getTypeColor(log.type),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: typeColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${InAppConsoleUtils.getTypeLabel(widget.log.type)} Details',
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+            ),
+          ],
+        ),
+        titleSpacing: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.copy),
-            onPressed: () => _copyLogToClipboard(context),
+            icon: Icon(_copied ? Icons.check : Icons.copy_outlined,
+                color: _copied ? Colors.green[600] : null),
+            onPressed: _copyLogToClipboard,
             tooltip: 'Copy log',
           ),
         ],
@@ -652,21 +854,25 @@ class InAppConsoleDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailSection('Timestamp', log.timestamp.toString()),
-            if (log.label != null) ...[
+            _buildDetailSection('TIMESTAMP', widget.log.timestamp.toString()),
+            if (widget.log.label != null) ...[
               const SizedBox(height: 16),
-              _buildDetailSection('Label', log.label!),
+              _buildDetailSection('LABEL', widget.log.label!),
             ],
             const SizedBox(height: 16),
-            _buildDetailSection('Message', log.message),
-            if (log.error != null) ...[
+            _buildDetailSection('MESSAGE', widget.log.message),
+            if (widget.log.error != null) ...[
               const SizedBox(height: 16),
-              _buildDetailSection(InAppConsoleUtils.getErrorPrefix(log.type),
-                  log.error.toString()),
+              _buildDetailSection(
+                  InAppConsoleUtils.getErrorPrefix(widget.log.type)
+                      .toUpperCase(),
+                  widget.log.error.toString(),
+                  titleColor: typeColor),
             ],
-            if (log.stackTrace != null) ...[
+            if (widget.log.stackTrace != null) ...[
               const SizedBox(height: 16),
-              _buildDetailSection('Stack Trace', log.stackTrace.toString()),
+              _buildDetailSection(
+                  'STACK TRACE', widget.log.stackTrace.toString()),
             ],
           ],
         ),

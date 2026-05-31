@@ -37,7 +37,7 @@ class IacRouteTrackerExtension extends InAppConsoleExtension {
   String get name => 'Route Tracker';
 
   @override
-  String get version => '2.0.1';
+  String get version => '2.0.2';
 
   @override
   String get description => 'Track app navigation routes and deep links';

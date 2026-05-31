@@ -70,7 +70,7 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^3.0.1
+  in_app_console: ^3.1.0
 ```
 
 ### 2. Import the package
@@ -108,6 +108,8 @@ logger.logError(
   stackTrace: stackTrace,
 );
 ```
+
+Labels appear in the filter sheet for per-module filtering.
 
 ### 5. Show console screen
 ```dart

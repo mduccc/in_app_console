@@ -5,7 +5,7 @@ import 'package:iac_network_inspector_ext/src/core/model/iac_network_rs.dart';
 import 'package:iac_network_inspector_ext/src/utils/curl_generator.dart';
 
 /// Screen to display detailed information about a network request
-class IacNetworkDetailScreen extends StatelessWidget {
+class IacNetworkDetailScreen extends StatefulWidget {
   const IacNetworkDetailScreen({
     required this.networkData,
     super.key,
@@ -14,14 +14,43 @@ class IacNetworkDetailScreen extends StatelessWidget {
   final IacNetworkRS networkData;
 
   @override
+  State<IacNetworkDetailScreen> createState() => _IacNetworkDetailScreenState();
+}
+
+class _IacNetworkDetailScreenState extends State<IacNetworkDetailScreen> {
+  bool _copied = false;
+
+  Future<void> _copyAsCurl() async {
+    final curlCommand = CurlGenerator.generate(widget.networkData);
+    await Clipboard.setData(ClipboardData(text: curlCommand));
+    if (!mounted) return;
+    setState(() => _copied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _copied = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Request Details'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Request Details',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+        ),
+        titleSpacing: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.code),
-            onPressed: () => _copyAsCurl(context),
+            icon: Icon(_copied ? Icons.check : Icons.code,
+                color: _copied ? Colors.green[600] : null),
+            onPressed: _copyAsCurl,
             tooltip: 'Copy as CURL',
           ),
         ],
@@ -43,10 +72,16 @@ class IacNetworkDetailScreen extends StatelessWidget {
   }
 
   Widget _buildOverviewSection() {
-    final request = networkData.request;
-    final response = networkData.response;
+    final request = widget.networkData.request;
+    final response = widget.networkData.response;
 
     return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -58,8 +93,8 @@ class IacNetworkDetailScreen extends StatelessWidget {
             ),
             const Divider(),
             _buildInfoRow('Method', request.method),
-            _buildInfoRow('URL', networkData.url),
-            _buildInfoRow('Tag', networkData.dioTag),
+            _buildInfoRow('URL', widget.networkData.url),
+            _buildInfoRow('Tag', widget.networkData.dioTag),
             if (response.statusCode != null)
               _buildInfoRow('Status', '${response.statusCode}'),
             _buildInfoRow('Duration', '${response.duration}ms'),
@@ -72,9 +107,15 @@ class IacNetworkDetailScreen extends StatelessWidget {
   }
 
   Widget _buildRequestSection() {
-    final request = networkData.request;
+    final request = widget.networkData.request;
 
     return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -119,9 +160,15 @@ class IacNetworkDetailScreen extends StatelessWidget {
   }
 
   Widget _buildResponseSection() {
-    final response = networkData.response;
+    final response = widget.networkData.response;
 
     return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -137,7 +184,7 @@ class IacNetworkDetailScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.red),
                 ),
@@ -324,18 +371,6 @@ class IacNetworkDetailScreen extends StatelessWidget {
           formatted,
           style: const TextStyle(fontFamily: 'monospace'),
         ),
-      ),
-    );
-  }
-
-  void _copyAsCurl(BuildContext context) {
-    final curlCommand = CurlGenerator.generate(networkData);
-    Clipboard.setData(ClipboardData(text: curlCommand));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('CURL command copied to clipboard'),
-        duration: Duration(seconds: 2),
       ),
     );
   }

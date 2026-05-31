@@ -18,7 +18,7 @@ class IacDeviceInfoExtension extends InAppConsoleExtension {
   String get name => 'Device Info';
 
   @override
-  String get version => '2.0.1';
+  String get version => '2.0.2';
 
   @override
   String get description => 'Display device information and system specs';

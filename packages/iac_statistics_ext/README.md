@@ -1,20 +1,31 @@
-# Log Statistics Extension for In-App Console
+# iac_statistics_ext
 
-A Flutter plugin that adds log statistics and analytics functionality to the [in_app_console](https://pub.dev/packages/in_app_console) package. View comprehensive log analytics and breakdowns directly in your in-app console.
+Log analytics extension for [in_app_console](https://pub.dev/packages/in_app_console).
 
-## What does it do?
+## Features
 
-This extension displays real-time log statistics including total log counts, breakdowns by log type (info, warning, error), and logs grouped by module. It provides instant visibility into your app's logging patterns and helps identify issues quickly.
+- **Overview** — compact total / info / warning / error counts
+- **Log Timeline** — adaptive bar chart showing activity over time (auto-scales from seconds to days)
+- **Top Repeated Issues** — groups duplicate errors and warnings by message similarity; counts across sessions
+- **Module Health** — ranks modules by weighted error ratio, color-coded green / orange / red
+- **Persistent history** — logs are saved to device storage and survive app restarts (capped at 500 entries)
 
-## Screenshots
+## Grouping algorithms
 
-<img src="https://raw.githubusercontent.com/mduccc/in_app_console/3f59d05ea85afb5cb1c618452e9dee71f6eb1bfb/iac_statistics_ext/screenshots/screenshot.png" width="45%"/>
+The "Top Repeated Issues" section supports two algorithms, switchable via the segmented control in the UI. **TF-IDF is the default.**
 
-## Register the extension
+| | TF-IDF | Pattern |
+|---|---|---|
+| How it works | TF-IDF vectors + cosine similarity | Normalizes hex addresses and numeric IDs, then exact-matches |
+| Best for | Natural-language variation | Structured / templated log messages |
+| Speed | Slower on large histories | Fast |
+
+## Usage
 
 ```dart
-  // Register the log statistics extension
-  InAppConsole.instance.registerExtension(
-    LogStatisticsExtension(),
-  );
+InAppConsole.instance.registerExtension(LogStatisticsExtension());
 ```
+
+## Clear history
+
+Tap the trash icon in the extension header to clear persisted log history.

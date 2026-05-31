@@ -709,6 +709,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
+            // Vietnamese Log Test
+            _buildModuleCard(
+              'Kiểm thử tiếng Việt',
+              Icons.translate,
+              Colors.indigo,
+              [
+                ElevatedButton(
+                  onPressed: _logVietnameseInfo,
+                  child: const Text('Log Info tiếng Việt'),
+                ),
+                ElevatedButton(
+                  onPressed: _logVietnameseWarning,
+                  child: const Text('Log Warning tiếng Việt'),
+                ),
+                ElevatedButton(
+                  onPressed: _logVietnameseError,
+                  child: const Text('Log Error tiếng Việt'),
+                ),
+                ElevatedButton(
+                  onPressed: _logAllVietnamese,
+                  child: const Text('Log tất cả cấp độ'),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 24),
 
             // Network Inspector Demo Section
@@ -1018,6 +1043,53 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       // Error will be captured by network inspector
     }
+  }
+
+  void _logVietnameseInfo() {
+    MicroFrontendApp.chatModule.logger.logInfo(
+      'Xin chào! Đây là tin nhắn thông tin bằng tiếng Việt. Ứng dụng đang hoạt động bình thường.',
+    );
+    MicroFrontendApp.profileModule.logger.logInfo(
+      'Người dùng: Nguyễn Văn An - Email: nguyen.van.an@example.com - Địa chỉ: Hà Nội, Việt Nam',
+    );
+  }
+
+  void _logVietnameseWarning() {
+    MicroFrontendApp.authModule.logger.logWarning(
+      message:
+          'Cảnh báo: Phiên đăng nhập sắp hết hạn. Vui lòng đăng nhập lại để tiếp tục sử dụng.',
+    );
+    MicroFrontendApp.paymentModule.logger.logWarning(
+      message:
+          'Thanh toán chậm hơn bình thường. Số tiền: 1.250.000 ₫ - Phương thức: Thẻ tín dụng Vietcombank.',
+    );
+  }
+
+  void _logVietnameseError() {
+    MicroFrontendApp.profileModule.logger.logError(
+      message:
+          'Lỗi: Không thể tải hồ sơ người dùng. Tên: Trần Thị Bích - Mã lỗi: ERR_PROFILE_404',
+      error: Exception(
+          'Không tìm thấy tài nguyên. Đặc biệt: àáâãèéêìíòóôõùúýăđơư'),
+      stackTrace: StackTrace.current,
+    );
+  }
+
+  void _logAllVietnamese() {
+    MicroFrontendApp.chatModule.logger.logInfo(
+      'Kết nối thành công đến máy chủ chat tại TP. Hồ Chí Minh.',
+    );
+    MicroFrontendApp.authModule.logger.logWarning(
+      message: 'Phát hiện đăng nhập từ thiết bị lạ: iPhone 15 Pro - Đà Nẵng.',
+    );
+    MicroFrontendApp.paymentModule.logger.logError(
+      message: 'Giao dịch thất bại: Số dư không đủ để thanh toán 500.000 ₫',
+      error: StateError('Lỗi cổng thanh toán: VNPAY không phản hồi'),
+      stackTrace: StackTrace.current,
+    );
+    MicroFrontendApp.profileModule.logger.logInfo(
+      'Cập nhật thông tin: Họ tên "Lê Thị Hương", SĐT "0901234567", Quận Bình Thạnh.',
+    );
   }
 
   @override

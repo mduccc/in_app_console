@@ -20,6 +20,12 @@ abstract class InAppConsoleInternal extends InAppConsole {
   ///
   List<InAppLoggerData> get history;
 
+  /// The distinct list of labels that have appeared in logs, in insertion order.
+  ///
+  /// Updated incrementally as new logs arrive. Cleared when [InAppConsole.clearLogs] is called.
+  ///
+  List<String> get labels;
+
   /// Get all registered extensions.
   ///
   /// Returns a list of all currently registered extensions.

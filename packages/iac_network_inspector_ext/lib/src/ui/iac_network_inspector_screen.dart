@@ -26,16 +26,24 @@ class _IacNetworkInspectorScreenState extends State<IacNetworkInspectorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Network Inspector'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Network Inspector',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+        ),
+        titleSpacing: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () {
-              setState(() {
-                widget.extension.clearHistory();
-              });
-            },
+            onPressed: () => setState(() => widget.extension.clearHistory()),
             tooltip: 'Clear History',
           ),
         ],
@@ -52,12 +60,25 @@ class _IacNetworkInspectorScreenState extends State<IacNetworkInspectorScreen> {
                 final filteredHistory = _filterHistory(history);
 
                 if (filteredHistory.isEmpty) {
-                  return const Center(
-                    child: Text('No network requests captured yet'),
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.wifi_off_outlined,
+                            size: 48, color: Colors.grey[300]),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No requests captured yet',
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[400]),
+                        ),
+                      ],
+                    ),
                   );
                 }
 
                 return ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: filteredHistory.length,
                   itemBuilder: (context, index) {
                     final networkData =
@@ -85,22 +106,32 @@ class _IacNetworkInspectorScreenState extends State<IacNetworkInspectorScreen> {
   }
 
   Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: Colors.white,
       child: TextField(
+        onChanged: (value) =>
+            setState(() => _searchQuery = value.toLowerCase()),
         decoration: InputDecoration(
           hintText: 'Search URL...',
-          prefixIcon: const Icon(Icons.search),
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 20),
+          filled: true,
+          fillColor: Colors.grey[50],
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey[200]!),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey[200]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey[400]!, width: 1.5),
+          ),
         ),
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value.toLowerCase();
-          });
-        },
       ),
     );
   }
@@ -111,47 +142,60 @@ class _IacNetworkInspectorScreenState extends State<IacNetworkInspectorScreen> {
     final allMethods =
         widget.extension.history.map((e) => e.request.method).toSet().toList();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    if (allTags.isEmpty && allMethods.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      color: Colors.white,
       child: Row(
         children: [
           if (allTags.isNotEmpty) ...[
-            const Text('Tag: '),
+            Text('Tag: ',
+                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
             DropdownButton<String?>(
               value: _selectedTag,
-              hint: const Text('All'),
+              hint: Text('All',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+              underline: const SizedBox.shrink(),
+              isDense: true,
+              dropdownColor: Colors.white,
               items: [
-                const DropdownMenuItem(value: null, child: Text('All')),
+                DropdownMenuItem(
+                    value: null,
+                    child: Text('All',
+                        style:
+                            TextStyle(fontSize: 13, color: Colors.grey[600]))),
                 ...allTags.map((tag) => DropdownMenuItem(
                       value: tag,
-                      child: Text(tag),
+                      child: Text(tag, style: const TextStyle(fontSize: 13)),
                     )),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedTag = value;
-                });
-              },
+              onChanged: (value) => setState(() => _selectedTag = value),
             ),
             const SizedBox(width: 16),
           ],
           if (allMethods.isNotEmpty) ...[
-            const Text('Method: '),
+            Text('Method: ',
+                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
             DropdownButton<String?>(
               value: _selectedMethod,
-              hint: const Text('All'),
+              hint: Text('All',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+              underline: const SizedBox.shrink(),
+              isDense: true,
+              dropdownColor: Colors.white,
               items: [
-                const DropdownMenuItem(value: null, child: Text('All')),
+                DropdownMenuItem(
+                    value: null,
+                    child: Text('All',
+                        style:
+                            TextStyle(fontSize: 13, color: Colors.grey[600]))),
                 ...allMethods.map((method) => DropdownMenuItem(
                       value: method,
-                      child: Text(method),
+                      child: Text(method, style: const TextStyle(fontSize: 13)),
                     )),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedMethod = value;
-                });
-              },
+              onChanged: (value) => setState(() => _selectedMethod = value),
             ),
           ],
         ],
