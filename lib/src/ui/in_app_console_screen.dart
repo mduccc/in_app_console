@@ -69,7 +69,7 @@ class InAppConsoleUtils {
   }
 
   /// Copy log data to clipboard with proper formatting.
-  static void copyLogToClipboard(BuildContext context, InAppLoggerData log) {
+  static void copyLogToClipboard(InAppLoggerData log) {
     final buffer = StringBuffer();
     buffer.writeln('[${getTypeLabel(log.type)}] ${log.timestamp}');
     if (log.label != null) {
@@ -85,9 +85,6 @@ class InAppConsoleUtils {
     }
 
     Clipboard.setData(ClipboardData(text: buffer.toString()));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Log copied to clipboard')),
-    );
   }
 
   /// Format timestamp in HH:mm:ss.SSS format.
@@ -239,7 +236,7 @@ class _InAppConsoleScreenState extends State<InAppConsoleScreen> {
   }
 
   void _copyLogToClipboard(InAppLoggerData log) {
-    InAppConsoleUtils.copyLogToClipboard(context, log);
+    InAppConsoleUtils.copyLogToClipboard(log);
   }
 
   void _showLogDetails(InAppLoggerData log) {
@@ -720,15 +717,43 @@ class _LogItem extends StatelessWidget {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: onCopy,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 2),
-                child: Icon(Icons.copy_outlined,
-                    size: 15, color: Colors.grey[350]),
-              ),
-            ),
+            _CopyButton(onCopy: onCopy),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CopyButton extends StatefulWidget {
+  final VoidCallback onCopy;
+
+  const _CopyButton({required this.onCopy});
+
+  @override
+  State<_CopyButton> createState() => _CopyButtonState();
+}
+
+class _CopyButtonState extends State<_CopyButton> {
+  bool _copied = false;
+
+  Future<void> _handleCopy() async {
+    widget.onCopy();
+    setState(() => _copied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _copied = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleCopy,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8, top: 2),
+        child: Icon(
+          _copied ? Icons.check : Icons.copy_outlined,
+          size: 15,
+          color: _copied ? Colors.green[600] : Colors.grey[350],
         ),
       ),
     );
