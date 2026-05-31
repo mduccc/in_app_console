@@ -12,10 +12,7 @@ import 'package:in_app_console/in_app_console.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  /// Enable the in app console for debugging purposes.
   InAppConsole.kEnableConsole = true;
-  // Initialize micro-frontend modules
   MicroFrontendApp.initialize();
   runApp(const MyApp());
 }
@@ -25,10 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'Micro-Frontend Console Demo',
+        title: 'In-App Console Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF111111)),
           useMaterial3: true,
+          scaffoldBackgroundColor: Colors.white,
         ),
         navigatorKey: MicroFrontendApp.navigatorKey,
         navigatorObservers: [MicroFrontendApp.routeTracker],
@@ -36,7 +34,6 @@ class MyApp extends StatelessWidget {
           final uri = Uri.parse(settings.name ?? '/');
           Widget? page;
           switch (uri.path) {
-            // Shop flow: /shop → /shop/category?… → /shop/product?…
             case '/shop':
               page = const _DemoScreen(
                 title: 'Shop',
@@ -64,8 +61,6 @@ class MyApp extends StatelessWidget {
               );
             case '/shop/product':
               page = const _DemoScreen(title: 'Product Detail');
-
-            // Profile flow: /profile → /profile/edit → /profile/change-password?…
             case '/profile':
               page = const _DemoScreen(
                 title: 'Profile',
@@ -94,8 +89,6 @@ class MyApp extends StatelessWidget {
               );
             case '/profile/change-password':
               page = const _DemoScreen(title: 'Change Password');
-
-            // Checkout flow: /checkout → /checkout/payment → /checkout/confirmation?…
             case '/checkout':
               page = const _DemoScreen(
                 title: 'Checkout',
@@ -128,8 +121,6 @@ class MyApp extends StatelessWidget {
               );
             case '/checkout/confirmation':
               page = const _DemoScreen(title: 'Order Confirmation');
-
-            // Settings flow: /settings → /settings/notifications?… → /settings/notifications/schedule
             case '/settings':
               page = const _DemoScreen(
                 title: 'Settings',
@@ -162,7 +153,7 @@ class MyApp extends StatelessWidget {
           if (page == null) return null;
           return MaterialPageRoute(
             builder: (_) => page!,
-            settings: settings, // preserve name (with query string) + arguments
+            settings: settings,
           );
         },
         home: const HomeScreen(),
@@ -189,35 +180,26 @@ class MicroFrontendApp {
   static late IacPerformanceOverlayExtension performanceOverlay;
 
   static void initialize() {
-    // Create route tracker
     routeTracker = IacRouteTrackerNavigationObserver();
-
-    // Create network inspector
     networkInspector = IacNetworkInspectorExt();
-
-    // Create performance overlay extension
     performanceOverlay = IacPerformanceOverlayExtension();
 
-    // Initialize all modules with their Dio instances
     authModule = AuthModule();
     paymentModule = PaymentModule();
     profileModule = ProfileModule();
     chatModule = ChatModule();
 
-    // Register all module loggers with the central console
     InAppConsole.instance.addLogger(authModule.logger);
     InAppConsole.instance.addLogger(paymentModule.logger);
     InAppConsole.instance.addLogger(profileModule.logger);
     InAppConsole.instance.addLogger(chatModule.logger);
 
-    // Register Dio instances with network inspector
     networkInspector.addDio(DioWrapper(dio: authModule.dio, tag: 'Auth API'));
     networkInspector
         .addDio(DioWrapper(dio: paymentModule.dio, tag: 'Payment API'));
     networkInspector
         .addDio(DioWrapper(dio: profileModule.dio, tag: 'Profile API'));
 
-    // Register extensions
     InAppConsole.instance.registerExtension(LogStatisticsExtension());
     InAppConsole.instance.registerExtension(InAppConsoleExportLogsExtension());
     InAppConsole.instance.registerExtension(networkInspector);
@@ -228,7 +210,7 @@ class MicroFrontendApp {
   }
 }
 
-/// Authentication Module - Handles user login/logout
+/// Authentication Module
 class AuthModule {
   final InAppLogger logger = InAppLogger()..setLabel('Auth');
   final Dio dio = Dio(BaseOptions(
@@ -244,16 +226,12 @@ class AuthModule {
 
   Future<bool> login(String username, String password) async {
     logger.logInfo('Login attempt for user: $username');
-
     try {
-      // Make actual API request
       final response = await dio.post(
         '/posts',
         data: {'username': username, 'password': password},
       );
-
       logger.logInfo('Auth API responded with status: ${response.statusCode}');
-
       if (username.isNotEmpty && password.length >= 6) {
         _isLoggedIn = true;
         _currentUser = username;
@@ -286,18 +264,15 @@ class AuthModule {
   Future<void> validateSession() async {
     logger.logInfo('Validating session...');
     try {
-      // Make GET request to validate session
       final response = await dio.get('/users/1');
       logger.logInfo('Session validation successful: ${response.statusCode}');
     } catch (e) {
-      logger.logWarning(
-        message: 'Session validation failed: $e',
-      );
+      logger.logWarning(message: 'Session validation failed: $e');
     }
   }
 }
 
-/// Payment Module - Handles payment processing
+/// Payment Module
 class PaymentModule {
   final InAppLogger logger = InAppLogger()..setLabel('Payment');
   final Dio dio = Dio(BaseOptions(
@@ -309,9 +284,7 @@ class PaymentModule {
   Future<bool> processPayment(double amount, String method) async {
     logger.logInfo(
         'Processing payment: \$${amount.toStringAsFixed(2)} via $method');
-
     try {
-      // Make payment API request
       final response = await dio.post(
         '/posts',
         data: {
@@ -322,10 +295,7 @@ class PaymentModule {
         },
         queryParameters: {'simulate_delay': Random().nextInt(3) + 1},
       );
-
       logger.logInfo('Payment API responded: ${response.statusCode}');
-
-      // Simulate random payment failures
       if (Random().nextBool()) {
         logger.logError(
           message: 'Payment failed: Gateway timeout',
@@ -334,14 +304,11 @@ class PaymentModule {
         );
         return false;
       }
-
-      // Simulate slow payment warnings
       if (Random().nextBool()) {
         logger.logWarning(
             message:
                 'Payment processing slower than usual (${Random().nextInt(3) + 2}s)');
       }
-
       logger.logInfo('Payment successful: \$${amount.toStringAsFixed(2)}');
       return true;
     } catch (e, stackTrace) {
@@ -357,7 +324,6 @@ class PaymentModule {
   Future<void> validatePaymentMethod(String method) async {
     logger.logInfo('Validating payment method: $method');
     try {
-      // Make validation request
       await dio.get('/posts/${Random().nextInt(100) + 1}');
       logger.logInfo('Payment method validated: $method');
     } catch (e, stackTrace) {
@@ -370,7 +336,7 @@ class PaymentModule {
   }
 }
 
-/// Profile Module - Handles user profile management
+/// Profile Module
 class ProfileModule {
   final InAppLogger logger = InAppLogger()..setLabel('Profile');
   final Dio dio = Dio(BaseOptions(
@@ -382,14 +348,8 @@ class ProfileModule {
 
   Future<void> updateProfile(Map<String, dynamic> data) async {
     logger.logInfo('Updating profile data: ${data.keys.join(', ')}');
-
     try {
-      // Make PUT request to update profile
-      final response = await dio.put(
-        '/users/1',
-        data: data,
-      );
-
+      final response = await dio.put('/users/1', data: data);
       logger.logInfo('Profile update API responded: ${response.statusCode}');
       _profileData.addAll(data);
       logger.logInfo('Profile updated successfully');
@@ -404,21 +364,11 @@ class ProfileModule {
 
   Future<void> uploadProfileImage() async {
     logger.logInfo('Starting profile image upload');
-
     try {
-      // Simulate multiple API calls for upload progress
       for (int i = 1; i <= 5; i++) {
-        await dio.post(
-          '/photos',
-          data: {
-            'progress': i * 20,
-            'chunk': i,
-            'total': 5,
-          },
-        );
+        await dio.post('/photos', data: {'progress': i * 20, 'chunk': i, 'total': 5});
         logger.logInfo('Upload progress: ${i * 20}%');
       }
-
       logger.logInfo('Profile image uploaded successfully');
     } catch (e, stackTrace) {
       logger.logError(
@@ -440,8 +390,6 @@ class ProfileModule {
         );
         return;
       }
-
-      // Make GET request to fetch profile
       final response = await dio.get('/users/$userId');
       logger.logInfo('Profile fetched: ${response.statusCode}');
     } catch (e, stackTrace) {
@@ -454,16 +402,14 @@ class ProfileModule {
   }
 }
 
-/// Chat Module - Handles messaging functionality
+/// Chat Module
 class ChatModule {
   final InAppLogger logger = InAppLogger()..setLabel('Chat');
   final List<String> _messages = [];
 
   Future<void> sendMessage(String message, String recipient) async {
     logger.logInfo('Sending message to $recipient');
-
     await Future.delayed(const Duration(milliseconds: 400));
-
     if (message.trim().isEmpty) {
       logger.logError(
         message: 'Cannot send empty message',
@@ -472,14 +418,12 @@ class ChatModule {
       );
       return;
     }
-
     _messages.add(message);
     logger.logInfo('Message sent successfully to $recipient');
   }
 
   void connectToChat() {
     logger.logInfo('Connecting to chat server');
-    // Simulate connection issues occasionally
     if (Random().nextInt(10) < 2) {
       logger.logWarning(message: 'Chat connection unstable - retrying...');
     } else {
@@ -492,6 +436,10 @@ class ChatModule {
     _messages.add('$from: $message');
   }
 }
+
+// ---------------------------------------------------------------------------
+// Home Screen
+// ---------------------------------------------------------------------------
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -508,7 +456,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Simulate app startup logs
     _simulateAppStartup();
   }
 
@@ -521,35 +468,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _simulateUserJourney() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _isLoading = true);
-      }
+      if (mounted) setState(() => _isLoading = true);
     });
-
     try {
-      // 1. Login
       await MicroFrontendApp.authModule.login('john_doe', 'password123');
-
-      // 2. Fetch profile
       MicroFrontendApp.profileModule.fetchProfile('john_doe');
-
-      // 3. Update profile
       await MicroFrontendApp.profileModule
           .updateProfile({'name': 'John Doe', 'email': 'john@example.com'});
-
-      // 4. Process payment
       await MicroFrontendApp.paymentModule.processPayment(29.99, 'Credit Card');
-
-      // 5. Send chat message
       await MicroFrontendApp.chatModule.sendMessage('Hello there!', 'support');
-
-      // 6. Upload profile image
       await MicroFrontendApp.profileModule.uploadProfileImage();
     } finally {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       });
     }
   }
@@ -557,337 +488,297 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Micro-Frontend Console Demo'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        titleSpacing: 20,
+        title: const Text(
+          'In-App Console',
+          style: TextStyle(
+            color: Color(0xFF111111),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.3,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            onPressed: () => InAppConsole.instance.openConsole(context),
-            tooltip: 'Open Console',
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: TextButton.icon(
+              onPressed: () => InAppConsole.instance.openConsole(context),
+              icon: const Icon(Icons.terminal_rounded, size: 15),
+              label: const Text('Console'),
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF111111),
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+            ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: const Color(0xFFF0F0F0), height: 1),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Icon(Icons.architecture, size: 48, color: Colors.blue),
-                    SizedBox(height: 8),
-                    Text(
-                      'Micro-Frontend Architecture Demo',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'This demo shows how multiple modules (Auth, Payment, Profile, Chat) log to a central console',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildRunDemoButton(),
+            const SizedBox(height: 32),
 
-            const SizedBox(height: 24),
-
-            // Quick Demo Button
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _simulateUserJourney,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.play_arrow),
-              label: Text(
-                  _isLoading ? 'Running Demo...' : 'Run Complete User Journey'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Module Actions
-            const Text(
-              'Individual Module Actions:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            // Auth Module
+            _buildSectionLabel('Modules'),
+            const SizedBox(height: 12),
             _buildModuleCard(
-              'Authentication Module',
-              Icons.security,
-              Colors.blue,
+              'Auth',
+              Icons.shield_outlined,
+              const Color(0xFF4A7CF6),
               [
-                ElevatedButton(
-                  onPressed: () =>
-                      MicroFrontendApp.authModule.login('testuser', 'pass123'),
-                  child: const Text('Simulate Login'),
-                ),
-                ElevatedButton(
-                  onPressed: () => MicroFrontendApp.authModule.logout(),
-                  child: const Text('Simulate Logout'),
-                ),
+                _ActionItem('Login',
+                    () => MicroFrontendApp.authModule.login('testuser', 'pass123')),
+                _ActionItem('Logout', MicroFrontendApp.authModule.logout),
               ],
             ),
-
-            // Payment Module
             _buildModuleCard(
-              'Payment Module',
-              Icons.payment,
-              Colors.green,
+              'Payment',
+              Icons.credit_card_outlined,
+              const Color(0xFF27AE60),
               [
-                ElevatedButton(
-                  onPressed: () => MicroFrontendApp.paymentModule
-                      .processPayment(
-                          Random().nextDouble() * 100 + 10,
-                          [
-                            'Credit Card',
-                            'PayPal',
-                            'Apple Pay'
-                          ][Random().nextInt(3)]),
-                  child: const Text('Process Payment'),
+                _ActionItem(
+                  'Process Payment',
+                  () => MicroFrontendApp.paymentModule.processPayment(
+                    Random().nextDouble() * 100 + 10,
+                    ['Credit Card', 'PayPal', 'Apple Pay'][Random().nextInt(3)],
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () => MicroFrontendApp.paymentModule
+                _ActionItem(
+                  'Validate',
+                  () => MicroFrontendApp.paymentModule
                       .validatePaymentMethod('Credit Card'),
-                  child: const Text('Validate Payment'),
                 ),
               ],
             ),
-
-            // Profile Module
             _buildModuleCard(
-              'Profile Module',
-              Icons.person,
-              Colors.orange,
+              'Profile',
+              Icons.person_outline_rounded,
+              const Color(0xFFE67E22),
               [
-                ElevatedButton(
-                  onPressed: () =>
-                      MicroFrontendApp.profileModule.updateProfile({
+                _ActionItem(
+                  'Update Profile',
+                  () => MicroFrontendApp.profileModule.updateProfile({
                     'name': 'User ${Random().nextInt(100)}',
                     'age': Random().nextInt(50) + 18,
                   }),
-                  child: const Text('Update Profile'),
                 ),
-                ElevatedButton(
-                  onPressed: () =>
-                      MicroFrontendApp.profileModule.uploadProfileImage(),
-                  child: const Text('Upload Image'),
+                _ActionItem(
+                  'Upload Image',
+                  MicroFrontendApp.profileModule.uploadProfileImage,
                 ),
               ],
             ),
-
-            // Chat Module
             _buildModuleCard(
-              'Chat Module',
-              Icons.chat,
-              Colors.purple,
+              'Chat',
+              Icons.chat_bubble_outline_rounded,
+              const Color(0xFF8E44AD),
               [
-                ElevatedButton(
-                  onPressed: () => MicroFrontendApp.chatModule.sendMessage(
+                _ActionItem(
+                  'Send Message',
+                  () => MicroFrontendApp.chatModule.sendMessage(
                       'Hello from user ${Random().nextInt(100)}!', 'support'),
-                  child: const Text('Send Message'),
                 ),
-                ElevatedButton(
-                  onPressed: () => MicroFrontendApp.chatModule.connectToChat(),
-                  child: const Text('Reconnect Chat'),
+                _ActionItem(
+                  'Reconnect',
+                  MicroFrontendApp.chatModule.connectToChat,
                 ),
               ],
             ),
 
-            // Vietnamese Log Test
+            const SizedBox(height: 32),
+
+            _buildSectionLabel('Network Inspector'),
+            const SizedBox(height: 12),
             _buildModuleCard(
-              'Kiểm thử tiếng Việt',
-              Icons.translate,
-              Colors.indigo,
+              'HTTP Requests',
+              Icons.network_check_rounded,
+              const Color(0xFF16A085),
               [
-                ElevatedButton(
-                  onPressed: _logVietnameseInfo,
-                  child: const Text('Log Info tiếng Việt'),
-                ),
-                ElevatedButton(
-                  onPressed: _logVietnameseWarning,
-                  child: const Text('Log Warning tiếng Việt'),
-                ),
-                ElevatedButton(
-                  onPressed: _logVietnameseError,
-                  child: const Text('Log Error tiếng Việt'),
-                ),
-                ElevatedButton(
-                  onPressed: _logAllVietnamese,
-                  child: const Text('Log tất cả cấp độ'),
-                ),
+                _ActionItem('GET', _makeGetRequest),
+                _ActionItem('POST', _makePostRequest),
+                _ActionItem('PUT', _makePutRequest),
+                _ActionItem('DELETE', _makeDeleteRequest),
+                _ActionItem('PATCH', _makePatchRequest),
+                _ActionItem('HEAD', _makeHeadRequest),
+                _ActionItem('OPTIONS', _makeOptionsRequest),
+                _ActionItem('Error', _makeErrorRequest, isDestructive: true),
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            // Network Inspector Demo Section
-            const Text(
-              'Network Inspector Demo:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            _buildModuleCard(
-              'HTTP Request Testing',
-              Icons.network_check,
-              Colors.teal,
-              [
-                ElevatedButton(
-                  onPressed: _makeGetRequest,
-                  child: const Text('GET Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makePostRequest,
-                  child: const Text('POST Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makePutRequest,
-                  child: const Text('PUT Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makeDeleteRequest,
-                  child: const Text('DELETE Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makePatchRequest,
-                  child: const Text('PATCH Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makeHeadRequest,
-                  child: const Text('HEAD Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makeOptionsRequest,
-                  child: const Text('OPTIONS Request'),
-                ),
-                ElevatedButton(
-                  onPressed: _makeErrorRequest,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade100,
-                  ),
-                  child: const Text('Simulate Error'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Route Tracker Demo Section
-            const Text(
-              'Route Tracker Demo:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
+            _buildSectionLabel('Route Tracker'),
+            const SizedBox(height: 12),
             _buildModuleCard(
               'Navigation',
-              Icons.route,
-              Colors.deepPurple,
+              Icons.route_rounded,
+              const Color(0xFF5C35CC),
               [
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/shop'),
-                  child: const Text('Go to Shop'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/profile'),
-                  child: const Text('Go to Profile'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/checkout'),
-                  child: const Text('Go to Checkout'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/settings'),
-                  child: const Text('Go to Settings'),
-                ),
+                _ActionItem(
+                    'Shop', () => Navigator.pushNamed(context, '/shop')),
+                _ActionItem(
+                    'Profile', () => Navigator.pushNamed(context, '/profile')),
+                _ActionItem('Checkout',
+                    () => Navigator.pushNamed(context, '/checkout')),
+                _ActionItem('Settings',
+                    () => Navigator.pushNamed(context, '/settings')),
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            // Console Button
-            Card(
-              color: Colors.red.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+            _buildSectionLabel('Localization Test'),
+            const SizedBox(height: 12),
+            _buildModuleCard(
+              'Kiểm thử tiếng Việt',
+              Icons.translate_rounded,
+              const Color(0xFF1565C0),
+              [
+                _ActionItem('Info', _logVietnameseInfo),
+                _ActionItem('Warning', _logVietnameseWarning),
+                _ActionItem('Error', _logVietnameseError),
+                _ActionItem('All Levels', _logAllVietnamese),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRunDemoButton() {
+    return GestureDetector(
+      onTap: _isLoading ? null : _simulateUserJourney,
+      child: AnimatedOpacity(
+        opacity: _isLoading ? 0.65 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        ),
+                      )
+                    : const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.bug_report, size: 32, color: Colors.red),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'View Unified Console',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'See logs from all modules in one place',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: () =>
-                          InAppConsole.instance.openConsole(context),
-                      icon: const Icon(Icons.visibility),
-                      label: const Text('Open In-App Console'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                    Text(
+                      _isLoading ? 'Running demo...' : 'Run User Journey',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
+                    ),
+                    const Text(
+                      'Auth → profile → payment → chat flow',
+                      style: TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  color: Colors.white30, size: 14),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label.toUpperCase(),
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF9E9E9E),
+        letterSpacing: 0.8,
       ),
     );
   }
 
   Widget _buildModuleCard(
-      String title, IconData icon, Color color, List<Widget> actions) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      String title, IconData icon, Color color, List<_ActionItem> actions) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF0F0F0), width: 1.5),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 24),
-                const SizedBox(width: 8),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: color, size: 17),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   title,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A1A),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: actions,
+              spacing: 6,
+              runSpacing: 6,
+              children: actions.map(_buildActionChip).toList(),
             ),
           ],
         ),
@@ -895,7 +786,40 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Network Inspector Demo Methods
+  Widget _buildActionChip(_ActionItem action) {
+    return GestureDetector(
+      onTap: action.onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: action.isDestructive
+              ? const Color(0xFFFFF5F5)
+              : const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: action.isDestructive
+                ? const Color(0xFFFFCDD2)
+                : const Color(0xFFEAEAEA),
+          ),
+        ),
+        child: Text(
+          action.label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: action.isDestructive
+                ? const Color(0xFFE53935)
+                : const Color(0xFF444444),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Network Inspector methods
+  // ---------------------------------------------------------------------------
+
   Future<void> _makeGetRequest() async {
     try {
       await MicroFrontendApp.authModule.dio.get(
@@ -908,12 +832,10 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('GET request sent - Check Network Inspector!')),
+              content: Text('GET request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makePostRequest() async {
@@ -929,12 +851,10 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('POST request sent - Check Network Inspector!')),
+              content: Text('POST request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makePutRequest() async {
@@ -950,41 +870,35 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('PUT request sent - Check Network Inspector!')),
+              content: Text('PUT request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makeDeleteRequest() async {
     try {
-      await MicroFrontendApp.authModule.dio.delete(
-        '/posts/${Random().nextInt(100) + 1}',
-      );
+      await MicroFrontendApp.authModule.dio
+          .delete('/posts/${Random().nextInt(100) + 1}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('DELETE request sent - Check Network Inspector!')),
+              content: Text('DELETE request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makeErrorRequest() async {
     try {
-      await MicroFrontendApp.authModule.dio.get(
-        '/this-endpoint-does-not-exist-404',
-      );
-    } catch (e) {
+      await MicroFrontendApp.authModule.dio
+          .get('/this-endpoint-does-not-exist-404');
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-                'Error request sent - Check Network Inspector for details!'),
+            content:
+                Text('Error request sent — check Network Inspector for details'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -1004,28 +918,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('PATCH request sent - Check Network Inspector!')),
+              content: Text('PATCH request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makeHeadRequest() async {
     try {
-      await MicroFrontendApp.authModule.dio.head(
-        '/users/${Random().nextInt(10) + 1}',
-      );
+      await MicroFrontendApp.authModule.dio
+          .head('/users/${Random().nextInt(10) + 1}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('HEAD request sent - Check Network Inspector!')),
+              content: Text('HEAD request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
 
   Future<void> _makeOptionsRequest() async {
@@ -1037,13 +946,15 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('OPTIONS request sent - Check Network Inspector!')),
+              content: Text('OPTIONS request sent — check Network Inspector')),
         );
       }
-    } catch (e) {
-      // Error will be captured by network inspector
-    }
+    } catch (_) {}
   }
+
+  // ---------------------------------------------------------------------------
+  // Vietnamese log methods
+  // ---------------------------------------------------------------------------
 
   void _logVietnameseInfo() {
     MicroFrontendApp.chatModule.logger.logInfo(
@@ -1101,6 +1012,17 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // ---------------------------------------------------------------------------
+// Action item model for module cards
+// ---------------------------------------------------------------------------
+
+class _ActionItem {
+  const _ActionItem(this.label, this.onTap, {this.isDestructive = false});
+  final String label;
+  final VoidCallback onTap;
+  final bool isDestructive;
+}
+
+// ---------------------------------------------------------------------------
 // Route Tracker demo screens
 // ---------------------------------------------------------------------------
 
@@ -1112,7 +1034,6 @@ class _ChildRouteConfig {
   });
 
   final String label;
-  // Full route string including query params, e.g. '/profile/change-password?userId=user_123&requireOtp=true'
   final String route;
   final Map<String, Object> payload;
 }
@@ -1130,66 +1051,105 @@ class _DemoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final routeName = ModalRoute.of(context)?.settings.name ?? '';
     final uri = Uri.parse(routeName);
-    final queryParams = uri.queryParameters; // parsed from the route URL
+    final queryParams = uri.queryParameters;
     final payload =
         ModalRoute.of(context)?.settings.arguments as Map<String, Object>? ??
             {};
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Color(0xFF111111),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF111111)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: const Color(0xFFF0F0F0), height: 1),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Route info card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      routeName,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAFAFA),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFF0F0F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    routeName,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
+                      fontFamily: 'monospace',
                     ),
-                    if (queryParams.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      const Text('Query Params',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, color: Colors.blue)),
-                      const SizedBox(height: 4),
-                      ...queryParams.entries.map(
-                        (e) => Text(
-                          '  ${e.key}: ${e.value}',
-                          style: const TextStyle(fontFamily: 'monospace'),
+                  ),
+                  if (queryParams.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'QUERY PARAMS',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF4A7CF6),
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    ...queryParams.entries.map(
+                      (e) => Text(
+                        '${e.key}: ${e.value}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontFamily: 'monospace',
+                          color: Color(0xFF555555),
                         ),
                       ),
-                    ],
-                    if (payload.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      const Text('Payload',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green)),
-                      const SizedBox(height: 4),
-                      ...payload.entries.map(
-                        (e) => Text(
-                          '  ${e.key}: ${e.value}',
-                          style: const TextStyle(fontFamily: 'monospace'),
-                        ),
-                      ),
-                    ],
+                    ),
                   ],
-                ),
+                  if (payload.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'PAYLOAD',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF27AE60),
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    ...payload.entries.map(
+                      (e) => Text(
+                        '${e.key}: ${e.value}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontFamily: 'monospace',
+                          color: Color(0xFF555555),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             const SizedBox(height: 16),
-            // Child navigation buttons
             ...childRoutes.map(
               (r) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -1199,18 +1159,34 @@ class _DemoScreen extends StatelessWidget {
                     r.route,
                     arguments: r.payload.isEmpty ? null : r.payload,
                   ),
-                  icon: const Icon(Icons.arrow_forward),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                   label: Text(r.label),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF111111),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    textStyle: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ),
             ),
-            if (childRoutes.isNotEmpty) const SizedBox(height: 4),
             ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back_rounded, size: 16),
               label: const Text('Go Back'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200),
+                backgroundColor: const Color(0xFFF5F5F5),
+                foregroundColor: const Color(0xFF444444),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                textStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                elevation: 0,
+              ),
             ),
           ],
         ),
