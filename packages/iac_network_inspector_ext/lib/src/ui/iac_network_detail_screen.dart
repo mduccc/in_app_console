@@ -48,7 +48,7 @@ class _IacNetworkDetailScreenState extends State<IacNetworkDetailScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(_copied ? Icons.check : Icons.code,
+            icon: Icon(_copied ? Icons.check : Icons.copy,
                 color: _copied ? Colors.green[600] : null),
             onPressed: _copyAsCurl,
             tooltip: 'Copy as CURL',

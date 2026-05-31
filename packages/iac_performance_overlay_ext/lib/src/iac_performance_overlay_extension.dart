@@ -39,7 +39,7 @@ class IacPerformanceOverlayExtension extends InAppConsoleExtension {
   String get name => 'Performance Overlay';
 
   @override
-  String get version => '1.0.1';
+  String get version => '1.1.0';
 
   @override
   String get description => 'Real-time FPS, CPU, and memory overlay';

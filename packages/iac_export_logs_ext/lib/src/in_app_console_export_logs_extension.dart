@@ -33,7 +33,7 @@ class InAppConsoleExportLogsExtension extends InAppConsoleExtension {
   String get name => 'Export Logs';
 
   @override
-  String get version => '2.0.2';
+  String get version => '2.1.0';
 
   @override
   String get description => 'Extension to export log history to a file';

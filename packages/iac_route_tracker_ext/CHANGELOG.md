@@ -1,4 +1,4 @@
-## 2.0.2
+## 2.1.0
 
 * Added copy-to-clipboard for current stack and navigation history
 * UI redesign
