@@ -1,3 +1,8 @@
+## 2.1.0
+
+* Added copy-to-clipboard for current stack and navigation history
+* UI redesign
+
 ## 2.0.1
 
 * Bump patch version.

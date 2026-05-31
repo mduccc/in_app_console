@@ -29,3 +29,4 @@ migrate_working_dir/
 build/
 pubspec.lock
 CLAUDE.md
+.flutter-plugins-dependencies

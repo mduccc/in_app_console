@@ -1,3 +1,7 @@
+## 2.1.0
+
+* UI redesign
+
 ## 2.0.1
 
 * Bump patch version.

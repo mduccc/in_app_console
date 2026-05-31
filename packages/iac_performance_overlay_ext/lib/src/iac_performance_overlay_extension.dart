@@ -39,7 +39,7 @@ class IacPerformanceOverlayExtension extends InAppConsoleExtension {
   String get name => 'Performance Overlay';
 
   @override
-  String get version => '1.0.0';
+  String get version => '1.1.0';
 
   @override
   String get description => 'Real-time FPS, CPU, and memory overlay';
@@ -103,6 +103,12 @@ class _PerformancePanel extends StatelessWidget {
       builder: (context, snapshot) {
         final data = snapshot.data ?? IacPerformanceData.zero;
         return Card(
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey[200]!),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -181,7 +187,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.speed, color: Colors.deepPurple, size: 28),
+        const Icon(Icons.speed, color: Colors.blue, size: 28),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -215,7 +221,7 @@ class _Header extends StatelessWidget {
               Switch(
                 value: enabled,
                 onChanged: (_) => onToggle(),
-                activeThumbColor: Colors.deepPurple,
+                activeThumbColor: Colors.blue,
               ),
             ],
           ),

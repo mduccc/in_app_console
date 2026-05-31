@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'iac_route_tracker_navigation_observer.dart';
 
@@ -17,6 +18,8 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
   late List<IacRouteStackEntry> _routeStack;
   late List<IacRouteHistoryEntry> _routeHistory;
   late StreamSubscription<void> _subscription;
+  bool _historyCopied = false;
+  bool _stackCopied = false;
 
   @override
   void initState() {
@@ -39,9 +42,51 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
     super.dispose();
   }
 
+  Future<void> _copyStack() async {
+    if (_routeStack.isEmpty) return;
+    final buffer = StringBuffer();
+    for (var i = _routeStack.length - 1; i >= 0; i--) {
+      final entry = _routeStack[i];
+      final label = i == _routeStack.length - 1 ? ' [TOP]' : '';
+      buffer.writeln(
+          '[$i]$label  ${entry.routeName.isEmpty ? '(no name)' : entry.routeName}');
+      if (entry.payload != null) buffer.writeln('  payload: ${entry.payload}');
+    }
+    await Clipboard.setData(ClipboardData(text: buffer.toString()));
+    if (!mounted) return;
+    setState(() => _stackCopied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _stackCopied = false);
+  }
+
+  Future<void> _copyHistory() async {
+    if (_routeHistory.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final entry in _routeHistory) {
+      final t = entry.timestamp;
+      final time =
+          '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:${t.second.toString().padLeft(2, '0')}';
+      final action = entry.isPush ? 'PUSH' : 'POP';
+      buffer.writeln(
+          '[$time] $action  ${entry.routeName.isEmpty ? '(no name)' : entry.routeName}');
+      if (entry.payload != null) buffer.writeln('  payload: ${entry.payload}');
+    }
+    await Clipboard.setData(ClipboardData(text: buffer.toString()));
+    if (!mounted) return;
+    setState(() => _historyCopied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _historyCopied = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -49,7 +94,24 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
           children: [
             const _Header(),
             const Divider(height: 24),
-            _SectionHeader(title: 'Current Stack', count: _routeStack.length),
+            Row(
+              children: [
+                Expanded(
+                  child: _SectionHeader(
+                      title: 'Current Stack', count: _routeStack.length),
+                ),
+                if (_routeStack.isNotEmpty)
+                  GestureDetector(
+                    onTap: _copyStack,
+                    child: Icon(
+                      _stackCopied ? Icons.check : Icons.copy_outlined,
+                      size: 15,
+                      color:
+                          _stackCopied ? Colors.green[600] : Colors.grey[400],
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
             if (_routeStack.isEmpty)
               const _EmptyState(message: 'Stack is empty')
@@ -62,7 +124,24 @@ class _IacRouteTrackerWidgetState extends State<IacRouteTrackerWidget> {
                     ),
                   ),
             const Divider(height: 24),
-            _SectionHeader(title: 'History', count: _routeHistory.length),
+            Row(
+              children: [
+                Expanded(
+                  child: _SectionHeader(
+                      title: 'History', count: _routeHistory.length),
+                ),
+                if (_routeHistory.isNotEmpty)
+                  GestureDetector(
+                    onTap: _copyHistory,
+                    child: Icon(
+                      _historyCopied ? Icons.check : Icons.copy_outlined,
+                      size: 15,
+                      color:
+                          _historyCopied ? Colors.green[600] : Colors.grey[400],
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
             if (_routeHistory.isEmpty)
               const _EmptyState(message: 'No navigation events yet')
@@ -84,7 +163,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.route, color: Colors.deepPurple, size: 28),
+        const Icon(Icons.route, color: Colors.black87, size: 28),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +250,7 @@ class _StackEntry extends StatelessWidget {
                 height: 22,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isTop ? Colors.deepPurple : Colors.grey[200],
+                  color: isTop ? Colors.black87 : Colors.grey[200],
                   shape: BoxShape.circle,
                 ),
                 child: Text(
@@ -201,7 +280,7 @@ class _StackEntry extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.deepPurple.withValues(alpha: 0.1),
+                    color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -209,7 +288,7 @@ class _StackEntry extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
+                      color: Colors.black87,
                     ),
                   ),
                 ),
@@ -249,7 +328,7 @@ class _HistoryEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPush = entry.isPush;
-    final color = isPush ? Colors.green[700]! : Colors.orange[700]!;
+    final color = isPush ? Colors.blue[600]! : Colors.red[400]!;
     final icon = isPush ? Icons.arrow_upward : Icons.arrow_downward;
     final label = isPush ? 'PUSH' : 'POP';
     final t = entry.timestamp;
@@ -288,7 +367,11 @@ class _HistoryEntry extends StatelessWidget {
                   isNameEmpty ? '(no name)' : entry.routeName,
                   style: TextStyle(
                     fontSize: 13,
-                    color: isNameEmpty ? Colors.grey[400] : null,
+                    color: isNameEmpty
+                        ? Colors.grey[400]
+                        : isPush
+                            ? Colors.blue[600]
+                            : Colors.red[400],
                     fontStyle:
                         isNameEmpty ? FontStyle.italic : FontStyle.normal,
                   ),

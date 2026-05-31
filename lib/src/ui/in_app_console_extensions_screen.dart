@@ -21,13 +21,25 @@ class _InAppConsoleExtensionsScreenState
     final extensions = _console.getExtensions();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Extensions'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Extensions',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+        ),
         titleSpacing: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Colors.grey[200]),
+        ),
       ),
       body: extensions.isEmpty
           ? const _EmptyState()
           : ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: extensions.length,
               itemBuilder: (context, index) {
                 final extension = extensions[index];
@@ -48,8 +60,11 @@ class _InAppConsoleExtensionsScreenState
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      backgroundColor: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        side: BorderSide(color: Colors.grey[200]!, width: 1),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.85,
@@ -76,27 +91,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.extension_off,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
+          Icon(Icons.extension_off_outlined, size: 48, color: Colors.grey[300]),
+          const SizedBox(height: 12),
           Text(
-            'No Extensions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'No extensions are currently registered',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
+            'No extensions registered',
+            style: TextStyle(fontSize: 15, color: Colors.grey[400]),
           ),
         ],
       ),
@@ -119,74 +118,51 @@ class _ExtensionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasDescription = extension.description.isNotEmpty;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Extension icon
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: Center(
-                  child: SizedBox(width: 28, height: 28, child: extension.icon),
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Extension info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      extension.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'v${extension.version}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    if (hasDescription) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        extension.description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
-                          fontStyle: FontStyle.italic,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Arrow icon
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-              ),
-            ],
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey[100]!, width: 1),
           ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Center(
+                child: SizedBox(width: 22, height: 22, child: extension.icon),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    extension.name,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    hasDescription ? extension.description : '--',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey[300], size: 18),
+          ],
         ),
       ),
     );
@@ -205,37 +181,37 @@ class _ExtensionDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 18, right: 18, top: 18),
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       child: SingleChildScrollView(
         controller: scrollController,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
             Center(
               child: Container(
                 width: 40,
                 height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-
-            // Extension icon and title
+            const SizedBox(height: 16),
             Row(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                      color: Colors.white, shape: BoxShape.circle),
-                  child: Center(
-                    child: extension.icon,
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey[200]!),
                   ),
+                  child: Center(child: extension.icon),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,49 +219,32 @@ class _ExtensionDetails extends StatelessWidget {
                       Text(
                         extension.name,
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 17, fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 4),
                       Text(
-                        'Version ${extension.version}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        'v${extension.version}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[400]),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-
-            // Extension ID
+            const SizedBox(height: 20),
+            Divider(height: 1, color: Colors.grey[200]),
+            const SizedBox(height: 20),
             _DetailRow(
-              label: 'ID',
-              value: extension.id,
-              icon: Icons.fingerprint,
-            ),
-
-            const SizedBox(height: 16),
-
-            // Extension description
+                label: 'ID', value: extension.id, icon: Icons.fingerprint),
             if (extension.description.isNotEmpty) ...[
-              _DetailRow(
-                label: 'Description',
-                value: extension.description,
-                icon: Icons.description,
-              ),
               const SizedBox(height: 16),
+              _DetailRow(
+                  label: 'Description',
+                  value: extension.description,
+                  icon: Icons.description_outlined),
             ],
-
-            // Extension widget
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
+            Divider(height: 1, color: Colors.grey[200]),
+            const SizedBox(height: 16),
             extension.buildWidget(context),
           ],
         ),
@@ -310,32 +269,25 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Colors.grey[600],
-        ),
-        const SizedBox(width: 12),
+        Icon(icon, size: 16, color: Colors.grey[400]),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                label,
+                label.toUpperCase(),
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
-                  letterSpacing: 0.5,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[400],
+                  letterSpacing: 0.6,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
               ),
             ],
           ),

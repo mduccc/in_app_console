@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:in_app_console/in_app_console.dart';
@@ -43,6 +44,9 @@ class InAppConsoleImpl implements InAppConsoleInternal {
   ///
   final List<InAppLoggerData> _history = [];
 
+  /// Distinct labels seen so far, in insertion order.
+  final LinkedHashSet<String> _labels = LinkedHashSet();
+
   /// The map of registered extensions with their ID.
   ///
   /// This map is used to store the registered extensions with their ID.
@@ -62,6 +66,9 @@ class InAppConsoleImpl implements InAppConsoleInternal {
 
   @override
   List<InAppLoggerData> get history => _history;
+
+  @override
+  List<String> get labels => _labels.toList();
 
   /// If the in app logger is already registered, it will not be registered again.
   ///
@@ -85,6 +92,7 @@ class InAppConsoleImpl implements InAppConsoleInternal {
 
       _streamController.add(data);
       _history.add(data);
+      if (data.label != null) _labels.add(data.label!);
 
       // Log to the console of the IDE
       _logToConsole(data);
@@ -138,6 +146,7 @@ class InAppConsoleImpl implements InAppConsoleInternal {
   @override
   void clearLogs() {
     _history.clear();
+    _labels.clear();
   }
 
   /// Register an extension with the console.

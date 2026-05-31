@@ -64,13 +64,13 @@ In-app console for real-time log viewing. Bridges developers and testers with un
 
 ## Screenshots
 
-<img src="https://github.com/mduccc/in_app_console/blob/main/screenshots/list.png?raw=true" alt="Log List" width="30%"/> <img src="https://github.com/mduccc/in_app_console/blob/2.0.1/screenshots/detail.png?raw=true)" alt="Log Detail" width="30%"/><img src="https://raw.githubusercontent.com/mduccc/in_app_console/b6d62688ed59eb5dc25a4d7ceb85fe1c70e7fe03/screenshots/extension_list.png" alt="Extensions List" width="30%"/>
+<img src="https://raw.githubusercontent.com/mduccc/in_app_console/fd305f4687f6ca2033e940e2359556061eaed384/screenshots/list.png" alt="Log List" width="30%"/> <img src="https://raw.githubusercontent.com/mduccc/in_app_console/fd305f4687f6ca2033e940e2359556061eaed384/screenshots/detail.png" alt="Log Detail" width="30%"/><img src="https://raw.githubusercontent.com/mduccc/in_app_console/fd305f4687f6ca2033e940e2359556061eaed384/screenshots/extension_list.png" alt="Extensions List" width="30%"/>
 ## Usage
 
 ### 1. Add dependency
 ```yaml
 dependencies:
-  in_app_console: ^3.0.1
+  in_app_console: ^3.1.0
 ```
 
 ### 2. Import the package
@@ -108,6 +108,8 @@ logger.logError(
   stackTrace: stackTrace,
 );
 ```
+
+Labels appear in the filter sheet for per-module filtering.
 
 ### 5. Show console screen
 ```dart

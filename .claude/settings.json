@@ -9,7 +9,9 @@
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console commit -m ' *)",
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console stash list)",
       "Bash(git -C /Users/ducnm79/Documents/opensource/in_app_console diff --cached --stat)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(gh pr edit 1 --body ' *)",
+      "Bash(gh pr *)"
     ]
   }
 }

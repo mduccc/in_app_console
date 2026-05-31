@@ -1,3 +1,8 @@
+## 2.1.0
+
+* Exported files are now written as UTF-8 with BOM
+* UI redesign
+
 ## 2.0.1
 
 * Bump patch version.

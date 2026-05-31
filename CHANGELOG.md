@@ -1,3 +1,10 @@
+## 3.1.0
+
+* Added label filter — filter logs by module label via the filter sheet
+* Filter sheet replaces inline filter chips; badge shows active filter count
+* Added `labels` getter to `InAppConsoleInternal`
+* UI redesign across console, detail, and extensions screens
+
 ## 3.0.1
 * Added `iac_performance_overlay_ext` to official extensions list in README
 

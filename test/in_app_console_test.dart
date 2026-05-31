@@ -406,6 +406,96 @@ void main() {
         expect(console.history[1].type, equals(InAppLoggerType.error));
       });
     });
+
+    group('WHEN managing labels', () {
+      test('THEN should start with empty labels', () {
+        expect(console.labels, isEmpty);
+      });
+
+      test('THEN should collect labels in insertion order', () async {
+        final authLogger = InAppLogger()..setLabel('AUTH');
+        final paymentLogger = InAppLogger()..setLabel('PAYMENT');
+
+        console.addLogger(authLogger);
+        console.addLogger(paymentLogger);
+
+        authLogger.logInfo('auth message');
+        paymentLogger.logInfo('payment message');
+
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        expect(console.labels, equals(['AUTH', 'PAYMENT']));
+      });
+
+      test('THEN should deduplicate repeated labels', () async {
+        final logger = InAppLogger()..setLabel('AUTH');
+        console.addLogger(logger);
+
+        logger.logInfo('first');
+        logger.logInfo('second');
+        logger.logWarning(message: 'third');
+
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        expect(console.labels, equals(['AUTH']));
+      });
+
+      test('THEN should ignore logs without a label', () async {
+        final logger = InAppLogger();
+        console.addLogger(logger);
+
+        logger.logInfo('unlabeled message');
+
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        expect(console.labels, isEmpty);
+      });
+
+      test('THEN should clear labels when clearLogs is called', () async {
+        final logger = InAppLogger()..setLabel('AUTH');
+        console.addLogger(logger);
+
+        logger.logInfo('message');
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(console.labels, equals(['AUTH']));
+
+        console.clearLogs();
+
+        expect(console.labels, isEmpty);
+      });
+
+      test('THEN should not collect labels when kEnableConsole is false',
+          () async {
+        InAppConsole.kEnableConsole = false;
+        final logger = InAppLogger()..setLabel('AUTH');
+        console.addLogger(logger);
+
+        logger.logInfo('message');
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        expect(console.labels, isEmpty);
+
+        InAppConsole.kEnableConsole = true;
+      });
+
+      test(
+          'THEN should only collect labels from labeled logs when mixed with unlabeled',
+          () async {
+        final labeledLogger = InAppLogger()..setLabel('USER');
+        final unlabeledLogger = InAppLogger();
+
+        console.addLogger(labeledLogger);
+        console.addLogger(unlabeledLogger);
+
+        unlabeledLogger.logInfo('no label');
+        labeledLogger.logInfo('labeled');
+        unlabeledLogger.logWarning(message: 'still no label');
+
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        expect(console.labels, equals(['USER']));
+      });
+    });
   });
 
   group('InAppConsoleUtils', () {
